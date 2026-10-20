@@ -1,0 +1,1195 @@
+{
+	"version": 7,
+	"countries": [
+		{
+			"id": "ABY",
+			"name": "Ethiopian Empire",
+			"color": "#7a5ea8"
+		},
+		{
+			"id": "ACE",
+			"name": "Sultanate of Aceh",
+			"color": "#4a8a6a"
+		},
+		{
+			"id": "AHM",
+			"name": "Ahmadnagar Sultanate",
+			"color": "#b8864a"
+		},
+		{
+			"id": "AHO",
+			"name": "Ahom Kingdom",
+			"color": "#38761d"
+		},
+		{
+			"id": "AIR",
+			"name": "Sultanate of Aïr",
+			"color": "#6fa8dc"
+		},
+		{
+			"id": "AJU",
+			"name": "Ajuran Sultanate",
+			"color": "#8a7a30"
+		},
+		{
+			"id": "AKT",
+			"name": "Andō Clan",
+			"color": "#a9d39a"
+		},
+		{
+			"id": "ALD",
+			"name": "Allada",
+			"color": "#7b9ad0"
+		},
+		{
+			"id": "ANH",
+			"name": "Principality of Anhalt",
+			"color": "#e5c04a"
+		},
+		{
+			"id": "ANS",
+			"name": "Brandenburg-Ansbach",
+			"color": "#6aa84f"
+		},
+		{
+			"id": "ARK",
+			"name": "Kingdom of Mrauk U",
+			"color": "#3d85c6"
+		},
+		{
+			"id": "AUA",
+			"name": "Imamate of Aussa",
+			"color": "#b6d7a8"
+		},
+		{
+			"id": "AUS",
+			"name": "Habsburg Austria",
+			"color": "#ece7dc"
+		},
+		{
+			"id": "AYU",
+			"name": "Ayutthaya",
+			"color": "#6a9fd2"
+		},
+		{
+			"id": "BAB",
+			"name": "Prince-Bishopric of Bamberg",
+			"color": "#b86a8a"
+		},
+		{
+			"id": "BAD",
+			"name": "Margraviate of Baden",
+			"color": "#45818e"
+		},
+		{
+			"id": "BAG",
+			"name": "Baguirmi",
+			"color": "#b45f06"
+		},
+		{
+			"id": "BAN",
+			"name": "Sultanate of Banten",
+			"color": "#d5a6bd"
+		},
+		{
+			"id": "BAO",
+			"name": "Baol",
+			"color": "#7a6aa8"
+		},
+		{
+			"id": "BAV",
+			"name": "Duchy of Bavaria",
+			"color": "#6aa4d8"
+		},
+		{
+			"id": "BEN",
+			"name": "Kingdom of Benin",
+			"color": "#7b9ad0"
+		},
+		{
+			"id": "BHT",
+			"name": "Bhati (Bara-Bhuiyans)",
+			"color": "#f6b26b"
+		},
+		{
+			"id": "BID",
+			"name": "Bidar Sultanate",
+			"color": "#6aa84f"
+		},
+		{
+			"id": "BIJ",
+			"name": "Bijapur Sultanate",
+			"color": "#6a8ac0"
+		},
+		{
+			"id": "BJM",
+			"name": "Banjarmasin",
+			"color": "#8e7cc3"
+		},
+		{
+			"id": "BLA",
+			"name": "Blambangan",
+			"color": "#8a7a30"
+		},
+		{
+			"id": "BLT",
+			"name": "Baltistan",
+			"color": "#e06666"
+		},
+		{
+			"id": "BMM",
+			"name": "Bamum",
+			"color": "#9a5a3a"
+		},
+		{
+			"id": "BNE",
+			"name": "Kingdom of Bone",
+			"color": "#5a9a8a"
+		},
+		{
+			"id": "BNY",
+			"name": "Bunyoro-Kitara",
+			"color": "#8a7a30"
+		},
+		{
+			"id": "BON",
+			"name": "Bono",
+			"color": "#76a5af"
+		},
+		{
+			"id": "BOR",
+			"name": "Kanem–Bornu",
+			"color": "#8c6a3a"
+		},
+		{
+			"id": "BRA",
+			"name": "Electorate of Brandenburg",
+			"color": "#6a6a8a"
+		},
+		{
+			"id": "BRG",
+			"name": "Borgu",
+			"color": "#9fc5e8"
+		},
+		{
+			"id": "BRM",
+			"name": "Prince-Archbishopric of Bremen",
+			"color": "#7a6aa8"
+		},
+		{
+			"id": "BRN",
+			"name": "Bruneian Sultanate",
+			"color": "#7a6aa8"
+		},
+		{
+			"id": "BRW",
+			"name": "Duchy of Brunswick-Wolfenbüttel",
+			"color": "#e5c04a"
+		},
+		{
+			"id": "BST",
+			"name": "Kingdom of Bastar",
+			"color": "#38761d"
+		},
+		{
+			"id": "BUG",
+			"name": "Buganda",
+			"color": "#b4a7d6"
+		},
+		{
+			"id": "BUK",
+			"name": "Khanate of Bukhara",
+			"color": "#5a86c8"
+		},
+		{
+			"id": "CAM",
+			"name": "Kingdom of Cambodia",
+			"color": "#bf9000"
+		},
+		{
+			"id": "CAY",
+			"name": "Cayor",
+			"color": "#9fc5e8"
+		},
+		{
+			"id": "CHA",
+			"name": "Champa",
+			"color": "#6fa8dc"
+		},
+		{
+			"id": "CHK",
+			"name": "Chakhar Mongols",
+			"color": "#9fc5e8"
+		},
+		{
+			"id": "CHO",
+			"name": "Chōsokabe Clan",
+			"color": "#6aa84f"
+		},
+		{
+			"id": "CIR",
+			"name": "Sultanate of Cirebon",
+			"color": "#5a9a8a"
+		},
+		{
+			"id": "CLT",
+			"name": "Zamorin of Calicut",
+			"color": "#bf9000"
+		},
+		{
+			"id": "COC",
+			"name": "Kingdom of Cochin",
+			"color": "#93c47d"
+		},
+		{
+			"id": "CRI",
+			"name": "Crimean Khanate",
+			"color": "#9ab36a"
+		},
+		{
+			"id": "CRL",
+			"name": "Duchy of Courland",
+			"color": "#38761d"
+		},
+		{
+			"id": "DAI",
+			"name": "Đại Việt (Lê–Trịnh)",
+			"color": "#c8584a"
+		},
+		{
+			"id": "DEN",
+			"name": "Denmark–Norway",
+			"color": "#b8423f"
+		},
+		{
+			"id": "DGB",
+			"name": "Dagbon",
+			"color": "#b45f06"
+		},
+		{
+			"id": "DGS",
+			"name": "Shamkhalate of Tarki",
+			"color": "#b4a7d6"
+		},
+		{
+			"id": "DRF",
+			"name": "Tunjur Sultanate",
+			"color": "#b8705a"
+		},
+		{
+			"id": "DTE",
+			"name": "Date Clan",
+			"color": "#615c59"
+		},
+		{
+			"id": "EFR",
+			"name": "County of East Frisia",
+			"color": "#76a5af"
+		},
+		{
+			"id": "ENG",
+			"name": "Kingdom of England",
+			"color": "#c1272d"
+		},
+		{
+			"id": "FEZ",
+			"name": "Fezzan",
+			"color": "#8e7cc3"
+		},
+		{
+			"id": "FRA",
+			"name": "Kingdom of France",
+			"color": "#2a52be"
+		},
+		{
+			"id": "FUN",
+			"name": "Funj Sultanate",
+			"color": "#7a8a4a"
+		},
+		{
+			"id": "FUT",
+			"name": "Futa Toro",
+			"color": "#b6d7a8"
+		},
+		{
+			"id": "GEL",
+			"name": "Gelgel (Bali)",
+			"color": "#9a5a3a"
+		},
+		{
+			"id": "GEN",
+			"name": "Republic of Genoa",
+			"color": "#b8574a"
+		},
+		{
+			"id": "GND",
+			"name": "Gond Kingdoms",
+			"color": "#9fc5e8"
+		},
+		{
+			"id": "GNG",
+			"name": "Gingee Nayaks",
+			"color": "#7a6aa8"
+		},
+		{
+			"id": "GOB",
+			"name": "Gobir",
+			"color": "#f6b26b"
+		},
+		{
+			"id": "GOL",
+			"name": "Golconda Sultanate",
+			"color": "#c06a6a"
+		},
+		{
+			"id": "GOR",
+			"name": "Gorkha Kingdom",
+			"color": "#3d85c6"
+		},
+		{
+			"id": "GOW",
+			"name": "Sultanate of Gowa",
+			"color": "#dd7e6b"
+		},
+		{
+			"id": "GRW",
+			"name": "Garhwal Kingdom",
+			"color": "#b45f06"
+		},
+		{
+			"id": "HAI",
+			"name": "Haixi Jurchens",
+			"color": "#a64d79"
+		},
+		{
+			"id": "HAR",
+			"name": "Emirate of Harar",
+			"color": "#bf9000"
+		},
+		{
+			"id": "HES",
+			"name": "Landgraviate of Hesse",
+			"color": "#9a5a3a"
+		},
+		{
+			"id": "HJZ",
+			"name": "Sharifate of Mecca",
+			"color": "#b4a7d6"
+		},
+		{
+			"id": "HOJ",
+			"name": "Late Hōjō Clan",
+			"color": "#d4a838"
+		},
+		{
+			"id": "IGA",
+			"name": "Igala",
+			"color": "#b45f06"
+		},
+		{
+			"id": "IME",
+			"name": "Kingdom of Imereti",
+			"color": "#8e7cc3"
+		},
+		{
+			"id": "ITZ",
+			"name": "Itza Kingdom",
+			"color": "#3d85c6"
+		},
+		{
+			"id": "IWK",
+			"name": "Iwaki Clan",
+			"color": "#e4dcc0"
+		},
+		{
+			"id": "JAF",
+			"name": "Jaffna Kingdom",
+			"color": "#bf9000"
+		},
+		{
+			"id": "JAP",
+			"name": "Japan (Toyotomi)",
+			"color": "#c94a4a"
+		},
+		{
+			"id": "JIA",
+			"name": "Jianzhou Jurchens",
+			"color": "#38761d"
+		},
+		{
+			"id": "JMB",
+			"name": "Sultanate of Jambi",
+			"color": "#c27ba0"
+		},
+		{
+			"id": "JOH",
+			"name": "Sultanate of Johor",
+			"color": "#9a5a3a"
+		},
+		{
+			"id": "JOL",
+			"name": "Jolof",
+			"color": "#8a7a30"
+		},
+		{
+			"id": "JOS",
+			"name": "Joseon",
+			"color": "#6fb0b8"
+		},
+		{
+			"id": "JUL",
+			"name": "United Duchies of Jülich-Cleves-Berg",
+			"color": "#45818e"
+		},
+		{
+			"id": "JUM",
+			"name": "Kingdom of Jumla",
+			"color": "#7b9ad0"
+		},
+		{
+			"id": "KAA",
+			"name": "Kaabu",
+			"color": "#e69138"
+		},
+		{
+			"id": "KAK",
+			"name": "Kingdom of Kakheti",
+			"color": "#9a5a3a"
+		},
+		{
+			"id": "KAT",
+			"name": "Katsina",
+			"color": "#a64d79"
+		},
+		{
+			"id": "KCH",
+			"name": "Kachari Kingdom",
+			"color": "#a64d79"
+		},
+		{
+			"id": "KDY",
+			"name": "Kingdom of Kandy",
+			"color": "#76a5af"
+		},
+		{
+			"id": "KEB",
+			"name": "Kebbi",
+			"color": "#6aa84f"
+		},
+		{
+			"id": "KED",
+			"name": "Sultanate of Kedah",
+			"color": "#a64d79"
+		},
+		{
+			"id": "KHA",
+			"name": "Khalkha Mongols",
+			"color": "#a87a5a"
+		},
+		{
+			"id": "KHD",
+			"name": "Khandesh Sultanate",
+			"color": "#8e7cc3"
+		},
+		{
+			"id": "KHI",
+			"name": "Khanate of Khiva",
+			"color": "#45818e"
+		},
+		{
+			"id": "KHK",
+			"name": "Nagvanshis of Khokhra",
+			"color": "#9fc5e8"
+		},
+		{
+			"id": "KIL",
+			"name": "Sultanate of Kilwa",
+			"color": "#8e7cc3"
+		},
+		{
+			"id": "KLT",
+			"name": "Sultanate of Kelantan",
+			"color": "#dd7e6b"
+		},
+		{
+			"id": "KNO",
+			"name": "Kano",
+			"color": "#f6b26b"
+		},
+		{
+			"id": "KOC",
+			"name": "Koch Kingdom",
+			"color": "#6fa8dc"
+		},
+		{
+			"id": "KOL",
+			"name": "Electorate of Cologne",
+			"color": "#b6d7a8"
+		},
+		{
+			"id": "KOM",
+			"name": "Order of Saint John (Malta)",
+			"color": "#b8705a"
+		},
+		{
+			"id": "KON",
+			"name": "Kingdom of Kongo",
+			"color": "#b2533a"
+		},
+		{
+			"id": "KRT",
+			"name": "Kingdom of Kartli",
+			"color": "#e06666"
+		},
+		{
+			"id": "KSI",
+			"name": "Kasai Clan",
+			"color": "#b9c9d9"
+		},
+		{
+			"id": "KTH",
+			"name": "Kathiri Sultanate",
+			"color": "#b4a7d6"
+		},
+		{
+			"id": "KUK",
+			"name": "Kingdom of Kuku",
+			"color": "#d5a6bd"
+		},
+		{
+			"id": "KUM",
+			"name": "Kumaon Kingdom",
+			"color": "#e69138"
+		},
+		{
+			"id": "KUT",
+			"name": "Kutai",
+			"color": "#bf9000"
+		},
+		{
+			"id": "KWA",
+			"name": "Kwararafa",
+			"color": "#93c47d"
+		},
+		{
+			"id": "KZH",
+			"name": "Kazakh Khanate",
+			"color": "#c9a36a"
+		},
+		{
+			"id": "LAD",
+			"name": "Kingdom of Ladakh",
+			"color": "#a2c4c9"
+		},
+		{
+			"id": "LBG",
+			"name": "Duchy of Brunswick-Lüneburg",
+			"color": "#a2c4c9"
+		},
+		{
+			"id": "LIE",
+			"name": "Prince-Bishopric of Liège",
+			"color": "#7a8a3a"
+		},
+		{
+			"id": "LNA",
+			"name": "Lan Na",
+			"color": "#b6d7a8"
+		},
+		{
+			"id": "LOA",
+			"name": "Kingdom of Loango",
+			"color": "#6fa8dc"
+		},
+		{
+			"id": "LOR",
+			"name": "Duchy of Lorraine",
+			"color": "#6aa84f"
+		},
+		{
+			"id": "LUB",
+			"name": "Luba Kingdom",
+			"color": "#b86a8a"
+		},
+		{
+			"id": "LUC",
+			"name": "Republic of Lucca",
+			"color": "#7a8a3a"
+		},
+		{
+			"id": "LXA",
+			"name": "Lan Xang",
+			"color": "#38761d"
+		},
+		{
+			"id": "MAC",
+			"name": "Mạc Dynasty",
+			"color": "#7b9ad0"
+		},
+		{
+			"id": "MAD",
+			"name": "Madurai Nayaks",
+			"color": "#3d85c6"
+		},
+		{
+			"id": "MAG",
+			"name": "Archbishopric of Magdeburg",
+			"color": "#b4a7d6"
+		},
+		{
+			"id": "MAH",
+			"name": "Mahra Sultanate",
+			"color": "#e06666"
+		},
+		{
+			"id": "MAI",
+			"name": "Electorate of Mainz",
+			"color": "#3d85c6"
+		},
+		{
+			"id": "MAN",
+			"name": "Duchy of Mantua",
+			"color": "#7a6aa8"
+		},
+		{
+			"id": "MBA",
+			"name": "Sultanate of Mombasa",
+			"color": "#38761d"
+		},
+		{
+			"id": "MDR",
+			"name": "Mandara",
+			"color": "#9fc5e8"
+		},
+		{
+			"id": "MDV",
+			"name": "Sultanate of the Maldives",
+			"color": "#b8705a"
+		},
+		{
+			"id": "MEW",
+			"name": "Kingdom of Mewar",
+			"color": "#f6b26b"
+		},
+		{
+			"id": "MGD",
+			"name": "Sultanate of Maguindanao",
+			"color": "#b8705a"
+		},
+		{
+			"id": "MGM",
+			"name": "Mogami Clan",
+			"color": "#e8a04c"
+		},
+		{
+			"id": "MIN",
+			"name": "Pagaruyung",
+			"color": "#bf9000"
+		},
+		{
+			"id": "MKL",
+			"name": "Duchy of Mecklenburg",
+			"color": "#e5c04a"
+		},
+		{
+			"id": "MLD",
+			"name": "Sultanate of Malindi",
+			"color": "#b86a8a"
+		},
+		{
+			"id": "MLI",
+			"name": "Mali (Kangaba)",
+			"color": "#38761d"
+		},
+		{
+			"id": "MNG",
+			"name": "Ming Empire",
+			"color": "#d9a441"
+		},
+		{
+			"id": "MNP",
+			"name": "Kingdom of Manipur",
+			"color": "#5a9a8a"
+		},
+		{
+			"id": "MOD",
+			"name": "Duchy of Ferrara and Modena",
+			"color": "#93c47d"
+		},
+		{
+			"id": "MOL",
+			"name": "Principality of Moldavia",
+			"color": "#a2c4c9"
+		},
+		{
+			"id": "MOS",
+			"name": "Mossi of Ouagadougou",
+			"color": "#3d85c6"
+		},
+		{
+			"id": "MRI",
+			"name": "Mōri Clan",
+			"color": "#9fc5e8"
+		},
+		{
+			"id": "MRV",
+			"name": "Maravi",
+			"color": "#f6b26b"
+		},
+		{
+			"id": "MTR",
+			"name": "Mataram",
+			"color": "#a8784a"
+		},
+		{
+			"id": "MUG",
+			"name": "Mughal Empire",
+			"color": "#4f9a5c"
+		},
+		{
+			"id": "MUN",
+			"name": "Prince-Bishopric of Münster",
+			"color": "#b86a8a"
+		},
+		{
+			"id": "MUT",
+			"name": "Kingdom of Mutapa",
+			"color": "#9a7a4a"
+		},
+		{
+			"id": "MYS",
+			"name": "Kingdom of Mysore",
+			"color": "#b4a7d6"
+		},
+		{
+			"id": "NDO",
+			"name": "Kingdom of Ndongo",
+			"color": "#a2c4c9"
+		},
+		{
+			"id": "NED",
+			"name": "United Provinces",
+			"color": "#e3801f"
+		},
+		{
+			"id": "NEP",
+			"name": "Malla Nepal",
+			"color": "#a2c4c9"
+		},
+		{
+			"id": "NNB",
+			"name": "Nanbu Clan",
+			"color": "#d9c27f"
+		},
+		{
+			"id": "NOG",
+			"name": "Nogai Horde",
+			"color": "#6fa8dc"
+		},
+		{
+			"id": "NUP",
+			"name": "Nupe",
+			"color": "#c27ba0"
+		},
+		{
+			"id": "OIR",
+			"name": "Oirat Confederation",
+			"color": "#3d85c6"
+		},
+		{
+			"id": "OLD",
+			"name": "County of Oldenburg",
+			"color": "#7a8a3a"
+		},
+		{
+			"id": "OMA",
+			"name": "Imamate of Oman",
+			"color": "#6fa8dc"
+		},
+		{
+			"id": "ORD",
+			"name": "Ordos Mongols",
+			"color": "#a2c4c9"
+		},
+		{
+			"id": "ORI",
+			"name": "Afghan Orissa",
+			"color": "#e69138"
+		},
+		{
+			"id": "OYO",
+			"name": "Oyo",
+			"color": "#a86a4a"
+		},
+		{
+			"id": "PAH",
+			"name": "Sultanate of Pahang",
+			"color": "#93c47d"
+		},
+		{
+			"id": "PAL",
+			"name": "Electoral Palatinate",
+			"color": "#f6b26b"
+		},
+		{
+			"id": "PAP",
+			"name": "Papal States",
+			"color": "#efe7c0"
+		},
+		{
+			"id": "PAR",
+			"name": "Duchy of Parma",
+			"color": "#38761d"
+		},
+		{
+			"id": "PAT",
+			"name": "Sultanate of Pattani",
+			"color": "#bf9000"
+		},
+		{
+			"id": "PLB",
+			"name": "Palembang",
+			"color": "#38761d"
+		},
+		{
+			"id": "PLC",
+			"name": "Polish–Lithuanian Commonwealth",
+			"color": "#c46a86"
+		},
+		{
+			"id": "PLP",
+			"name": "Kingdom of Palpa",
+			"color": "#bf9000"
+		},
+		{
+			"id": "POM",
+			"name": "Duchy of Pomerania",
+			"color": "#b45f06"
+		},
+		{
+			"id": "POR",
+			"name": "Kingdom of Portugal",
+			"color": "#1f7a5c"
+		},
+		{
+			"id": "PRK",
+			"name": "Sultanate of Perak",
+			"color": "#3d85c6"
+		},
+		{
+			"id": "PRU",
+			"name": "Duchy of Prussia",
+			"color": "#38761d"
+		},
+		{
+			"id": "PTE",
+			"name": "Sultanate of Pate",
+			"color": "#7a8a3a"
+		},
+		{
+			"id": "RAG",
+			"name": "Republic of Ragusa",
+			"color": "#d5a6bd"
+		},
+		{
+			"id": "RTN",
+			"name": "Kalachuris of Ratanpur",
+			"color": "#e5c04a"
+		},
+		{
+			"id": "RUS",
+			"name": "Tsardom of Russia",
+			"color": "#4a7a5a"
+		},
+		{
+			"id": "RWA",
+			"name": "Kingdom of Rwanda",
+			"color": "#d5a6bd"
+		},
+		{
+			"id": "RYU",
+			"name": "Ryukyu Kingdom",
+			"color": "#dd7e6b"
+		},
+		{
+			"id": "SAD",
+			"name": "Saadi Morocco",
+			"color": "#a8553a"
+		},
+		{
+			"id": "SAF",
+			"name": "Safavid Persia",
+			"color": "#3f9fa0"
+		},
+		{
+			"id": "SAL",
+			"name": "Saloum",
+			"color": "#b6d7a8"
+		},
+		{
+			"id": "SAN",
+			"name": "Sanada Clan",
+			"color": "#93c47d"
+		},
+		{
+			"id": "SAV",
+			"name": "Duchy of Savoy",
+			"color": "#a8505e"
+		},
+		{
+			"id": "SAX",
+			"name": "Electorate of Saxony",
+			"color": "#5f9a6a"
+		},
+		{
+			"id": "SBP",
+			"name": "Kingdom of Sambalpur",
+			"color": "#5a9a8a"
+		},
+		{
+			"id": "SCO",
+			"name": "Kingdom of Scotland",
+			"color": "#4b56a8"
+		},
+		{
+			"id": "SIB",
+			"name": "Khanate of Sibir",
+			"color": "#7b9ad0"
+		},
+		{
+			"id": "SIN",
+			"name": "Sine",
+			"color": "#e5c04a"
+		},
+		{
+			"id": "SIT",
+			"name": "Kingdom of Sitawaka",
+			"color": "#bf9000"
+		},
+		{
+			"id": "SLZ",
+			"name": "Prince-Archbishopric of Salzburg",
+			"color": "#b45f06"
+		},
+		{
+			"id": "SMI",
+			"name": "Satomi Clan",
+			"color": "#a7a9c4"
+		},
+		{
+			"id": "SMZ",
+			"name": "Shimazu Clan",
+			"color": "#6fa8dc"
+		},
+		{
+			"id": "SND",
+			"name": "Tarkhan Sindh",
+			"color": "#d5a6bd"
+		},
+		{
+			"id": "SON",
+			"name": "Songhai Empire",
+			"color": "#c9a061"
+		},
+		{
+			"id": "SPA",
+			"name": "Spanish Monarchy",
+			"color": "#e0b83a"
+		},
+		{
+			"id": "STK",
+			"name": "Satake Clan",
+			"color": "#8fc46a"
+		},
+		{
+			"id": "SUL",
+			"name": "Sultanate of Sulu",
+			"color": "#b6d7a8"
+		},
+		{
+			"id": "SUR",
+			"name": "Surabaya",
+			"color": "#9fc5e8"
+		},
+		{
+			"id": "SWE",
+			"name": "Kingdom of Sweden",
+			"color": "#3b7dc4"
+		},
+		{
+			"id": "SWI",
+			"name": "Swiss Confederation",
+			"color": "#c0504d"
+		},
+		{
+			"id": "TER",
+			"name": "Sultanate of Ternate",
+			"color": "#dd7e6b"
+		},
+		{
+			"id": "THU",
+			"name": "Ernestine Saxony",
+			"color": "#e5c04a"
+		},
+		{
+			"id": "TIB",
+			"name": "Tsangpa Tibet",
+			"color": "#b07a7a"
+		},
+		{
+			"id": "TID",
+			"name": "Sultanate of Tidore",
+			"color": "#45818e"
+		},
+		{
+			"id": "TIO",
+			"name": "Tio Kingdom",
+			"color": "#f6b26b"
+		},
+		{
+			"id": "TKG",
+			"name": "Tokugawa Clan",
+			"color": "#7b9ad0"
+		},
+		{
+			"id": "TMD",
+			"name": "Tümed Mongols",
+			"color": "#45818e"
+		},
+		{
+			"id": "TNJ",
+			"name": "Thanjavur Nayaks",
+			"color": "#d5a6bd"
+		},
+		{
+			"id": "TON",
+			"name": "Tuʻi Tonga",
+			"color": "#76a5af"
+		},
+		{
+			"id": "TOR",
+			"name": "Torwa (Butua)",
+			"color": "#9fc5e8"
+		},
+		{
+			"id": "TOU",
+			"name": "Toungoo Burma",
+			"color": "#c99a5b"
+		},
+		{
+			"id": "TPR",
+			"name": "Kingdom of Tripura",
+			"color": "#b4a7d6"
+		},
+		{
+			"id": "TRA",
+			"name": "Principality of Transylvania",
+			"color": "#3d85c6"
+		},
+		{
+			"id": "TRI",
+			"name": "Electorate of Trier",
+			"color": "#a64d79"
+		},
+		{
+			"id": "TRV",
+			"name": "Venad",
+			"color": "#e69138"
+		},
+		{
+			"id": "TSG",
+			"name": "Tsugaru Clan",
+			"color": "#9fb4e0"
+		},
+		{
+			"id": "TUP",
+			"name": "Turpan Khanate",
+			"color": "#b6d7a8"
+		},
+		{
+			"id": "TUR",
+			"name": "Ottoman Empire",
+			"color": "#86a84c"
+		},
+		{
+			"id": "TUS",
+			"name": "Grand Duchy of Tuscany",
+			"color": "#8a5aa8"
+		},
+		{
+			"id": "TYC",
+			"name": "Lordship of Tyrconnell",
+			"color": "#8a7a3c"
+		},
+		{
+			"id": "TYR",
+			"name": "Lordship of Tyrone",
+			"color": "#4f8a3c"
+		},
+		{
+			"id": "UES",
+			"name": "Uesugi Clan",
+			"color": "#c27ba0"
+		},
+		{
+			"id": "UKT",
+			"name": "Ukita Clan",
+			"color": "#45818e"
+		},
+		{
+			"id": "URB",
+			"name": "Duchy of Urbino",
+			"color": "#e69138"
+		},
+		{
+			"id": "VEN",
+			"name": "Republic of Venice",
+			"color": "#2f8f83"
+		},
+		{
+			"id": "VIJ",
+			"name": "Vijayanagara Empire",
+			"color": "#d09a3a"
+		},
+		{
+			"id": "WAL",
+			"name": "Principality of Wallachia",
+			"color": "#e06666"
+		},
+		{
+			"id": "WBG",
+			"name": "Prince-Bishopric of Würzburg",
+			"color": "#a2c4c9"
+		},
+		{
+			"id": "WLO",
+			"name": "Waalo",
+			"color": "#7a6aa8"
+		},
+		{
+			"id": "WUR",
+			"name": "Duchy of Württemberg",
+			"color": "#b45f06"
+		},
+		{
+			"id": "YAT",
+			"name": "Yatenga",
+			"color": "#38761d"
+		},
+		{
+			"id": "YRK",
+			"name": "Yarkent Khanate",
+			"color": "#b45f06"
+		},
+		{
+			"id": "ZAN",
+			"name": "Sultanate of Zanzibar",
+			"color": "#c27ba0"
+		},
+		{
+			"id": "ZAZ",
+			"name": "Zazzau",
+			"color": "#b45f06"
+		}
+	]
+}

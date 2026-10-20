@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bg54v1w48yqq2"
+path="res://.godot/imported/Court of Versaille.mp3-3d7cb836cef8588ff64f354da35f7f18.mp3str"
+
+[deps]
+
+source_file="res://music/1 Absolutism/Europe/Court of Versaille.mp3"
+dest_files=["res://.godot/imported/Court of Versaille.mp3-3d7cb836cef8588ff64f354da35f7f18.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

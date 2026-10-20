@@ -1,0 +1,26 @@
+[gd_scene format=3 uid="uid://c5m8b6sqtebrt"]
+
+[ext_resource type="Script" uid="uid://c1ouebd73d0uu" path="res://src/game.gd" id="1_game"]
+[ext_resource type="Script" uid="uid://n6fda5sca0uu" path="res://src/map/map_view.gd" id="2_map"]
+[ext_resource type="Script" uid="uid://djxxdhvwdnq7l" path="res://src/map/map_camera.gd" id="3_cam"]
+[ext_resource type="Script" uid="uid://bluo4attl1sgn" path="res://src/map/map_overlay_3d.gd" id="4_overlay"]
+[ext_resource type="Script" uid="uid://ba073umv6qfeq" path="res://src/ui/hud.gd" id="5_hud"]
+
+[node name="Game" type="Node" unique_id=1641180102]
+script = ExtResource("1_game")
+
+[node name="MapView" type="Node2D" parent="." unique_id=688574846]
+script = ExtResource("2_map")
+
+[node name="MapCamera" type="Camera2D" parent="." unique_id=137555228]
+script = ExtResource("3_cam")
+
+[node name="OverlayLayer" type="CanvasLayer" parent="." unique_id=401636032]
+
+[node name="MapOverlay3D" type="SubViewportContainer" parent="OverlayLayer" unique_id=516001635]
+mouse_filter = 2
+script = ExtResource("4_overlay")
+
+[node name="HUD" type="CanvasLayer" parent="." unique_id=1103087958]
+layer = 2
+script = ExtResource("5_hud")

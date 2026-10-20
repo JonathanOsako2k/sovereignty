@@ -1,0 +1,225 @@
+{
+  "main": {
+    "id": "502d808b8983c412",
+    "type": "split",
+    "children": [
+      {
+        "id": "59efdb052c9cd505",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "7a2fecb53a2a8beb",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "PLAN.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "PLAN"
+            }
+          },
+          {
+            "id": "b00235b1dc002124",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "structure.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "structure"
+            }
+          }
+        ],
+        "currentTab": 1
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "dd62a13b3b26efaa",
+    "type": "split",
+    "children": [
+      {
+        "id": "f16d03fe68fb5d08",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "28b125d1d355549e",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "db4d85187d816999",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "e42dc56c8d2e74e9",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "db19855f48282ffd",
+    "type": "split",
+    "children": [
+      {
+        "id": "4274c1aa32b63a80",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "6e1b5d61e3957302",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "PLAN.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "9514ecb88a9f244a",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "PLAN.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "a0140c47eb5e3e54",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "13f5d4448ac09856",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "29079f550e234d0b",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "PLAN.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "b00235b1dc002124",
+  "lastOpenFiles": [
+    "export_presets.cfg367604263609.tmp",
+    "SovereigntyAlpha0.1.apk.idsig",
+    "export_presets.cfg~RF19b500d1.TMP",
+    "export_presets.cfg367210992980.tmp",
+    "export_presets.cfg~RF19a97772.TMP",
+    "export_presets.cfg366454900820.tmp",
+    "SovereigntyAlpha0.1.apk",
+    "tools/profile/_probe_path.gd",
+    "tests/sedSYhxj4",
+    "HANDOVER.md",
+    "CLAUDE.md",
+    "PLAN.md",
+    "tools/profile/_probe_ai.gd",
+    "tools/profile/_probe_ai.gd.uid",
+    "structure.md",
+    "assets/menu_background.jpg"
+  ]
+}

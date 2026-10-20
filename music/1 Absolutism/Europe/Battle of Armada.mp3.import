@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://q1vrtrcya51x"
+path="res://.godot/imported/Battle of Armada.mp3-50945328b34af4aa1c490e2836aecbdc.mp3str"
+
+[deps]
+
+source_file="res://music/1 Absolutism/Europe/Battle of Armada.mp3"
+dest_files=["res://.godot/imported/Battle of Armada.mp3-50945328b34af4aa1c490e2836aecbdc.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

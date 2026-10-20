@@ -1,0 +1,11 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+# Natural Earth source data (~66 MB); fetch with tools/fetch_source_data.sh
+tools/source_data/
+
+# Android build outputs
+*.apk
+*.apk.idsig
+*.aab
