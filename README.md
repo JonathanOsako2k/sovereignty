@@ -415,3 +415,5 @@ An Android export preset exists (`export_presets.cfg`). It includes `data/*.json
 (the `.res` map images export automatically) and excludes `tools/`, `tests/`. Build from *Project → Export* once the Android
 SDK and a debug keystore are configured in *Editor Settings → Export → Android*.
 Never commit keystores or passwords.
+#   s o v e r e i g n t y  
+ 
