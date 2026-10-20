@@ -12,6 +12,8 @@ signal play_requested(tag: String)
 signal locate_requested(tag: String)
 signal diplomacy_requested(action: int, tag: String)
 signal gift_requested(tag: String, amount: int)
+## A land deal with them: LandDealPanel.Kind (buy, sell, exchange).
+signal land_deal_requested(tag: String, kind: int)
 signal war_requested(tag: String)
 signal treaty_requested(war_id: int, with: String)
 signal levies_requested(raise: bool)
@@ -206,6 +208,18 @@ func _foreign_diplomacy() -> void:
 	_gift_row()
 	for action: int in list:
 		_extra.add_child(_action_button(action))
+	for spec: Array in [["Request to purchase land", "Choose provinces of theirs and a price", LandDealPanel.Kind.BUY],
+			["Offer to sell land", "Choose provinces of ours and a price for them", LandDealPanel.Kind.SELL],
+			["Exchange territory", "Land of ours for land of theirs, money to even it out", LandDealPanel.Kind.EXCHANGE]]:
+		var b := UITheme.button(spec[0] + "\n" + spec[1])
+		b.add_theme_font_size_override("font_size", 15)
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.custom_minimum_size.y = 52
+		b.clip_text = true
+		b.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		var deal_kind: int = spec[2]
+		b.pressed.connect(func(): land_deal_requested.emit(tag, deal_kind))
+		_extra.add_child(b)
 
 
 # --- War --------------------------------------------------------------------------

@@ -356,6 +356,11 @@ mother to war; later land there joins it); the 1590 start has Spain's six and
 Portugal's three. Countries can now be founded during a campaign (`WorldState.created`,
 saved; the map's country index wraps past 253). Tests in `test_overseas.gd`.
 
+**Added (20 Oct 2026): land deals** (`LandDeals`, `LandDealPanel`): buying land,
+selling land, and exchanging territory with money either way, judged as a sum of named reasons — worth
+(10 years of yield), land hard to govern, land that matters, finances, opinion,
+rivalry; map picking like the peace table. Tests in `test_land_deals.gd`.
+
 **Next for war:** AI use of transports and navies at sea, air power (aircraft are
 catalogued), war aims beyond land (and for the AI: vassalage, freeing subjects), fronts
 for 20th-century war, cores decaying over the centuries.

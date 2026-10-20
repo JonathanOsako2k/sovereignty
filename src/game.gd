@@ -36,6 +36,7 @@ var clock := GameClock.new()
 var campaign: Campaign
 var scheduler: SimulationScheduler
 var diplomacy_actions: DiplomacyActions
+var land_deals: LandDeals
 var diplomacy_system: DiplomacySystem
 var economy: EconomySystem
 var colonisation: ColonisationSystem
@@ -72,6 +73,7 @@ func _ready() -> void:
 	diplomacy_actions = DiplomacyActions.new(campaign)
 	diplomacy_system = DiplomacySystem.new(campaign, diplomacy_actions)
 	economy = EconomySystem.new(campaign)
+	land_deals = LandDeals.new(campaign, economy, diplomacy_actions)
 	colonisation = ColonisationSystem.new(campaign, economy)
 	# Monthly, in order, one system a day over the first days of the month (a
 	# frame each instead of one long frame; nothing runs in between, so the
@@ -216,6 +218,9 @@ No lender will deal with us for five years, and loans will cost more for ten. Le
 	world.campaign_restored.connect(_update_treasury_ui_later)
 	world.campaign_restored.connect(_update_wars_ui)
 	hud.treaty_highlights.connect(map_view.set_highlights)
+	hud.land_deal_highlights.connect(map_view.set_highlights)
+	hud.land_deal_requested.connect(_show_land_deal)
+	hud.land_deal_proposed.connect(_on_land_deal_proposed)
 	hud.war_panel_requested.connect(_show_war)
 	hud.war_closed.connect(_on_war_closed)
 	hud.troops_requested.connect(func(ids: Array):
@@ -619,6 +624,34 @@ func _update_wars_ui_later() -> void:
 
 ## A war's pop-up: the game pauses while it is open (and runs on again when it
 ## is simply dismissed, if it was running).
+func _show_land_deal(tag: String, kind: int) -> void:
+	map_view.select(0)
+	map_view.select_country("")
+	hud.show_land_deal(world, land_deals, tag, kind)
+
+
+## Our land deal: refused if they would not take it; otherwise confirmed and
+## offered.
+func _on_land_deal_proposed(to: String, deal: Dictionary) -> void:
+	var player := world.player_country_id
+	var why := land_deals.blocked(player, to, deal)
+	if why != "":
+		hud.show_toast(why)
+		return
+	var v := land_deals.evaluate(player, to, deal)
+	if not v.accept:
+		hud.show_toast("%s would refuse (%+d)" % [world.get_country(to).name, v.total])
+		return
+	clock.set_paused(true)
+	hud.menu.ask("Land", land_deals.describe(player, to, deal) + ".\nMake the offer?", "Offer", func():
+		var result := land_deals.propose(player, to, deal)
+		hud.show_toast(result.message)
+		if result.accepted:
+			hud.close_drawer()
+			map_view.colonies_changed()
+		_update_treasury_ui())
+
+
 func _show_war(war_id: int) -> void:
 	if not hud.war_open():
 		_resume_after_war = not clock.paused
@@ -1100,9 +1133,9 @@ func _on_map_tapped(map_pos: Vector2) -> void:
 	if phase == Phase.TITLE:
 		return
 	if phase == Phase.PLAYING:
-		# The peace table open: a tap picks the land to demand or give.
-		if hud.treaty_open():
-			var message := hud.treaty_toggle(map_view.pick(map_pos, map_camera.zoom.x))
+		# The peace table or a land deal open: a tap picks the land.
+		if hud.map_pick_open():
+			var message := hud.map_pick(map_view.pick(map_pos, map_camera.zoom.x))
 			if message != "":
 				hud.show_toast(message)
 			return
@@ -1312,6 +1345,13 @@ func _apply_debug_args(args: Dictionary) -> void:
 		var ours := world.military.armies_of(world.player_country_id)
 		if not ours.is_empty() and military.board(ours[0]) == "":
 			_select_armies([ours[0].aboard] as Array[int])
+	if args.has("land") or args.has("sell") or args.has("exchange"):  # --land=TAG (buy) / --sell= / --exchange=, --land-take=lat,lon
+		var kind := LandDealPanel.Kind.EXCHANGE if args.has("exchange") else (LandDealPanel.Kind.SELL if args.has("sell")
+			else LandDealPanel.Kind.BUY)
+		_show_land_deal(args.get("land", args.get("sell", args.get("exchange", ""))), kind)
+		if args.has("land-take"):
+			var ll: PackedStringArray = args["land-take"].split(",")
+			hud.map_pick(world.province_near(float(ll[0]), float(ll[1])).id)
 	if args.has("wars"):  # --wars: the panel of our first war
 		var ours := world.military.wars_of(world.player_country_id)
 		if not ours.is_empty():

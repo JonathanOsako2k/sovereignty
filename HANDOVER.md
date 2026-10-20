@@ -25,7 +25,7 @@ war), plus an era-based soundtrack. The real world on **1 January
 | Sea tiles (incl. lake tiles) | 573 (20 on lakes) |
 | Polities | 238, all playable (`ENG` is only the default for debug starts) |
 | Uncolonised provinces | 1085 |
-| Tests | 146, all passing (incl. a headless end-to-end flow test) |
+| Tests | 149, all passing (incl. a headless end-to-end flow test) |
 | Data version | 7 (provinces redrawn: fewer in New Guinea, more in Australia, southern Canada, the US Pacific coast, the Russian Far East, Manchuria and Germany; older saves are refused with a message; saves also carry a fingerprint of the map) |
 
 Working features: title menu (Continue / New campaign / Load); **choose your
@@ -224,6 +224,8 @@ game.tscn
 | `src/ui/army_panel.gd` | `ArmyPanel`: one army (men, spirit, place, status, upkeep, regiments) or several (merge); Split, Halt, Disband |
 | `src/ui/military_panel.gd` | `MilitaryPanel` (wide, the ⚔ Military tab): standing army, levies, ships, manpower, upkeep; mobilise or send home all, or region by region (`levy_districts`); army and navy maintenance sliders; armies and fleets (tap to select); wars (tap for the war's panel) |
 | `src/ui/peace_treaty_panel.gd` | `PeaceTreatyPanel` (wide, a scroll gutter): a treaty with one country (opened by suing it for peace); score, cost of demands, worth of what we give, their answer; map taps toggle land (`toggle_province`; `highlights_changed` colours the map: demand bright green, give bright red, held paler); reparations slider, forts, vassalage, their subjects (set free / ours), their alliances; Propose / Surrender |
+| `src/simulation/land_deals.gd` | `LandDeals.new(campaign, economy, actions)`: deals `{take, give, money}`; `worth` (10 years of yield to the owner), `worth_to` (at another's reach, cores ×1.5), `blocked`, `evaluate` (reasons: reluctance, value, hard to govern, importance, finances, opinion, rivalry), `propose` (land and money change hands, cores renounced), `describe` |
+| `src/ui/land_deal_panel.gd` | `LandDealPanel` (wide, scroll gutter; `Kind` BUY / SELL / EXCHANGE): buying, selling or exchanging land with a country; map taps pick their land (green) and ours (red); money slider either way, *Even it out*, every reason and their answer; Propose |
 | `src/ui/war_panel.gd` | `WarPanel` (a centred pop-up, not a drawer; the game pauses while it is open and runs on when it is dismissed, `closed(resume)`): one of our wars (its red badge under the top bar): score, length, our side on the left and theirs on the right with estimated men under arms and totals, *Sue for peace* beside theirs where the rules allow, those who stayed out |
 | `src/audio/music_player.gd` | `MusicPlayer`: scans `res://music/<n Age>/<Region>/` (`ResourceLoader.list_directory`, so exported builds work), `age_of(year)`, picks tracks by age and the player's region (falls back to any region, to the nearest earlier age with music), next age creeping in over the last `TRANSITION_YEARS`, crossfades on `jump_to` (new campaign, load, other country), music on/off in `user://settings.cfg`; not created in headless runs |
 | `src/ui/loans_panel.gd` | `LoansPanel` (wide): debt, interest, lenders' limit, next rate, each loan with Repay, Borrow, Declare bankruptcy (confirmed) |
@@ -413,6 +415,12 @@ some tests and does not count.
   directly; nothing of Russia's overseas); three settled provinces found the
   Thirteen Colonies, a fourth joins, tribute, saved and restored, gone in a
   new campaign; no levies overseas.
+* `test_land_deals.gd` (3): land has a worth; a far outpost (Oran) sells more
+  easily than the heartland (Toledo); more money, a poorer seller help; a
+  rival is refused; capitals, others' land and money one lacks are blocked; a
+  sale (land, money, core renounced); an exchange evened out with money; none
+  at war; selling ours (cheaper, more willing; land beside theirs fits better
+  than land far off; within their treasury; a bargain taken).
 * `test_claims.gd` (2): the rights of 1590 (every owner's cores, Calais,
   the Low Countries, Busan, Buda; grudges; kept in a new campaign); cores
   after 25 years and kept on lost land; saved, and older saves get them.
@@ -702,3 +710,6 @@ and use a separate SaveService instance).
     type, countries founded during a campaign saved as `created` in the
     world state (older saves: none; the colonial nations form at their first
     month), the Colonial regions map mode.
+14. Land deals (20 Oct 2026): buying, selling and exchanging land, judged by
+    named reasons, picked on the map. (README.md had a UTF-16 "# sovereignty"
+    line appended by GitHub's quick-setup echo in PowerShell — removed.)

@@ -146,7 +146,23 @@ and any country's panel lists its own allies, rivals, overlord and subjects.
 Vassals and junior partners of personal unions are drawn in a shade of their
 overlord's colour. Japan starts in January 1590: Hideyoshi's Toyotomi with
 seven vassal clans, while the Kantō (the Late Hōjō) and Tōhoku are not yet his.
-(No war declarations yet.)
+
+**Land deals.** From a country's panel, *Request to purchase land*, *Offer to
+sell land* or *Exchange territory*: tap provinces on the map — theirs to ask for
+(green), yours to give (red) — and set the money (buying, what you pay;
+selling, what they pay you; in an exchange either way), or let *Even it out*
+set it. Each province shows what it is worth
+to its owner (ten years of what it yields them). They weigh a reluctance to part
+with land; what you offer against what they give up (your land valued as it
+would be to them — more if it is their core); land that is hard for them to
+govern goes more easily (overseas, far from their capital, cut off from their
+realm, restless, not their core), land that matters to them less so (cores,
+rich provinces, the heartland near their capital, a large share of the realm);
+land of yours they would get is weighed by how it fits their realm (beside
+theirs, welcome; far across the sea, less so) and, buying, its price against
+its worth to them; their finances when money changes hands; their opinion of
+you, and rivals refuse. Every reason is shown before you offer. They never give up their
+capital; a seller renounces its core on what it sells.
 
 ### Economy
 
@@ -415,5 +431,3 @@ An Android export preset exists (`export_presets.cfg`). It includes `data/*.json
 (the `.res` map images export automatically) and excludes `tools/`, `tests/`. Build from *Project → Export* once the Android
 SDK and a debug keystore are configured in *Editor Settings → Export → Android*.
 Never commit keystores or passwords.
-#   s o v e r e i g n t y  
- 

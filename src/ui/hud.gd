@@ -23,6 +23,10 @@ signal debug_transfer_requested(province_id: int)
 signal debug_occupy_requested(province_id: int)
 signal diplomacy_requested(action: int, tag: String)
 signal gift_requested(tag: String, amount: int)
+signal land_deal_requested(tag: String, kind: int)
+signal land_deal_proposed(to: String, deal: Dictionary)
+## The land deal's provinces to colour on the map ({}: none).
+signal land_deal_highlights(colours: Dictionary)
 signal war_requested(tag: String)
 signal treaty_requested(war_id: int, with: String)
 ## One of our wars (its icon under the top bar, or the Military tab).
@@ -101,6 +105,7 @@ var _loans_panel: LoansPanel
 var _army_panel: ArmyPanel
 var _military_panel: MilitaryPanel
 var _treaty_panel: PeaceTreatyPanel
+var _land_panel: LandDealPanel
 var _war_panel: WarPanel
 ## Our wars, one icon each, under the top bar.
 var _war_bar: HBoxContainer
@@ -151,6 +156,7 @@ func _ready() -> void:
 	_country_panel.country_requested.connect(func(tag): country_requested.emit(tag))
 	_country_panel.diplomacy_requested.connect(func(action, tag): diplomacy_requested.emit(action, tag))
 	_country_panel.gift_requested.connect(func(tag, amount): gift_requested.emit(tag, amount))
+	_country_panel.land_deal_requested.connect(func(tag, kind): land_deal_requested.emit(tag, kind))
 	_country_panel.budget_requested.connect(func(tag): budget_requested.emit(tag))
 	_country_panel.war_requested.connect(func(tag): war_requested.emit(tag))
 	_country_panel.treaty_requested.connect(func(id, with): treaty_requested.emit(id, with))
@@ -209,6 +215,13 @@ func _ready() -> void:
 	_treaty_panel.surrender_requested.connect(func(id, with): surrender_requested.emit(id, with))
 	_treaty_panel.highlights_changed.connect(func(colours): treaty_highlights.emit(colours))
 	_root.add_child(_treaty_panel)
+
+	_land_panel = LandDealPanel.new()
+	_land_panel.visible = false
+	_land_panel.close_requested.connect(func(): panel_closed.emit())
+	_land_panel.proposed.connect(func(to, deal): land_deal_proposed.emit(to, deal))
+	_land_panel.highlights_changed.connect(func(colours): land_deal_highlights.emit(colours))
+	_root.add_child(_land_panel)
 
 	_war_bar = HBoxContainer.new()
 	_war_bar.add_theme_constant_override("separation", 6)
@@ -300,6 +313,27 @@ func treaty_open() -> bool:
 ## A tap on the map for the peace table: "" or why it is not part of the peace.
 func treaty_toggle(province_id: int) -> String:
 	return _treaty_panel.toggle_province(province_id)
+
+
+## A land deal with a country (LandDealPanel.Kind: buy, sell, exchange).
+func show_land_deal(world: WorldState, deals: LandDeals, tag: String, kind: int) -> void:
+	_land_panel.show_deal(world, deals, _country_panel.player_tag, tag, kind)
+	_show_only(_land_panel)
+
+
+## Whether a screen that picks land on the map is open (the peace table, a
+## land deal): map taps go to it.
+func map_pick_open() -> bool:
+	return _treaty_panel.visible or _land_panel.visible
+
+
+## A tap on the map for that screen: "" or why it is not part of it.
+func map_pick(province_id: int) -> String:
+	if _treaty_panel.visible:
+		return _treaty_panel.toggle_province(province_id)
+	if _land_panel.visible:
+		return _land_panel.toggle_province(province_id)
+	return ""
 
 
 ## One of our wars, as a pop-up in the middle of the screen.
@@ -416,7 +450,8 @@ func show_loans(world: WorldState, economy: EconomySystem, tag: String) -> void:
 
 
 func _drawer_panels() -> Array[DrawerPanel]:
-	return [_province_panel, _country_panel, _budget_panel, _loans_panel, _army_panel, _military_panel, _treaty_panel]
+	return [_province_panel, _country_panel, _budget_panel, _loans_panel, _army_panel, _military_panel, _treaty_panel,
+		_land_panel]
 
 
 func _show_only(panel: DrawerPanel) -> void:

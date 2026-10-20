@@ -68,6 +68,15 @@ func add_core(tag: String, id: int) -> void:
 		changed.emit()
 
 
+## A country gives up its core on a province (it sold or traded it away).
+func remove_core(tag: String, id: int) -> void:
+	if cores.has(id) and tag in cores[id]:
+		cores[id].erase(tag)
+		if cores[id].is_empty():
+			cores.erase(id)
+		changed.emit()
+
+
 func add_claim(tag: String, id: int) -> void:
 	if is_core(tag, id):
 		return
