@@ -108,6 +108,8 @@ func show_saves(saves: Array, folder := "") -> void:
 
 
 func show_message(title: String, text: String) -> void:
+	if page == Page.NONE:
+		in_game = true  # a notice during play: over the dimmed map, not the title painting
 	_return_page = page if page != Page.MESSAGE and page != Page.CONFIRM else _return_page
 	_clear()
 	page = Page.MESSAGE

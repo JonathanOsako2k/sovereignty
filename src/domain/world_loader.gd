@@ -123,6 +123,12 @@ func _apply_scenario(world: WorldState, scenario: Dictionary) -> void:
 		c.government_type = s.get("government", "")
 		c.colonial_policy = clampi(int(s.get("colonial", 0)), 0, Colonisation.POLICIES.size() - 1)
 		c.start_colonial_policy = c.colonial_policy
+		c.ideas = Ideas.START.get(tag, []).duplicate()
+		c.start_ideas = c.ideas.duplicate()
+		c.religion = s.get("religion", "") if Religions.has(s.get("religion", "")) else ""
+		c.start_religion = c.religion
+		c.culture = s.get("culture", "") if Cultures.has(s.get("culture", "")) else ""
+		c.start_culture = c.culture
 		c.treasury = float(s.get("treasury", 0))
 		c.legitimacy = float(s.get("legitimacy", 50))
 		c.stability = int(s.get("stability", 0))
@@ -138,6 +144,25 @@ func _apply_scenario(world: WorldState, scenario: Dictionary) -> void:
 		p.population = int(s.get("population", 0))
 		p.development = int(s.get("development", 1))
 		p.buildings = Array(s.get("buildings", []))
+		p.religion = s.get("religion", "") if Religions.has(s.get("religion", "")) else ""
+		p.start_religion = p.religion
+		p.culture = s.get("culture", "") if Cultures.has(s.get("culture", "")) else ""
+	# Ranks: the 1590 emperors and great kings, every other realm by its size and title.
+	var development := {}
+	for p: Province in world.ownable_provinces():
+		if p.owner_id != "":
+			development[p.owner_id] = development.get(p.owner_id, 0) + p.development
+	for c: Country in world.countries.values():
+		c.rank = Ranks.start_rank(c.id, c.name, development.get(c.id, 0))
+		c.start_rank = c.rank
+	# A realm the scenario gives no state religion keeps its capital's faith.
+	for c: Country in world.countries.values():
+		if c.religion == "" and world.get_province(c.capital_province_id) != null:
+			c.religion = world.get_province(c.capital_province_id).religion
+			c.start_religion = c.religion
+		if c.culture == "" and world.get_province(c.capital_province_id) != null:
+			c.culture = world.get_province(c.capital_province_id).culture
+			c.start_culture = c.culture
 
 
 func _read_json(path: String) -> Dictionary:

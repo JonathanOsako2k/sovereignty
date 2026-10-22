@@ -30,10 +30,20 @@ func _init(p_campaign: Campaign, p_actions: DiplomacyActions) -> void:
 
 func monthly() -> void:
 	campaign.world.diplomacy.monthly_update()
+	_check_subsidies()
 	var player := campaign.world.player_country_id
 	for tag in actions.active_countries():
 		if tag != player:
 			_think(tag, player)
+
+
+## Subsidies stop when the payer has no money left, or the two are at war.
+func _check_subsidies() -> void:
+	var world := campaign.world
+	for row: Array in world.diplomacy.subsidies():
+		var payer := world.get_country(row[0])
+		if payer == null or world.get_country(row[1]) == null or payer.treasury < 0.0 				or world.military.at_war(row[0], row[1]):
+			world.diplomacy.set_subsidy(row[0], row[1], 0)
 
 
 func _think(tag: String, player: String) -> void:
@@ -83,7 +93,7 @@ func _think(tag: String, player: String) -> void:
 
 	# Envoys work on the most promising partner not yet won over.
 	for c in candidates:
-		if d.envoys_of(tag).size() >= Diplomacy.ENVOYS:
+		if d.envoys_of(tag).size() >= actions.envoys_max(tag):
 			break
 		if d.is_allied(tag, c) or d.is_improving(tag, c):
 			continue

@@ -23,6 +23,14 @@ func test_buying_land() -> void:
 	var toledo := w.province_near(39.86, -4.02)
 	check(oran.owner_id == "SPA" and toledo.owner_id == "SPA", "Oran and Toledo are Spain's")
 	check(w.overseas.has(oran.id), "Oran is overseas")
+	check(deals.access(oran, "SPA") < deals.access(toledo, "SPA"), "Madrid reaches Oran, an exclave over the sea, worse than Toledo")
+	var hard := func(p: Province) -> int:
+		for r: Array in deals.evaluate("AUS", "SPA", {"take": [p.id], "money": 0}).reasons:
+			if r[0] == "Hard for them to govern":
+				return r[1]
+		return 0
+	check(hard.call(oran) > hard.call(toledo) + 20, "so it is far harder for them to govern (%d vs %d)" % [
+		hard.call(oran), hard.call(toledo)])
 	w.get_country("AUS").treasury = 5000.0
 	var at_worth := func(p: Province, factor := 1.0) -> Dictionary:
 		return {"take": [p.id], "money": int(deals.worth(p) * factor)}
@@ -59,6 +67,38 @@ func test_buying_land() -> void:
 	check_eq(oran.owner_id, "AUS", "Oran is Austria's")
 	check_eq(spain.treasury, before + deal.money, "Spain is paid")
 	check(not w.claims.is_core("SPA", oran.id), "Spain renounces its core")
+
+
+func test_paying_over_the_worth_tempts_less_and_less() -> void:
+	var s := _setup()
+	var c: Campaign = s[0]
+	var deals: LandDeals = s[1]
+	var w := c.world
+	var toledo := w.province_near(39.86, -4.02)
+	w.get_country("AUS").treasury = 10000000.0
+	var worth := deals.worth(toledo)
+	var points := func(money: float) -> int:
+		for r: Array in deals.evaluate("AUS", "SPA", {"take": [toledo.id], "money": int(ceil(money))}).reasons:
+			if r[0] == "Our price against what it is worth to them":
+				return r[1]
+		return 0
+	check_eq(points.call(worth), 0, "at its worth, nothing either way")
+	check(points.call(worth * 0.5) < -20, "well short of its worth: a poor offer (%d)" % points.call(worth * 0.5))
+	check(points.call(worth + 10.0) <= 1, "ten ducats more barely count (%d)" % points.call(worth + 10.0))
+	var once: int = points.call(worth * 2.0)
+	var twice: int = points.call(worth * 3.0)
+	check(once > 0 and twice - once < once, "each ducat more tempts them less (%d, %d)" % [once, twice])
+	check(points.call(worth * 100.0) <= int(LandDeals.PREMIUM_CAP), "and never past the cap")
+	# In want of money, a token sum does not buy their need.
+	var spain := w.get_country("SPA")
+	spain.treasury = -100.0
+	var need := func(money: int) -> int:
+		for r: Array in deals.evaluate("AUS", "SPA", {"take": [toledo.id], "money": money}).reasons:
+			if r[0] == "Their finances":
+				return r[1]
+		return 0
+	check(need.call(10) < need.call(int(worth * 3.0)), "a token sum relieves their want less (%d vs %d)" % [
+		need.call(10), need.call(int(worth * 3.0))])
 
 
 func test_exchanging_land() -> void:

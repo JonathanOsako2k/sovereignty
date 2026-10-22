@@ -65,6 +65,10 @@ func _on_owner_changed(province_id: int, old_owner: String, new_owner: String) -
 
 ## The climates near a country's capital: what its settlers are used to.
 func home_climates(tag: String) -> Dictionary:
+	# A colonial nation's settlers come from its mother country: they are at
+	# home where she is (Portuguese Mozambique is not seasoned to Africa).
+	if world.diplomacy.subject_type(tag) == "colony" and world.diplomacy.overlord_of(tag) != tag:
+		return home_climates(world.diplomacy.overlord_of(tag))
 	if not _homes.has(tag):
 		var homes := {}
 		var c := world.get_country(tag)

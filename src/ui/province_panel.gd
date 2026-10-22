@@ -13,11 +13,19 @@ signal colony_requested(province_id: int)
 signal recruit_requested(province_id: int, unit: String)
 signal army_requested(id: int)
 signal abandon_colony_requested(province_id: int)
+## Storm the fort here (our siege).
+signal assault_requested(province_id: int)
+## Hand this enemy province we hold to an ally in the war.
+signal occupation_transfer_requested(province_id: int, to: String)
+## Send a missionary here, or call ours back.
+signal missionary_requested(province_id: int)
+signal recall_requested(province_id: int)
 
 var world: WorldState
 var economy: EconomySystem
 var colonisation: ColonisationSystem
 var military: MilitarySystem
+var religion: ReligionSystem
 var province_id := 0
 var player_tag := ""
 
@@ -86,6 +94,9 @@ func refresh() -> void:
 			["Development", "%d / 10" % p.development],
 			["Produces", Goods.name_of(p.resource)],
 			["Unrest", "%.0f %%" % p.unrest],
+			["Culture", Cultures.name_of(p.culture) + (" (%s)" % Cultures.group_name(p.culture) if p.culture != "" else "")],
+			["Religion", Religions.name_of(p.religion) + ("" if owner == null or owner.religion == p.religion
+				else "  (not the state's: %s)" % Religions.name_of(owner.religion))],
 			["Capital", "Yes" if is_capital else "No"],
 		]
 		var region := Overseas.region_of(p)
@@ -115,6 +126,8 @@ func refresh() -> void:
 			_colonisation(p)
 		if military != null:
 			_forces_here(p)
+		if religion != null:
+			_faith(p)
 		if economy != null:
 			_people(p)
 			_production(p)
@@ -164,7 +177,7 @@ func _production(p: Province) -> void:
 		for r: String in taxes:
 			tax += taxes[r]
 		tax += out.value * Buildings.customs_share(p)
-		_pair("Taxes to " + owner.name, "%.2f a month" % tax)
+		_pair("Taxes to " + MilitarySystem.short_name(world, owner.id), "%.2f a month" % tax)
 	var factors: Array[String] = []
 	for f: Array in out.factors.slice(1):
 		if absf(f[1] - 1.0) > 0.005:
@@ -252,7 +265,9 @@ static func _duration(months: int) -> String:
 	return "%d months" % months if months < 24 else "about %d years" % roundi(months / 12.0)
 
 
-## Armies and fleets here (and off its coast), and a siege under way.
+## Armies and fleets here (and off its coast), its fort, a siege under way
+## (its odds, and storming it if the siege is ours), and an enemy province we
+## hold that we may hand to an ally.
 func _forces_here(p: Province) -> void:
 	var m := world.military
 	var here: Array[Army] = m.armies_at(p.id)
@@ -261,22 +276,80 @@ func _forces_here(p: Province) -> void:
 		here.append_array(m.armies_at(s, true))
 	var siege: Dictionary = m.sieges.get(p.id, {})
 	var dock := "dock" in p.buildings
-	if here.is_empty() and siege.is_empty() and not "fort" in p.buildings and not dock:
+	var fort := MilitarySystem.walled(world, p)
+	var partners := military.occupation_partners(player_tag, p) if player_tag != "" else ([] as Array[String])
+	if here.is_empty() and siege.is_empty() and not fort and not dock and partners.is_empty():
 		return
 	_section_title("Forces")
 	if "fort" in p.buildings:
-		_note("Fortified: a siege takes about %d days." % int(military.siege_days(p)))
+		_note("Fortified: a garrison of %s. Besiegers need as many men, and guns; they try their luck every %d days%s." % [
+			thousands(military.garrison(p)), MilitarySystem.SIEGE_PHASE_DAYS,
+			" — and it bars the roads about it to its enemies" if military.clock.year < MilitarySystem.FORT_ZOC_UNTIL else ""])
+	elif fort:
+		_note("A capital without a fort: its city walls and watch, %s men, must be besieged (a try every %d days), not simply occupied." % [
+			thousands(military.garrison(p)), MilitarySystem.SIEGE_PHASE_DAYS])
 	if dock:
-		_note("Dock: fleets of %s and its friends berth here (repairs, half upkeep); ships are built here." %
+		_note("Dock: fleets of %s and its friends berth here (repairs, half upkeep); ships are built and sailors trained here." %
 			world.get_country(p.controller_id).name if world.get_country(p.controller_id) else "Dock")
 	if not siege.is_empty():
-		_pair("Siege by " + world.get_country(siege.by).name, "%d of %d days" % [int(siege.progress), int(military.siege_days(p))])
+		var by := world.get_country(siege.by)
+		if fort:
+			var odds := military.siege_odds(p)
+			_pair("Siege by " + by.name, "%d %% in %d days" % [int(odds.chance), military.days_to_try(p.id)])
+			for r: Array in odds.reasons:
+				_pair("    " + r[0], "%+d %%" % int(round(r[1])), 13)
+			if not military.our_besiegers(player_tag, p.id).is_empty():
+				var why := military.assault_blocked(player_tag, p.id)
+				var storm := UITheme.button("Storm it — %d %% (heavy losses)" % int(MilitarySystem.assault_chance(odds.chance)))
+				storm.disabled = why != ""
+				storm.pressed.connect(func(): assault_requested.emit(p.id))
+				_extra.add_child(storm)
+				if why != "":
+					_note(why)
+		else:
+			_pair("Occupation by " + by.name, "%d of %d days" % [int(siege.progress), int(MilitarySystem.OCCUPY_DAYS)])
+	if not partners.is_empty():
+		_note("We hold it in war: an ally may hold it instead.")
+		for t: String in partners:
+			var give := UITheme.button("Hand it to %s" % world.get_country(t).name)
+			give.pressed.connect(func(): occupation_transfer_requested.emit(p.id, t))
+			_extra.add_child(give)
 	for a: Army in here:
 		var b := UITheme.link_button("%s — %s" % [a.name, DrawerPanel.thousands(a.men()) if not a.navy else "%d ships" % a.regiments.size()])
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		var id := a.id
 		b.pressed.connect(func(): army_requested.emit(id))
 		_extra.add_child(b)
+
+
+## Our province of another faith: what it costs us in unrest, and a
+## missionary to convert it (or ours at work, and how far along).
+func _faith(p: Province) -> void:
+	var us := world.get_country(player_tag)
+	if us == null or p.owner_id != player_tag or us.religion == "" or p.religion == us.religion:
+		return
+	_section_title("Faith")
+	_note("Its people are %s, not of our %s faith: +%d unrest." % [Religions.name_of(p.religion),
+		Religions.name_of(us.religion), int(Religions.unrest(p.religion, us.religion))])
+	var done := religion.progress(p)
+	if done >= 0.0 and world.missions[p.id][0] == player_tag:
+		var left := ceili(religion.months_to_convert(player_tag, p) * (100.0 - done) / 100.0)
+		_pair("Our missionary", "%d %% — about %s left" % [int(done), _months(left)])
+		var recall := UITheme.button("Call the missionary back")
+		recall.pressed.connect(func(): recall_requested.emit(p.id))
+		_extra.add_child(recall)
+		return
+	var why := religion.blocked(player_tag, p)
+	var send := UITheme.button("Send a missionary — %d ducats" % int(ceil(religion.send_cost(player_tag, p))))
+	send.disabled = why != ""
+	send.pressed.connect(func(): missionary_requested.emit(p.id))
+	_extra.add_child(send)
+	_note("Converts it in about %s, for %.0f ducat a month. %s" % [_months(religion.months_to_convert(player_tag, p)),
+		EconomySystem.MISSION_UPKEEP, why])
+
+
+static func _months(n: int) -> String:
+	return "%d months" % n if n < 24 else "%d years" % roundi(n / 12.0)
 
 
 ## Regiments (and ships, on a coast) our realm raises in this age, here.
@@ -340,13 +413,18 @@ func _cell(table: GridContainer, text: String, color := UITheme.TEXT, size := 15
 func _pair(title: String, value: String, value_size := 15) -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
+	# Both sides wrap and share the line (a long name must not squeeze the
+	# value into a column of single words).
 	var name_label := UITheme.label(title, 15, UITheme.TEXT_DIM)
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	name_label.custom_minimum_size.x = 80
 	row.add_child(name_label)
 	var v := UITheme.label(value, value_size)
 	v.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	v.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	v.custom_minimum_size.x = 110
 	row.add_child(v)
 	_extra.add_child(row)
 

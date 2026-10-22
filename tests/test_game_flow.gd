@@ -28,8 +28,8 @@ func test_title_choose_play_save_continue() -> void:
 	check_eq(game.phase, game.Phase.CHOOSING, "choosing a country")
 	check(not menu.visible, "menu closed while choosing")
 
-	game._on_map_tapped(world.latlon_to_map(48.86, 2.35))
-	check_eq(game.hud.shown_country(), "FRA", "tapping Paris offers France")
+	game._on_map_tapped(world.latlon_to_map(47.39, 0.69))
+	check_eq(game.hud.shown_country(), "FRA", "tapping Tours offers France")
 	check_eq(game.map_view.selected_country, "FRA", "France is highlighted")
 	game.hud.play_requested.emit("FRA")
 	check_eq(game.phase, game.Phase.PLAYING, "playing")
@@ -71,7 +71,7 @@ func test_title_choose_play_save_continue() -> void:
 	game._on_box_selected(Vector2.ZERO, game.map_camera.view_size())
 	check_eq(game.selected_armies, [french.id, second.id] as Array[int], "boxes add up, armies before fleets")
 	# An order sends them off, lets them go and ends select mode.
-	game._on_map_tapped(world.province_near(45.76, 4.84).label_position)  # Lyon
+	game._on_map_tapped(world.province_near(44.84, -0.58).label_position)  # Bordeaux
 	check(second.is_moving() and french.is_moving(), "both ordered to march")
 	check(not game.map_camera.select_mode and not game.hud._select_button.button_pressed, "the order ends select mode")
 	check(game.selected_armies.is_empty(), "and lets the armies go")

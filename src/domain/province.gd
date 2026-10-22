@@ -20,6 +20,11 @@ var elevation := 0
 ## The good the world data gives it in 1590, and hidden deposits:
 ## [good, year from which it can be found, chance a year].
 var start_resource := ""
+## Its faith (Religions.CATALOGUE id), and the scenario's (what an older save gets).
+var religion := ""
+var start_religion := ""
+## Its people (Cultures.CATALOGUE id), as the scenario has them.
+var culture := ""
 var deposits: Array = []
 var is_coastal: bool
 var area: int  ## in map pixels

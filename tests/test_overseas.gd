@@ -110,3 +110,42 @@ func test_overseas_land_raises_no_levies() -> void:
 				goa_region += 1
 	check_eq(goa_region, 0, "Portugal's levy regions are all at home")
 	check(w.overseas.size() > 0, "some land is still overseas (outposts of under three)")
+
+
+## Colonies pay their way and their mother: founding money, cheap frontier
+## administration, a viceroy's court, the royal fifth, the situado for their
+## forts (and their shortfall), and tribute that leaves them half their surplus.
+func test_colonies_pay_their_way() -> void:
+	var world := _campaign().world
+	var c := Campaign.new(world)
+	var economy := EconomySystem.new(c)
+	MilitarySystem.new(c, economy, DiplomacyActions.new(c))
+	var line := func(b: Dictionary, which: String, label: String) -> float:
+		for l: Array in b[which]:
+			if l[0] == label:
+				return l[1]
+		return 0.0
+	for tag: String in world.created:
+		var k := world.get_country(tag)
+		var b: Dictionary = economy.budget(tag)
+		check(k.treasury > 0.0, "%s starts with money" % k.name)
+		check(b.net > 0.0, "%s starts in surplus (%+.1f)" % [k.name, b.net])
+		var spare: float = b.net + line.call(b, "expenses", EconomySystem.TRIBUTE_OUT)
+		check(line.call(b, "expenses", EconomySystem.TRIBUTE_OUT) <= spare * EconomySystem.COLONY_REMIT + 0.01,
+			"%s keeps at least half its surplus" % k.name)
+		var ships := 0
+		for a: Army in world.military.armies_of(tag, true):
+			ships += a.regiments.size()
+		check(ships <= Military.COLONIAL_NAVY_MAX + 2, "%s keeps a coast-guard squadron (%d)" % [k.name, ships])
+	var new_spain := _nation_named(world, "Viceroyalty of New Spain")
+	check(line.call(economy.budget(new_spain), "income", EconomySystem.FIFTH) > 1.0, "New Spain's silver pays the royal fifth")
+	check(line.call(economy.budget(new_spain), "expenses", EconomySystem.TRIBUTE_OUT) > 1.0, "and its tribute goes home")
+	check(line.call(economy.budget("SPA"), "expenses", EconomySystem.SITUADO) > 0.0, "Spain pays the situado")
+	check(economy.budget("SPA").net > 0.0, "and is still in surplus")
+	# Frontier land costs little to run; an outpost's fort little to keep.
+	var lima := world.province_near(-12.05, -77.04)
+	var rich := world.province_near(48.86, 2.35)
+	check(economy._entry(lima).admin < economy._entry(rich).admin or lima.development >= 5, "a frontier province is cheaper to run")
+	var outpost := world.province_near(23.61, 58.59)  # Muscat
+	if "fort" in outpost.buildings and outpost.development < 5:
+		check(economy._entry(outpost).forts < Buildings.CATALOGUE.fort.upkeep, "an outpost's fort costs less")

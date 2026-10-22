@@ -11,6 +11,10 @@ var color: Color
 
 # Campaign state
 var government_type: String = ""
+## Rank (Ranks: county … empire), and the campaign start's (what an older save
+## without one gets; -1: worked out from its land then).
+var rank := Ranks.COUNTY
+var start_rank := -1
 var capital_province_id: int = 0
 var treasury: float = 0.0
 ## Loans: [amount, annual interest rate, day number taken].
@@ -33,6 +37,22 @@ var colonial_policy := 0
 ## A colonial nation's colonial region ("" for every other country).
 var colonial_region := ""
 var start_colonial_policy := 0
+## Ideas taken up (Ideas.CATALOGUE ids), and the scenario's (what an older save
+## without them gets).
+var ideas: Array = []
+var start_ideas: Array = []
+## State religion (Religions.CATALOGUE id), and the scenario's.
+var religion := ""
+var start_religion := ""
+## Primary culture (Cultures.CATALOGUE id), and the scenario's.
+var culture := ""
+var start_culture := ""
+## Nations it has formed (Formations.CATALOGUE ids): its name and adjective
+## are the last one's.
+var formed: Array = []
+## Its name and adjective before it formed any nation.
+var base_name := ""
+var base_adjective := ""
 
 ## Price inflation in percent: raises every cost.
 var inflation := 0.0

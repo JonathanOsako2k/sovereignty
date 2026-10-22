@@ -48,9 +48,29 @@ const OCCUPATION_SHARE := 0.5
 # --- Policies (see Policies for court, minting and upkeep) ---
 const INFLATION_EASING := 0.02
 # --- Costs ---
+## Administering a province costs ADMIN_PER_PROVINCE a month at development
+## ADMIN_FULL_DEVELOPMENT or more, less for thinly settled land (down to
+## ADMIN_MIN_SHARE of it): a frontier province costs little to run.
 const ADMIN_PER_PROVINCE := 0.25
-const COURT_BASE := 2.0
-const COURT_PER_DEVELOPMENT := 0.02
+const ADMIN_FULL_DEVELOPMENT := 5.0
+const ADMIN_MIN_SHARE := 0.2
+const FORT_MIN_SHARE := 0.4
+## The court's cost comes with the realm's rank (Ranks.court): a base and a
+## share of its taxes, less for tribal realms and colonies.
+## The crown's fifth of gold and silver mined (the quinto real), from every
+## gold or silver province a country holds — as far as its reach allows.
+const ROYAL_FIFTH := 0.2
+const ROYAL_FIFTH_GOODS := ["gold", "silver"]
+## The crown pays this share of its colonies' forts' upkeep, and more —
+## whatever a colony needs to keep SITUADO_MARGIN and SITUADO_MARGIN_SHARE of
+## its revenue in hand, up to all its costs (the situado, sent from Mexico to
+## the Caribbean, Florida and Manila to keep them going).
+const SITUADO_SHARE := 0.5
+const SITUADO_MARGIN := 0.25
+const SITUADO_MARGIN_SHARE := 0.1
+## A colony sends home at most this share of what it has left over (and at
+## most its TRIBUTE_SHARE of its revenue): the rest pays its own affairs.
+const COLONY_REMIT := 0.5
 ## Colonies send home a quarter (the crown's fifth of the silver, the customs).
 const TRIBUTE_SHARE := {"vassal": 0.10, "personal_union": 0.05, "tributary": 0.05, "colony": 0.25}
 # --- Estates' goodwill ---
@@ -73,6 +93,11 @@ const BANKRUPTCY_MEMORY_DAYS := 10 * 365
 # --- Ledger names ---
 const TAXES := "Taxes: %s"
 const CUSTOMS := "Customs"
+const FIFTH := "Royal fifth of the mines"
+const SITUADO := "Situado: colonial garrisons"
+const SITUADO_IN := "Situado from the crown"
+const SUBSIDIES_OUT := "Subsidies paid"
+const SUBSIDIES_IN := "Subsidies received"
 const OCCUPIED := "Taxes from occupied lands"
 const TRIBUTE_IN := "Tribute from subjects"
 const MINTING := "Minting"
@@ -80,6 +105,9 @@ const ADMIN := "Provincial administration"
 const COURT := "Court maintenance"
 const FORTS := "Fort maintenance"
 const COLONIES := "Colonial upkeep"
+const MISSIONS := "Missionaries"
+## A missionary's upkeep a month (see ReligionSystem).
+const MISSION_UPKEEP := 1.0
 const ARMY := "Army maintenance"
 const NAVY := "Navy maintenance"
 const INTEREST := "Interest on loans"
@@ -99,6 +127,7 @@ var _production := {}  # province id -> production(p), until the province change
 var _entries := {}  # province id -> its figures for budgets (see _entry)
 var _built_out := {}  # province id -> true: no extraction building or manufactory left to add
 var _budgets := {}  # tag -> budget, until something changes
+var _governed := {}  # tag -> development held, as the budgets were added up
 
 
 func _init(p_campaign: Campaign) -> void:
@@ -249,9 +278,20 @@ func _entry(p: Province) -> Dictionary:
 	for r: String in Estates.ROLES:
 		reached.append(incomes[r] * reach)
 	var e := {"value": value, "reached": reached, "customs": value * Buildings.customs_share(p),
-		"upkeep": Buildings.upkeep(p)}
+		"fifth": value * ROYAL_FIFTH * reach if p.resource in ROYAL_FIFTH_GOODS else 0.0,
+		"upkeep": Buildings.upkeep(p) - (_fort_saving(p) if "fort" in p.buildings else 0.0),
+		"forts": Buildings.CATALOGUE.fort.upkeep - _fort_saving(p) if "fort" in p.buildings else 0.0,
+		"admin": ADMIN_PER_PROVINCE * clampf(p.development / ADMIN_FULL_DEVELOPMENT, ADMIN_MIN_SHARE, 1.0)}
 	_entries[p.id] = e
 	return e
+
+
+## A fort in thinly settled land is an outpost with a small garrison: its
+## upkeep scales with development like administration (down to FORT_MIN_SHARE).
+## What that saves on the full upkeep.
+static func _fort_saving(p: Province) -> float:
+	var share := clampf(p.development / ADMIN_FULL_DEVELOPMENT, FORT_MIN_SHARE, 1.0)
+	return Buildings.CATALOGUE.fort.upkeep * (1.0 - share)
 
 
 ## The share of an estate's (reached) income a country collects: its tax
@@ -270,9 +310,26 @@ func province_taxes(p: Province) -> Dictionary:
 	if c == null:
 		return out
 	var reached: PackedFloat64Array = _entry(p).reached
+	var governed := governance_efficiency(c.id)
 	for i in Estates.ROLES.size():
-		out[Estates.ROLES[i]] = reached[i] * _tax_factor(c, i)
+		out[Estates.ROLES[i]] = reached[i] * _tax_factor(c, i) * governed
 	return out
+
+
+## Development a country holds (its rank governs so much in full).
+func development_of(tag: String) -> int:
+	if _budgets.is_empty():
+		budgets()
+	return _governed.get(tag, 0)
+
+
+## The share of its taxes a country's administration collects: all of them
+## while it holds no more development than its rank governs (Ranks).
+func governance_efficiency(tag: String) -> float:
+	var c := world.get_country(tag)
+	if c == null:
+		return 1.0
+	return Ranks.efficiency(c.rank, clock.year, development_of(tag))
 
 
 # --- Budgets ---------------------------------------------------------------------
@@ -296,6 +353,9 @@ func _compute_budgets() -> Dictionary:
 	var provinces := {}
 	var development := {}
 	var fort_upkeep := {}
+	var fort_only := {}  # tag -> the forts' part of fort_upkeep (the situado shares it)
+	var admin := {}
+	var fifth := {}
 	var colonies := {}
 	var roles := Estates.ROLES.size()
 	for p: Province in world.ownable_provinces():
@@ -308,6 +368,8 @@ func _compute_budgets() -> Dictionary:
 		provinces[owner] = provinces.get(owner, 0) + 1
 		development[owner] = development.get(owner, 0) + p.development
 		fort_upkeep[owner] = fort_upkeep.get(owner, 0.0) + e.upkeep
+		fort_only[owner] = fort_only.get(owner, 0.0) + e.forts
+		admin[owner] = admin.get(owner, 0.0) + e.admin
 		var incomes: PackedFloat64Array = e.reached
 		if p.controller_id == owner:
 			var sums: Array = reached.get(owner, [])
@@ -318,68 +380,113 @@ func _compute_budgets() -> Dictionary:
 			for i in roles:
 				sums[i] += incomes[i]
 			customs[owner] = customs.get(owner, 0.0) + e.customs
+			fifth[owner] = fifth.get(owner, 0.0) + e.fifth
 		elif p.controller_id != "":
 			var c: Country = world.countries[owner]
 			var sum: float = e.customs
 			for i in roles:
 				sum += incomes[i] * _tax_factor(c, i)
 			occupied[p.controller_id] = occupied.get(p.controller_id, 0.0) + sum * OCCUPATION_SHARE
+	var missions := {}
+	for id: int in world.missions:
+		var by: String = world.missions[id][0]
+		missions[by] = missions.get(by, 0) + 1
 	var army := {}
 	var navy := {}
 	for a: Army in world.military.armies.values():
 		var table := navy if a.navy else army
 		table[a.owner] = table.get(a.owner, 0.0) + a.upkeep() * (Military.DOCKED_UPKEEP if Military.is_berthed(world, a) else 1.0)
+	_governed = development
 	var taxes := {}  # tag -> {role: amount}
 	for tag: String in reached:
 		var c: Country = world.countries[tag]
 		var sums: Array = reached[tag]
+		var governed := Ranks.efficiency(c.rank, clock.year, development.get(tag, 0))
 		var t := {}
 		for i in roles:
-			t[Estates.ROLES[i]] = sums[i] * _tax_factor(c, i)
+			t[Estates.ROLES[i]] = sums[i] * _tax_factor(c, i) * governed
 		taxes[tag] = t
 	var d := world.diplomacy
-	var tribute_in := {}
-	var tribute_out := {}
+	var ctx := {"taxes": taxes, "customs": customs, "fifth": fifth, "occupied": occupied, "admin": admin,
+		"development": development, "fort_upkeep": fort_upkeep, "colonies": colonies, "missions": missions,
+		"army": army, "navy": navy, "tribute_in": {}, "tribute_out": {}, "situado_in": {}, "situado_out": {},
+		"subsidy_in": {}, "subsidy_out": {}}
+	for row: Array in d.subsidies():  # [from, to, ducats a month]
+		ctx.subsidy_out[row[0]] = ctx.subsidy_out.get(row[0], 0.0) + float(row[2])
+		ctx.subsidy_in[row[1]] = ctx.subsidy_in.get(row[1], 0.0) + float(row[2])
+	# Tribute from vassals and unions: a share of their taxes. Colonies: the
+	# crown pays half their forts' upkeep, and whatever more a poor colony
+	# needs to keep a little in hand (the situado); they send home a quarter
+	# of their revenue, but never more than half of what they have left over.
 	for tag: String in world.countries:
 		var overlord := d.overlord_of(tag)
-		if overlord != "":
-			var amount: float = _sum(taxes.get(tag, {})) * TRIBUTE_SHARE[d.subject_type(tag)]
-			tribute_out[tag] = amount
-			tribute_in[overlord] = tribute_in.get(overlord, 0.0) + amount
+		if overlord == "" or not world.countries.has(overlord):
+			continue
+		var revenue: float = _sum(taxes.get(tag, {})) + fifth.get(tag, 0.0)
+		var amount: float = revenue * TRIBUTE_SHARE[d.subject_type(tag)]
+		if d.subject_type(tag) == "colony":
+			var c: Country = world.countries[tag]
+			var prices := 1.0 + c.inflation / 100.0
+			var forts: float = fort_only.get(tag, 0.0) * Policies.upkeep_cost(c.spending.forts) * prices
+			var own_budget := _country_budget(tag, ctx)  # before the situado and tribute
+			var own: float = own_budget.net
+			var spent := 0.0
+			for l: Array in own_budget.expenses:
+				spent += l[1]
+			var margin := SITUADO_MARGIN + SITUADO_MARGIN_SHARE * revenue
+			var situado := clampf(maxf(forts * SITUADO_SHARE, margin - own), 0.0, spent)
+			if situado > 0.0:
+				ctx.situado_in[tag] = situado
+				ctx.situado_out[overlord] = ctx.situado_out.get(overlord, 0.0) + situado
+			amount = minf(amount, maxf(own + situado, 0.0) * COLONY_REMIT)
+		ctx.tribute_out[tag] = amount
+		ctx.tribute_in[overlord] = ctx.tribute_in.get(overlord, 0.0) + amount
 	var out := {}
 	for tag: String in world.countries:
-		var c: Country = world.countries[tag]
-		var prices := 1.0 + c.inflation / 100.0
-		var income := []
-		var expenses := []
-		var t: Dictionary = taxes.get(tag, {})
-		var tax_income := _sum(t)
-		for r: String in Estates.ROLES:
-			_line(income, TAXES % Estates.display(r), t.get(r, 0.0))
-		_line(income, CUSTOMS, customs.get(tag, 0.0))
-		_line(income, OCCUPIED, occupied.get(tag, 0.0))
-		_line(income, TRIBUTE_IN, tribute_in.get(tag, 0.0))
-		_line(income, MINTING, tax_income * Policies.mint_share(c.spending.mint))
-		_line(expenses, ADMIN, provinces.get(tag, 0) * ADMIN_PER_PROVINCE * prices)
-		_line(expenses, COURT, (COURT_BASE + development.get(tag, 0) * COURT_PER_DEVELOPMENT)
-			* Policies.court_cost(c.spending.court) * prices)
-		_line(expenses, FORTS, fort_upkeep.get(tag, 0.0) * Policies.upkeep_cost(c.spending.forts) * prices)
-		_line(expenses, COLONIES, (Colonisation.POLICY_UPKEEP[c.colonial_policy]
-			+ Colonisation.COLONY_UPKEEP * colonies.get(tag, 0)) * prices)
-		_line(expenses, ARMY, army.get(tag, 0.0) * Policies.upkeep_cost(c.spending.army) * prices)
-		_line(expenses, NAVY, navy.get(tag, 0.0) * Policies.upkeep_cost(c.spending.navy) * prices)
-		var interest := 0.0
-		for l: Array in c.loans:
-			interest += l[0] * l[1] / 12.0
-		_line(expenses, INTEREST, interest)
-		_line(expenses, TRIBUTE_OUT, tribute_out.get(tag, 0.0))
-		var net := 0.0
-		for l: Array in income:
-			net += l[1]
-		for l: Array in expenses:
-			net -= l[1]
-		out[tag] = {"income": income, "expenses": expenses, "net": net, "tax_income": tax_income}
+		out[tag] = _country_budget(tag, ctx)
 	return out
+
+
+## One country's budget from the summed figures (`ctx`, see _compute_budgets).
+func _country_budget(tag: String, ctx: Dictionary) -> Dictionary:
+	var c: Country = world.countries[tag]
+	var d := world.diplomacy
+	var prices := 1.0 + c.inflation / 100.0
+	var income := []
+	var expenses := []
+	var t: Dictionary = ctx.taxes.get(tag, {})
+	var tax_income := _sum(t)
+	for r: String in Estates.ROLES:
+		_line(income, TAXES % Estates.display(r), t.get(r, 0.0))
+	_line(income, CUSTOMS, ctx.customs.get(tag, 0.0))
+	_line(income, FIFTH, ctx.fifth.get(tag, 0.0))
+	_line(income, OCCUPIED, ctx.occupied.get(tag, 0.0))
+	_line(income, TRIBUTE_IN, ctx.tribute_in.get(tag, 0.0))
+	_line(income, SITUADO_IN, ctx.situado_in.get(tag, 0.0))
+	_line(income, SUBSIDIES_IN, ctx.subsidy_in.get(tag, 0.0))
+	_line(income, MINTING, tax_income * Policies.mint_share(c.spending.mint))
+	_line(expenses, ADMIN, ctx.admin.get(tag, 0.0) * prices)
+	_line(expenses, COURT, Ranks.court(c.rank, tax_income, c.government_type, d.subject_type(tag) == "colony")
+		* Policies.court_cost(c.spending.court) * prices)
+	_line(expenses, FORTS, ctx.fort_upkeep.get(tag, 0.0) * Policies.upkeep_cost(c.spending.forts) * prices)
+	_line(expenses, SITUADO, ctx.situado_out.get(tag, 0.0))
+	_line(expenses, SUBSIDIES_OUT, ctx.subsidy_out.get(tag, 0.0))
+	_line(expenses, COLONIES, (Colonisation.POLICY_UPKEEP[c.colonial_policy]
+		+ Colonisation.COLONY_UPKEEP * ctx.colonies.get(tag, 0)) * prices)
+	_line(expenses, MISSIONS, MISSION_UPKEEP * ctx.missions.get(tag, 0) * prices)
+	_line(expenses, ARMY, ctx.army.get(tag, 0.0) * Policies.upkeep_cost(c.spending.army) * prices)
+	_line(expenses, NAVY, ctx.navy.get(tag, 0.0) * Policies.upkeep_cost(c.spending.navy) * prices)
+	var interest := 0.0
+	for l: Array in c.loans:
+		interest += l[0] * l[1] / 12.0
+	_line(expenses, INTEREST, interest)
+	_line(expenses, TRIBUTE_OUT, ctx.tribute_out.get(tag, 0.0))
+	var net := 0.0
+	for l: Array in income:
+		net += l[1]
+	for l: Array in expenses:
+		net -= l[1]
+	return {"income": income, "expenses": expenses, "net": net, "tax_income": tax_income}
 
 
 static func _sum(d: Dictionary) -> float:
@@ -442,7 +549,8 @@ func satisfaction_target(c: Country, role_index: int) -> float:
 	return clampf(target, 0.0, 100.0)
 
 
-## Unrest follows the working estates' goodwill; buildings rise.
+## Unrest follows the working estates' goodwill, and the people's faith if it
+## is not their ruler's; buildings rise.
 func _provinces_month() -> void:
 	for p: Province in world.provinces.values():
 		if p.is_sea or p.is_wasteland:
@@ -450,7 +558,7 @@ func _provinces_month() -> void:
 		var c := world.get_country(p.owner_id)
 		if c != null:
 			var workers: float = minf(c.satisfaction[3], c.satisfaction[4])
-			var target := clampf((50.0 - workers) * 0.4, 0.0, 30.0)
+			var target := clampf((50.0 - workers) * 0.4, 0.0, 30.0) + Religions.unrest(p.religion, c.religion)
 			var unrest := decimal(p.unrest + (target - p.unrest) * UNREST_PULL)
 			if unrest != p.unrest:
 				p.unrest = unrest
@@ -663,10 +771,30 @@ func ai_construction(player: String) -> void:
 			land[c.id] = []
 	if land.is_empty():
 		return
+	var counts := {}  # tag -> provinces
+	var barracks := {}  # tag -> barracks standing or being built
+	var drill := {}  # tag -> its most populous province that could take barracks
 	for p: Province in world.ownable_provinces():
-		if land.has(p.owner_id) and p.construction.is_empty():
-			land[p.owner_id].append([production(p).value, p.id, p])
+		if not land.has(p.owner_id):
+			continue
+		var tag := p.owner_id
+		counts[tag] = counts.get(tag, 0) + 1
+		if "barracks" in p.buildings or (not p.construction.is_empty() and p.construction[0] == "barracks"):
+			barracks[tag] = barracks.get(tag, 0) + 1
+		elif p.construction.is_empty() and p.controller_id == tag and Buildings.unsuitable("barracks", p) == "" \
+				and (not drill.has(tag) or p.population > drill[tag].population):
+			drill[tag] = p
+		if p.construction.is_empty():
+			land[tag].append([production(p).value, p.id, p])
 	for tag: String in land:
+		# Barracks first, as the realm grows: one for a realm that keeps a
+		# standing army, one more for every AI_PROVINCES_PER_BARRACKS provinces.
+		var wanted := 0 if counts.get(tag, 0) < Military.STANDING_MIN_PROVINCES \
+			else mini(1 + counts[tag] / AI_PROVINCES_PER_BARRACKS, AI_MAX_BARRACKS)
+		if barracks.get(tag, 0) < wanted and drill.has(tag) \
+				and world.get_country(tag).treasury >= building_cost(tag, "barracks") + LOAN_SIZE * 2.0:
+			start_building(tag, "barracks", drill[tag])
+			continue
 		var provinces: Array = land[tag]
 		provinces.sort_custom(func(a: Array, b: Array) -> bool: return a[0] > b[0] or (a[0] == b[0] and a[1] < b[1]))
 		for entry: Array in provinces:
@@ -680,6 +808,12 @@ func ai_construction(player: String) -> void:
 			if world.get_country(tag).treasury >= building_cost(tag, id) + LOAN_SIZE * 2.0:
 				start_building(tag, id, p)
 			break
+
+
+## AI realms build barracks: one when they keep a standing army, one more for
+## every this many provinces, up to AI_MAX_BARRACKS.
+const AI_PROVINCES_PER_BARRACKS := 25
+const AI_MAX_BARRACKS := 4
 
 
 ## The first extraction building or manufactory a province could take ("" if none).

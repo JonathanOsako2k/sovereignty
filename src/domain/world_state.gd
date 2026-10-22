@@ -15,13 +15,16 @@ signal countries_changed
 ## Province campaign fields in the order a saved province row stores them
 ## (pops: counts in Estates.ROLES order; population is their sum).
 const PROVINCE_FIELDS := ["owner", "controller", "population", "development", "unrest", "resource",
-	"buildings", "construction", "found", "pops", "colonist", "colony_progress"]
+	"buildings", "construction", "found", "pops", "colonist", "colony_progress", "religion"]
 const MAX_POPULATION := 1_000_000_000
 const MAX_DEVELOPMENT := 100
 const MAX_UNREST := 100.0
 const MIN_STABILITY := -3
 const MAX_STABILITY := 3
 const MAX_LEGITIMACY := 100.0
+## Countries the world data gained after saves were made: an older save without
+## them still loads (they hold no land in it).
+const LATER_COUNTRIES := ["LEA"]
 
 var data_version := 0
 ## MD5 of the province-id map: two worlds with the same version but a
@@ -39,6 +42,8 @@ var regions: Dictionary = {}
 ## Map projection (Mercator): {lon_west, lat_north, lat_south}.
 var projection: Dictionary = {}
 var player_country_id := ""
+## Missionaries at work: province id -> [country, progress in percent] (see ReligionSystem).
+var missions := {}
 var start_date := {"year": 1590, "month": 1, "day": 1}
 
 var provinces: Dictionary = {}  # int -> Province
@@ -138,7 +143,8 @@ func country_marker(tag: String) -> int:
 
 ## Founds a new country (a colonial nation): a fresh tag ("C01", "C02"…),
 ## landless until provinces are handed to it.
-func create_country(name: String, adjective: String, color: Color, government: String, tag := "") -> Country:
+func create_country(name: String, adjective: String, color: Color, government: String, tag := "",
+		notify := true) -> Country:
 	if tag == "":
 		var n := 1
 		while countries.has("C%02d" % n):
@@ -153,7 +159,8 @@ func create_country(name: String, adjective: String, color: Color, government: S
 	countries[tag] = c
 	country_order.append(tag)
 	created.append(tag)
-	countries_changed.emit()
+	if notify:
+		countries_changed.emit()
 	return c
 
 
@@ -299,6 +306,11 @@ func campaign_state() -> Dictionary:
 			"last_bankruptcy": c.last_bankruptcy,
 			"legitimacy": c.legitimacy,
 			"stability": c.stability,
+			"ideas": c.ideas.duplicate(),
+			"religion": c.religion,
+			"culture": c.culture,
+			"formed": c.formed.duplicate(),
+			"rank": c.rank,
 		}
 	var ids: Array = provinces.keys()
 	ids.sort()
@@ -312,7 +324,12 @@ func campaign_state() -> Dictionary:
 			pops.append(p.pops.get(r, 0))
 		rows.append([p.id, p.owner_id, p.controller_id, p.population, p.development, p.unrest, p.resource,
 			p.buildings.duplicate(), p.construction.duplicate(), p.found.duplicate(), pops, p.colonist,
-			p.colony_progress])
+			p.colony_progress, p.religion])
+	var mission_rows := []
+	var mission_ids: Array = missions.keys()
+	mission_ids.sort()
+	for id: int in mission_ids:
+		mission_rows.append([id, missions[id][0], missions[id][1]])
 	var created_rows := []
 	for tag: String in created:
 		var c: Country = countries[tag]
@@ -323,6 +340,7 @@ func campaign_state() -> Dictionary:
 		"countries": country_states,
 		"province_fields": PROVINCE_FIELDS.duplicate(),
 		"provinces": rows,
+		"missions": mission_rows,
 	}
 
 
@@ -394,8 +412,22 @@ func check_campaign_state(state: Variant) -> PackedStringArray:
 				errors.append("country %s: ledger must be a list of [source, amount]" % tag)
 			_check_number(errors, "country %s legitimacy", tag, s.get("legitimacy"), 0.0, MAX_LEGITIMACY)
 			_check_number(errors, "country %s stability", tag, s.get("stability"), MIN_STABILITY, MAX_STABILITY, true)
+			var ideas: Variant = s.get("ideas")
+			if not (ideas == null or (ideas is Array and ideas.all(func(i: Variant) -> bool: return Ideas.CATALOGUE.has(i)))):
+				errors.append("country %s: unknown ideas" % tag)
+			var faith: Variant = s.get("religion")
+			if not (faith == null or (faith is String and (faith == "" or Religions.has(faith)))):
+				errors.append("country %s: unknown religion %s" % [tag, var_to_str(faith)])
+			var people: Variant = s.get("culture")
+			if not (people == null or (people is String and (people == "" or Cultures.has(people)))):
+				errors.append("country %s: unknown culture %s" % [tag, var_to_str(people)])
+			var formed: Variant = s.get("formed")
+			if not (formed == null or (formed is Array and formed.all(func(f: Variant) -> bool: return Formations.CATALOGUE.has(f)))):
+				errors.append("country %s: unknown nation formed" % tag)
+			if s.get("rank") != null:
+				_check_number(errors, "country %s rank", tag, s.get("rank"), Ranks.COUNTY, Ranks.EMPIRE, true)
 		for tag: String in known:
-			if not country_states.has(tag):
+			if not country_states.has(tag) and not tag in LATER_COUNTRIES:
 				errors.append("country %s is missing" % tag)
 
 	var fields: Variant = state.get("province_fields")
@@ -449,29 +481,47 @@ func check_campaign_state(state: Variant) -> PackedStringArray:
 		elif row[11] != "" and row[1] != "":
 			errors.append("province %d: settled by %s but already owned" % [id, row[11]])
 		_check_number(errors, "province %d colony progress", id, row[12], 0.0, 100.0)
+		# null religion (an upgraded older save) means "as at the start".
+		if not (row[13] == null or (row[13] is String and (row[13] == "" or Religions.has(row[13])))):
+			errors.append("province %d: unknown religion %s" % [id, var_to_str(row[13])])
 	for p: Province in provinces.values():
 		if not p.is_wasteland and not p.is_sea and not seen.has(p.id):
 			errors.append("province %d is missing" % p.id)
 			if errors.size() > 50:
 				break
+	var mission_rows: Variant = state.get("missions", [])
+	if not mission_rows is Array:
+		errors.append("'missions' must be a list")
+	else:
+		for row: Variant in mission_rows:
+			if not (row is Array and row.size() == 3 and (row[0] is float or row[0] is int) and row[1] is String
+					and known.has(row[1]) and (row[2] is float or row[2] is int) and get_province(int(row[0])) != null):
+				errors.append("malformed mission %s" % var_to_str(row).left(60))
 	return errors
 
 
 ## The founded countries a state holds: those of the world now are dropped and
 ## these made again (same tags, so the rest of the state finds them).
 func _apply_created(rows: Array) -> void:
+	var had := not created.is_empty()
 	for tag: String in created:
 		countries.erase(tag)
 		country_order.erase(tag)
 	created.clear()
 	for row: Array in rows:
-		var c := create_country(row[1], row[2], Color.html(row[3]), row[4], row[0])
+		var c := create_country(row[1], row[2], Color.html(row[3]), row[4], row[0], false)
 		c.colonial_region = row[5]
+	if had or not rows.is_empty():
+		countries_changed.emit()  # once, however many (each redraws the whole map)
 
 
 ## Replaces the campaign state. All or nothing: returns diagnostics and leaves
 ## the world untouched if the state is invalid or would leave it inconsistent.
-func restore_campaign_state(state: Variant) -> PackedStringArray:
+func restore_campaign_state(state: Variant, trusted := false) -> PackedStringArray:
+	if trusted:  # made by campaign_state() itself (a new campaign's start): no checks, no way back
+		_apply_campaign_state(state)
+		campaign_restored.emit()
+		return PackedStringArray()
 	var errors := check_campaign_state(state)
 	if not errors.is_empty():
 		return errors
@@ -517,6 +567,8 @@ func _apply_campaign_state(state: Dictionary) -> void:
 		c.last_bankruptcy = int(s.last_bankruptcy)
 		c.legitimacy = float(s.legitimacy)
 		c.stability = int(s.stability)
+		var ideas: Variant = s.get("ideas")
+		c.ideas = Array(ideas) if ideas != null else c.start_ideas.duplicate()  # an older save: the scenario's
 	for row: Array in state.provinces:
 		var p: Province = provinces[int(row[0])]
 		p.owner_id = row[1]
@@ -539,6 +591,40 @@ func _apply_campaign_state(state: Dictionary) -> void:
 				p.population += p.pops[r]
 		p.colonist = row[11]
 		p.colony_progress = float(row[12])
+		p.religion = row[13] if row[13] != null else p.start_religion
+	missions = {}
+	for row: Array in state.get("missions", []):
+		missions[int(row[0])] = [row[1], float(row[2])]
+	# State religions: saved, else the scenario's, else (a colonial nation in an
+	# older save) its capital's faith.
+	for tag: String in country_states:
+		var c: Country = countries[tag]
+		var faith: Variant = country_states[tag].get("religion")
+		c.religion = faith if faith is String and faith != "" else c.start_religion
+		if c.religion == "" and get_province(c.capital_province_id) != null:
+			c.religion = get_province(c.capital_province_id).religion
+		var people: Variant = country_states[tag].get("culture")
+		c.culture = people if people is String and people != "" else c.start_culture
+		if c.culture == "" and get_province(c.capital_province_id) != null:
+			c.culture = get_province(c.capital_province_id).culture
+		c.formed = Array(country_states[tag].get("formed", []))
+		Formations.apply_name(c)
+	# Ranks: saved, else (an older save) the campaign start's, else (a colonial
+	# nation founded in it) from its land.
+	var development := {}
+	for tag: String in country_states:
+		var c: Country = countries[tag]
+		var rank: Variant = country_states[tag].get("rank")
+		if rank != null:
+			c.rank = int(rank)
+		elif c.start_rank >= 0:
+			c.rank = c.start_rank
+		else:
+			if development.is_empty():
+				for p: Province in ownable_provinces():
+					if p.owner_id != "":
+						development[p.owner_id] = development.get(p.owner_id, 0) + p.development
+			c.rank = Ranks.for_colony(c.name, development.get(tag, 0))
 
 
 ## Appends a diagnostic if `value` is not a number in lo..hi (whole if asked).

@@ -3,7 +3,8 @@ extends Node
 ## stream) and the save service, and wires the map layers, HUD and menus
 ## together. Game rules live in src/core and src/domain, not here.
 ##
-## Flow: title menu → choose a country on the map → play. The in-game menu
+## Flow: loading screen → title menu → choose a country on the map → play
+## (a loading screen again while a campaign starts or a save loads). The in-game menu
 ## (☰, Esc or Android back) saves, loads or returns to the title. Time moves
 ## only through the SimulationScheduler; the campaign autosaves every
 ## 1 January and whenever the app is sent to the background or closed.
@@ -11,7 +12,8 @@ extends Node
 ## Debug command-line options (after `--`). Any of them except --menu skips the
 ## title menu and starts playing straight away:
 ##   --screenshot=<path>   save a screenshot after startup and quit
-##   --select=<id>         select a province on startup
+##   --timing              print how long each stage of loading takes
+##   --select=<id>         select a province on startup (or --select=<lat>,<lon>)
 ##   --country=<tag>       open a country's panel on startup
 ##   --budget=<tag>        open a country's budget on startup
 ##   --zoom=<factor>       initial zoom (focused on the selection if any)
@@ -20,6 +22,10 @@ extends Node
 ##   --at=<lat>,<lon>      centre the view on a latitude/longitude
 ##   --play=<tag>          play as this country (default: the scenario's)
 ##   --occupy=<id>,<id>…   hand control of provinces to the player (debug)
+##   --war=<tag>, --levies, --besiege=<lat>,<lon>, --days=<n>, --army[=fleet],
+##   --military, --wars, --treaty …  war at once, our first army set down at a
+##                         place, days passed, panels opened (debug)
+##   --scroll=<px>         scroll the open panels down so far before the screenshot
 ##   --load=<slot>         load a save from user://saves
 ##   --menu[=page]         show a menu: title (default), choose (country choice),
 ##                         pause (in-game menu) or saves (saved-games list)
@@ -33,10 +39,16 @@ enum Phase { TITLE, CHOOSING, PLAYING }
 
 var world: WorldState
 var clock := GameClock.new()
+var loading: LoadingScreen
+var title_card: TitleCard
+## Set once everything is loaded and wired (loading yields frames on a device).
+var _booted := false
 var campaign: Campaign
 var scheduler: SimulationScheduler
 var diplomacy_actions: DiplomacyActions
 var land_deals: LandDeals
+var religion: ReligionSystem
+var nations: NationSystem
 var diplomacy_system: DiplomacySystem
 var economy: EconomySystem
 var colonisation: ColonisationSystem
@@ -57,8 +69,17 @@ var _default_player := ""
 
 func _ready() -> void:
 	RenderingServer.set_default_clear_color(Color(0.13, 0.22, 0.31))
+	_mark("engine started")
+	loading = LoadingScreen.new()
+	add_child(loading)
+	title_card = TitleCard.new()
+	add_child(title_card)
+	loading.begin()
+	await _loading_step("Loading the world of 1590", 0.05)
 	var loader := WorldLoader.new()
 	world = loader.load_world()
+	_mark("world loaded")
+	await _loading_step("Raising the realms", 0.35)
 	saves.compatible_fingerprints = world.compatible_fingerprints  # the same map, redrawn
 	for e in loader.errors:
 		push_error("World data: " + e)
@@ -75,6 +96,8 @@ func _ready() -> void:
 	economy = EconomySystem.new(campaign)
 	land_deals = LandDeals.new(campaign, economy, diplomacy_actions)
 	colonisation = ColonisationSystem.new(campaign, economy)
+	religion = ReligionSystem.new(campaign, economy)
+	nations = NationSystem.new(campaign, economy)
 	# Monthly, in order, one system a day over the first days of the month (a
 	# frame each instead of one long frame; nothing runs in between, so the
 	# outcome is the same): the economy's accounts; colonies (colonial powers
@@ -105,6 +128,24 @@ func _ready() -> void:
 	economy.construction_finished.connect(_on_construction_finished)
 	economy.went_bankrupt.connect(_on_bankrupt)
 	scheduler.register("diplomacy", SimulationScheduler.Cadence.MONTHLY, diplomacy_system.monthly, 4)
+	# Missionaries at work, and the AI sending its own.
+	scheduler.register("religion", SimulationScheduler.Cadence.MONTHLY, func():
+		religion.monthly()
+		religion.ai_monthly(world.player_country_id), 4)
+	religion.converted.connect(_on_converted)
+	# Nations formed and their people's land integrated (the AI's).
+	scheduler.register("nations", SimulationScheduler.Cadence.MONTHLY,
+		func(): nations.ai_monthly(world.player_country_id), 4)
+	scheduler.register("formations", SimulationScheduler.Cadence.YEARLY,
+		func(): nations.ai_yearly(world.player_country_id), 4)
+	nations.formed.connect(func(tag: String, id: String):
+		if phase == Phase.PLAYING:
+			hud.show_toast("%s: the %s nation is formed" % [world.get_country(tag).name, Formations.name_of(id)])
+		map_view.refresh_colors())
+	nations.integrated.connect(func(_id: int, _tag: String): map_view.refresh_colors())
+	nations.rank_raised.connect(func(tag: String, rank: int):
+		if phase == Phase.PLAYING and tag != world.player_country_id:
+			hud.show_toast("%s is now a %s" % [world.get_country(tag).name, Ranks.name_of(rank).to_lower()]))
 	# War: marching, battles and sieges daily; the AI's campaigns weekly;
 	# supply, reinforcements and peace monthly; new wars yearly.
 	military = MilitarySystem.new(campaign, economy, diplomacy_actions)
@@ -113,13 +154,22 @@ func _ready() -> void:
 		func(): military.ai_daily(world.player_country_id))
 	scheduler.register("armies", SimulationScheduler.Cadence.MONTHLY, func():
 		military.monthly()
-		military.ai_monthly_peace(world.player_country_id), 5)
+		military.ai_monthly_peace(world.player_country_id)
+		military.ai_monthly_press(world.player_country_id), 5)
+	scheduler.register("ideas", SimulationScheduler.Cadence.YEARLY,
+		func(): military.ai_yearly_ideas(world.player_country_id), 4)
 	scheduler.register("wars", SimulationScheduler.Cadence.YEARLY,
 		func(): military.ai_yearly_wars(world.player_country_id), 4)
 	scheduler.register("cores", SimulationScheduler.Cadence.YEARLY,
 		func(): world.claims.yearly(world, clock.day_number()), 4)
 	military.battle_fought.connect(_on_battle)
 	military.province_occupied.connect(_on_occupied)
+	military.province_annexed.connect(func(id: int, by: String, from: String):
+		var player := world.player_country_id
+		if phase == Phase.PLAYING and (by == player or from == player):
+			hud.show_toast(("%s is ours: annexed in the civil war" if by == player else "%s is lost to %s" % ["%s",
+				world.get_country(by).name]) % world.get_province(id).name)
+		map_view.refresh_colors())
 	military.war_declared.connect(_on_war_declared)
 	military.peace_made.connect(_on_peace_made)
 	military.peace_offered.connect(_on_peace_offered)
@@ -151,11 +201,18 @@ func _ready() -> void:
 	clock.paused_changed.connect(func(_p): _update_time_ui())
 	clock.speed_changed.connect(func(_s): _update_time_ui())
 
+	_mark("systems made")
+	await _loading_step("Drawing the map", 0.45)
 	map_view.economy = economy
 	map_view.colonisation = colonisation
 	map_view.setup(world)
+	_mark("map set up")
+	await _loading_step("Lettering the map" + ("" if FileAccess.file_exists(MapOverlay3D.GLYPH_CACHE_KEY)
+		else " (the first start takes longest)"), 0.6)
 	map_camera.setup(Vector2(world.map_size))
 	overlay.setup(world, map_view, map_camera)
+	_mark("overlay set up")
+	await _loading_step("Mustering armies and fleets", 0.85)
 	forces = MapForces.new()
 	forces.province_at = map_view.province_at  # docks stand on the real shore
 	overlay.get_parent().add_child(forces)
@@ -234,6 +291,8 @@ No lender will deal with us for five years, and loans will cost more for ten. Le
 	hud.set_diplomacy(diplomacy_actions)
 	hud.set_economy(economy)
 	hud.set_colonisation(colonisation)
+	hud.set_religion(religion)
+	hud.set_nations(nations)
 	hud.set_military(military)
 	hud.select_mode_toggled.connect(func(on: bool):
 		map_camera.select_mode = on
@@ -257,6 +316,73 @@ No lender will deal with us for five years, and loans will cost more for ten. Le
 			if a != null and a.owner == world.player_country_id:
 				military.stop(a))
 	hud.disband_requested.connect(_on_disband_requested)
+	hud.assault_requested.connect(_on_assault_requested)
+	hud.press_requested.connect(_on_press_requested)
+	hud.occupation_transfer_requested.connect(_on_occupation_transfer_requested)
+	hud.idea_requested.connect(_on_idea_requested)
+	hud.subsidy_requested.connect(func(tag: String, amount: int):
+		var why := diplomacy_actions.subsidy_blocked(world.player_country_id, tag, amount)
+		if why != "":
+			hud.show_toast(why)
+			return
+		world.diplomacy.set_subsidy(world.player_country_id, tag, amount)
+		economy.changed()
+		hud.show_toast(("We pay %s %d ducats a month" % [world.get_country(tag).name, amount]) if amount > 0
+			else "Our subsidy to %s stops" % world.get_country(tag).name)
+		_update_treasury_ui())
+	hud.rank_requested.connect(func():
+		var why := nations.rank_blocked(world.player_country_id)
+		if why != "":
+			hud.show_toast(why)
+			return
+		nations.raise_rank(world.player_country_id)
+		hud.show_toast("We are crowned: %s is now a %s" % [world.get_country(world.player_country_id).name,
+			Ranks.name_of(world.get_country(world.player_country_id).rank).to_lower()])
+		_update_treasury_ui()
+		_update_player_ui())
+	hud.form_requested.connect(func(id: String):
+		var why := nations.formation_blocked(world.player_country_id, id)
+		if why != "":
+			hud.show_toast(why)
+			return
+		nations.form(world.player_country_id, id)
+		_update_player_ui())
+	hud.volunteer_requested.connect(func(id: int, host: String):
+		var a := world.military.get_army(id)
+		var why := military.volunteer_blocked(a, host) if a else "No army"
+		if why != "":
+			hud.show_toast(why)
+			return
+		military.send_volunteers(a, host)
+		hud.show_toast("%s will fight for %s" % [a.name, world.get_country(host).name]))
+	hud.recall_volunteers_requested.connect(func(id: int):
+		var a := world.military.get_army(id)
+		if a:
+			military.recall_volunteers(a)
+			hud.show_toast("%s comes home" % a.name))
+	hud.integrate_requested.connect(func(id: int):
+		var a := world.military.get_army(id)
+		var p := world.get_province(a.location) if a else null
+		var why := nations.integrate_blocked(world.player_country_id, p, a) if a else "No army"
+		if why != "":
+			hud.show_toast(why)
+			return
+		nations.integrate(world.player_country_id, p, a)
+		hud.show_toast("%s is ours" % p.name)
+		_update_treasury_ui())
+	hud.missionary_requested.connect(func(id: int):
+		var p := world.get_province(id)
+		var why := religion.blocked(world.player_country_id, p)
+		if why != "":
+			hud.show_toast(why)
+			return
+		religion.send(world.player_country_id, p)
+		hud.show_toast("A missionary sets out for %s" % p.name)
+		_update_treasury_ui())
+	hud.recall_requested.connect(func(id: int):
+		if religion.recall(world.player_country_id, world.get_province(id)):
+			hud.show_toast("Our missionary comes home")
+			_update_treasury_ui())
 	hud.military_requested.connect(_show_military)
 	hud.colony_requested.connect(_on_colony_requested)
 	hud.abandon_colony_requested.connect(_on_abandon_colony_requested)
@@ -300,7 +426,16 @@ No lender will deal with us for five years, and loans will cost more for ten. Le
 		_show_title()
 	else:
 		_enter_playing()
-	_apply_debug_args(args)
+	_mark("ready")
+	_booted = true
+	loading.finish()
+	await _apply_debug_args(args)
+	if args.has("timing"):
+		for i in 4:
+			await get_tree().process_frame
+			_mark("frame %d: processed" % (i + 1))
+			await RenderingServer.frame_post_draw
+			_mark("frame %d: drawn" % (i + 1))
 
 
 func _process(delta: float) -> void:
@@ -341,6 +476,7 @@ func _update_treasury_ui() -> void:
 		return
 	_player_net = economy.budget(c.id).net
 	hud.set_treasury(c.treasury, _player_net)
+	hud.set_pools(military.manpower(c.id), military.sailors(c.id))
 	hud.refresh_drawer_later()
 
 
@@ -718,6 +854,74 @@ func _on_split_requested(id: int) -> void:
 		_select_armies([a.id, other.id] as Array[int])
 
 
+## Storming a fort we besiege: asked first (heavy losses either way).
+func _on_assault_requested(province_id: int) -> void:
+	var player := world.player_country_id
+	var p := world.get_province(province_id)
+	var why := military.assault_blocked(player, province_id)
+	if why != "":
+		hud.show_toast(why)
+		return
+	var chance := MilitarySystem.assault_chance(military.siege_odds(p).chance)
+	clock.set_paused(true)
+	hud.menu.ask("Storm %s" % p.name, ("Storm the walls of %s? About %d %% to take it. Many of our men will fall "
+		+ "either way: a tenth if it falls, a quarter if it holds.") % [p.name, int(chance)], "Storm", func():
+			var result := military.assault(player, province_id)
+			if result.is_empty():
+				return
+			hud.show_toast(("%s is taken by storm (%s men lost)" if result.taken else "The assault on %s failed (%s men lost)")
+				% [p.name, DrawerPanel.thousands(result.lost)])
+			_update_wars_ui_later(), true)
+
+
+## Press gangs where an army (or fleet) of ours stands.
+func _on_press_requested(id: int) -> void:
+	var a := world.military.get_army(id)
+	if a == null:
+		return
+	var why := military.press_blocked(a)
+	if why != "":
+		hud.show_toast(why)
+		return
+	var n := military.press_men(a)
+	hud.show_toast("Press gangs seize %s %s in %s" % [DrawerPanel.thousands(n), "sailors" if a.navy else "men",
+		world.get_province(a.location).name])
+	_update_treasury_ui()
+
+
+## Handing an enemy province we hold to an ally in the war.
+func _on_occupation_transfer_requested(province_id: int, to: String) -> void:
+	var player := world.player_country_id
+	var p := world.get_province(province_id)
+	var why := military.transfer_occupation_blocked(player, to, p)
+	if why != "":
+		hud.show_toast(why)
+		return
+	military.transfer_occupation(player, to, province_id)
+	hud.show_toast("%s now holds %s" % [world.get_country(to).name, p.name])
+	_update_wars_ui_later()
+
+
+## A province converted: the religion map redraws; ours are announced.
+func _on_converted(province_id: int, faith: String) -> void:
+	map_view.religion_changed()
+	var p := world.get_province(province_id)
+	if p.owner_id == world.player_country_id:
+		hud.show_toast("%s has embraced the %s faith" % [p.name, Religions.name_of(faith)])
+	hud.refresh_drawer_later()
+
+
+func _on_idea_requested(id: String) -> void:
+	var player := world.player_country_id
+	var why := military.idea_blocked(player, id)
+	if why != "":
+		hud.show_toast(why)
+		return
+	military.adopt_idea(player, id)
+	hud.show_toast("%s taken up" % Ideas.name_of(id))
+	_update_treasury_ui()
+
+
 func _on_disband_requested(id: int) -> void:
 	var a := world.military.get_army(id)
 	if a == null:
@@ -730,13 +934,13 @@ func _on_disband_requested(id: int) -> void:
 			_update_treasury_ui(), true)
 
 
-func _on_war_requested(tag: String) -> void:
+func _on_war_requested(tag: String, call_allies := true) -> void:
 	var player := world.player_country_id
 	var why := military.war_blocked(player, tag)
 	if why != "":
 		hud.show_toast(why)
 		return
-	var sides := military.war_sides(player, tag)
+	var sides := military.war_sides(player, tag, call_allies)
 	var names := func(tags: Array) -> String:
 		var out: Array[String] = []
 		for t: String in tags:
@@ -745,7 +949,7 @@ func _on_war_requested(tag: String) -> void:
 	clock.set_paused(true)
 	hud.menu.ask("Declare war", "Declare war on %s?\nWith us: %s\nAgainst us: %s\nOur levies stay at home until we mobilise (Military tab)." % [
 		world.get_country(tag).name, names.call(sides.attackers), names.call(sides.defenders)], "Declare war", func():
-			var war := military.declare_war(player, tag, player)
+			var war := military.declare_war(player, tag, player, call_allies)
 			if not war.is_empty():
 				hud.show_toast("War: " + war.name)
 			hud.refresh_drawer()
@@ -847,6 +1051,10 @@ func _on_battle(report: Dictionary) -> void:
 	var p := world.get_province(report.province)
 	var war := world.military.get_war(report.war)
 	var my_side := Military.side_of(war, player) if not war.is_empty() else -1
+	if my_side < 0 and not war.is_empty():
+		for a: Army in world.military.armies_of(player):
+			if a.volunteer_for != "" and Military.side_of(war, a.volunteer_for) >= 0:
+				my_side = Military.side_of(war, a.volunteer_for)
 	var we_attacked: bool = report.attacker == player or (my_side >= 0 and Military.side_of(war, report.attacker) == my_side)
 	var ours: int = report.attacker_losses if we_attacked else report.defender_losses
 	var theirs: int = report.defender_losses if we_attacked else report.attacker_losses
@@ -936,12 +1144,20 @@ func _choose_country() -> void:
 
 
 func _play_as(tag: String) -> void:
+	_mark("new campaign…")
+	loading.begin()
+	await _loading_step("1 January 1590: %s takes the stage" % (world.get_country(tag).name if world.get_country(tag) else tag), 0.1)
 	var errors := campaign.start_new(tag, _new_seed())
+	_mark("new campaign started")
 	if not errors.is_empty():
+		loading.finish()
 		push_error("Cannot start as %s: %s" % [tag, errors])
 		return
+	await _loading_step("Setting out the map", 0.8)
 	_enter_playing()
 	_focus_capital(tag, 1.2)
+	loading.finish()
+	title_card.show_card(world, tag, clock.year)
 
 
 ## Music for the campaign's year and the player's region.
@@ -1007,15 +1223,23 @@ func _show_saves() -> void:
 
 
 func _load_save(slot: String, from_backup: bool) -> void:
+	_mark("loading a save…")
+	loading.begin()
+	await _loading_step("Loading the saved game", 0.1)
 	if not saves.load_into(campaign, slot, from_backup):
+		loading.finish()
 		var text := "\n".join(saves.errors.slice(0, 6))
 		if saves.errors.size() > 6:
 			text += "\n… and %d more problems." % (saves.errors.size() - 6)
 		hud.menu.show_message("Could not load this save", text)
 		return
 	_autosave_due = false
+	_mark("save loaded")
+	await _loading_step("Setting out the map", 0.8)
 	_enter_playing()
 	_focus_capital(world.player_country_id)
+	loading.finish()
+	title_card.show_card(world, world.player_country_id, clock.year)
 	hud.show_toast("Loaded — " + campaign.title())
 
 
@@ -1267,6 +1491,8 @@ func _unhandled_key_input(event: InputEvent) -> void:
 
 ## Android back button / Esc: close the innermost thing that is open.
 func _go_back(may_quit: bool) -> void:
+	if not _booted or loading.visible:
+		return  # still loading
 	if hud.menu.visible:
 		if not hud.menu.back() and may_quit:
 			get_tree().quit()
@@ -1295,6 +1521,20 @@ func _notification(what: int) -> void:
 
 # --- Debug options ---------------------------------------------------------------------------
 
+## Shows a step of loading and lets the screen draw before the work goes on.
+## Headless (tests, tools) nothing waits: loading runs in one go, as before.
+func _loading_step(stage: String, fraction: float) -> void:
+	loading.step(stage, fraction)
+	if DisplayServer.get_name() != "headless":
+		await RenderingServer.frame_post_draw
+
+
+## --timing: how long each stage of loading took (ms since the engine started).
+static func _mark(stage: String) -> void:
+	if "--timing" in OS.get_cmdline_user_args():
+		print("[%6d ms] %s" % [Time.get_ticks_msec(), stage])
+
+
 static func _debug_args() -> Dictionary:
 	var args := {}
 	for a in OS.get_cmdline_user_args():
@@ -1305,9 +1545,9 @@ static func _debug_args() -> Dictionary:
 
 func _apply_debug_args(args: Dictionary) -> void:
 	if args.has("load"):
-		_load_save(args.load, false)
+		await _load_save(args.load, false)
 	if args.has("play") and world.countries.has(args.play):
-		_play_as(args.play)
+		await _play_as(args.play)
 	if args.has("occupy"):
 		for id in args.occupy.split(","):
 			world.set_controller(int(id), world.player_country_id)
@@ -1322,6 +1562,11 @@ func _apply_debug_args(args: Dictionary) -> void:
 		military.declare_war(world.player_country_id, args.war, world.player_country_id)
 	if args.has("levies"):
 		military.raise_levies(world.player_country_id)
+	if args.has("besiege") and not world.military.armies_of(world.player_country_id).is_empty():  # --besiege=lat,lon (debug)
+		var ll: PackedStringArray = args.besiege.split(",")
+		var first: Army = world.military.armies_of(world.player_country_id)[0]
+		first.location = world.province_near(float(ll[0]), float(ll[1])).id
+		first.path.clear()
 	if args.has("days"):  # --days=N: let N days pass at once (debug)
 		for i in int(args.days):
 			clock.step_day()
@@ -1333,8 +1578,9 @@ func _apply_debug_args(args: Dictionary) -> void:
 	if args.has("march") and not selected_armies.is_empty():  # --march=lat,lon
 		var ll: PackedStringArray = args.march.split(",")
 		_order_selected(world.latlon_to_map(float(ll[0]), float(ll[1])))
-	if args.has("select"):
-		_show_province(int(args.select))
+	if args.has("select"):  # an id, or lat,lon
+		var ll: PackedStringArray = args.select.split(",")
+		_show_province(world.province_near(float(ll[0]), float(ll[1])).id if ll.size() == 2 else int(args.select))
 	if args.has("country"):
 		_show_country(args.country)
 	if args.has("budget"):
@@ -1369,6 +1615,10 @@ func _apply_debug_args(args: Dictionary) -> void:
 	if args.has("screenshot"):
 		for i in 40:  # let view-dependent tiles stream in
 			await get_tree().process_frame
+			if i == 5 and args.has("scroll"):  # --scroll=<px>: the open panels, scrolled (debug)
+				for panel: Node in hud.find_children("*", "DrawerPanel", true, false):
+					for sc: Node in panel.find_children("*", "ScrollContainer", true, false):
+						(sc as ScrollContainer).scroll_vertical = int(args.scroll)
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png(args.screenshot)
 		get_tree().quit()

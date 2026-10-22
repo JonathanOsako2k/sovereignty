@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "structure.md",
+                "file": "research_notes/World population around 1600 by region/southeast_asia_oceania.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "structure"
+              "title": "southeast_asia_oceania"
             }
           }
         ],
@@ -205,21 +205,40 @@
   },
   "active": "b00235b1dc002124",
   "lastOpenFiles": [
-    "export_presets.cfg367604263609.tmp",
-    "SovereigntyAlpha0.1.apk.idsig",
-    "export_presets.cfg~RF19b500d1.TMP",
-    "export_presets.cfg367210992980.tmp",
-    "export_presets.cfg~RF19a97772.TMP",
-    "export_presets.cfg366454900820.tmp",
-    "SovereigntyAlpha0.1.apk",
-    "tools/profile/_probe_path.gd",
-    "tests/sedSYhxj4",
-    "HANDOVER.md",
-    "CLAUDE.md",
+    "tests/test_population.gd.uid",
+    "tests/test_population.gd.tmp.42484.3ddc4167f011",
+    "tests/test_population.gd",
+    "tests/test_population.gd.tmp.42484.9e08dec5d0aa",
+    "tools/world1590/sedL4xmC2",
+    "reports/World population around 1600 by region.md",
+    "research_notes/World population around 1600 by region/americas.md",
     "PLAN.md",
-    "tools/profile/_probe_ai.gd",
-    "tools/profile/_probe_ai.gd.uid",
+    "research_notes/World population around 1600 by region/sub_saharan_africa.md.tmp.42484.16c0690c3d67",
+    "research_notes/World population around 1600 by region/sub_saharan_africa.md",
+    "research_notes/World population around 1600 by region/sub_saharan_africa.md.tmp.42484.d68987942fd2",
+    "research_notes/World population around 1600 by region/east_asia.md",
+    "research_notes/World population around 1600 by region/east_asia.md.tmp.42484.6218e7e9925d",
+    "research_notes/World population around 1600 by region/cities.md.tmp.42484.5c7231208c91",
+    "research_notes/World population around 1600 by region/southeast_asia_oceania.md",
+    "research_notes/World population around 1600 by region/southeast_asia_oceania.md.tmp.42484.7477568a1c98",
+    "research_notes/World population around 1600 by region/south_asia.md",
+    "research_notes/World population around 1600 by region/south_asia.md.tmp.42484.b88643815eda",
+    "research_notes/World population around 1600 by region/europe.md",
+    "research_notes/World population around 1600 by region/cities.md",
+    "research_notes/World population around 1600 by region/middle_east_north_africa_central_asia.md",
+    "assets/flags/WUR.png",
+    "assets/flags/VEN.png",
+    "assets/flags/TYC.png",
+    "assets/flags/TRI.png",
+    "assets/flags/TID.png",
+    "assets/flags/TER.png",
+    "assets/flags/SWI.png",
+    "assets/flags/SWE.png",
+    "assets/flags/SPA.png",
+    "assets/flags/SCO.png",
+    "assets/flags/CREDITS.md",
     "structure.md",
-    "assets/menu_background.jpg"
+    "HANDOVER.md",
+    "CLAUDE.md"
   ]
 }

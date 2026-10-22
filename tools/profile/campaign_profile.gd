@@ -4,7 +4,7 @@ extends SceneTree
 ## the month's days), of everything else the days did ("other": daily
 ## listeners such as the forces on the map) and of the frame that follows
 ## (deferred map, label and panel refreshes).
-##   godot --headless --path . --script res://tools/profile/campaign_profile.gd -- --play=ENG --years=12
+##   godot --headless --path . --script res://tools/profile/campaign_profile.gd -- --play=ENG --years=12 [--seed=N]
 
 func _initialize() -> void:
 	_run.call_deferred()
@@ -20,6 +20,8 @@ func _run() -> void:
 	root.add_child(game)
 	await process_frame
 	game._play_as(args.play)
+	if args.has("seed"):  # --seed=N: the same history every run, to compare changes
+		game.campaign.rng.reseed(int(args.seed))
 	await process_frame
 	var clock: GameClock = game.clock
 	var scheduler: SimulationScheduler = game.scheduler

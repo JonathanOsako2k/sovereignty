@@ -189,6 +189,7 @@ func test_war_battle_siege_and_peace() -> void:
 	var c: Campaign = s[0]
 	var mil: MilitarySystem = s[2]
 	var m := c.world.military
+	_peace(c)
 	var war := mil.declare_war("FRA", "SPA", "FRA")  # France plays: it calls its own levies
 	check(not war.is_empty(), "war declared")
 	check("SPA" in war.defenders and "POR" in war.defenders, "Spain's personal union fights with it")
@@ -582,8 +583,20 @@ func test_vassals_alliances_and_offers_in_peace() -> void:
 			if mil.treaty_value(war3, "TUR", offer) >= 15.0:
 				break
 	check(mil.treaty_accepted(war3, "TUR", offer), "but land given buys it (worth %.0f)" % mil.treaty_value(war3, "TUR", offer))
+	# Or money paid to them, weighed by their year of taxes.
+	var turks := w.get_country("TUR")
+	turks.treasury = 1000000.0
+	var paid := {"money": -int(mil._year_of_taxes("AUS"))}
+	check(mil.treaty_value(war3, "TUR", paid) >= 20.0, "a year of Austria's taxes is worth much to it")
+	check(mil.treaty_accepted(war3, "TUR", paid), "money buys peace too (worth %.0f)" % mil.treaty_value(war3, "TUR", paid))
+	check(mil.treaty_blocked(war3, "TUR", {"money": -2000000}).begins_with("We have only"), "no more than we have")
+	check(mil.describe_treaty(war3, "TUR", paid).contains("Ottoman"), "the treaty says who pays")
+	var austria := w.get_country("AUS")
+	var before := austria.treasury
+	offer["money"] = -100
 	mil.conclude(war3, "TUR", offer)
 	check_eq(w.get_province(give[0]).owner_id, "AUS", "the land given is Austria's")
+	check_eq(austria.treasury, before + 100.0, "and the money paid")
 
 
 func test_ai_makes_separate_peace_when_beaten() -> void:
@@ -611,6 +624,7 @@ func test_levies_by_region() -> void:
 	var c: Campaign = s[0]
 	var mil: MilitarySystem = s[2]
 	var m := c.world.military
+	_peace(c)
 	var regions := mil.levy_districts("FRA")
 	check(regions.size() >= 3, "France has several levy regions (%d)" % regions.size())
 	check(mil.district_blocked("FRA", regions[0].muster).contains("war"), "levies only in war")
@@ -641,11 +655,12 @@ func test_forts_hold_out_longer() -> void:
 		if p.owner_id == "FRA" and not "fort" in p.buildings:
 			open = p
 			break
-	check(mil.siege_days(paris) > mil.siege_days(open) * 5, "a fortified capital holds out far longer")
+	check(mil.garrison(paris) > MilitarySystem.FORT_GARRISON and mil.garrison(open) == 0,
+		"a fortified capital holds a large garrison, open land none")
 	var france := c.world.get_country("FRA")
-	var full := mil.siege_days(paris)
+	var full := mil.garrison(paris)
 	france.spending.forts = 50
-	check(mil.siege_days(paris) < full, "neglected forts fall sooner")
+	check(mil.garrison(paris) < full, "neglected forts hold fewer men")
 
 
 func test_merge_split_and_the_stack_limit() -> void:
@@ -782,3 +797,10 @@ func test_ai_wars_end() -> void:
 		if not c.world.military.at_war("FRA", "SPA"):
 			break
 	check(not c.world.military.at_war("FRA", "SPA"), "the war ended within ten years")
+
+## The wars of 1590 ended (for tests that start from peace).
+func _peace(c: Campaign) -> void:
+	for w: Dictionary in c.world.military.wars.duplicate():
+		c.world.military.remove_war(w)
+	for a: Army in c.world.military.armies.values():
+		a.volunteer_for = ""

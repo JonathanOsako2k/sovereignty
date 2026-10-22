@@ -27,7 +27,7 @@ signal land_deal_requested(tag: String, kind: int)
 signal land_deal_proposed(to: String, deal: Dictionary)
 ## The land deal's provinces to colour on the map ({}: none).
 signal land_deal_highlights(colours: Dictionary)
-signal war_requested(tag: String)
+signal war_requested(tag: String, call_allies: bool)
 signal treaty_requested(war_id: int, with: String)
 ## One of our wars (its icon under the top bar, or the Military tab).
 signal war_panel_requested(war_id: int)
@@ -47,6 +47,19 @@ signal merge_requested(ids: Array)
 signal split_requested(id: int)
 signal stop_requested(ids: Array)
 signal disband_requested(id: int)
+signal assault_requested(province_id: int)
+signal press_requested(id: int)
+signal occupation_transfer_requested(province_id: int, to: String)
+signal idea_requested(id: String)
+signal missionary_requested(province_id: int)
+signal subsidy_requested(tag: String, amount: int)
+signal form_requested(id: String)
+## Rising a rank (the coronation, NationSystem.raise_rank).
+signal rank_requested
+signal volunteer_requested(id: int, host: String)
+signal recall_volunteers_requested(id: int)
+signal integrate_requested(id: int)
+signal recall_requested(province_id: int)
 ## The "select armies" button: while on, dragging on the map draws a box.
 signal select_mode_toggled(on: bool)
 ## The ✕ under it: let go of every selected army.
@@ -110,6 +123,7 @@ var _war_panel: WarPanel
 ## Our wars, one icon each, under the top bar.
 var _war_bar: HBoxContainer
 var _military_button: Button
+var _pools := [0.0, 0.0]  # manpower, sailors (the top bar)
 var _select_button: Button
 var _clear_button: Button
 var _selected_count := 0
@@ -145,6 +159,10 @@ func _ready() -> void:
 	_province_panel.abandon_colony_requested.connect(func(id): abandon_colony_requested.emit(id))
 	_province_panel.recruit_requested.connect(func(id, unit): recruit_requested.emit(id, unit))
 	_province_panel.army_requested.connect(func(id): army_requested.emit(id))
+	_province_panel.assault_requested.connect(func(id): assault_requested.emit(id))
+	_province_panel.occupation_transfer_requested.connect(func(id, to): occupation_transfer_requested.emit(id, to))
+	_province_panel.missionary_requested.connect(func(id): missionary_requested.emit(id))
+	_province_panel.recall_requested.connect(func(id): recall_requested.emit(id))
 	_root.add_child(_province_panel)
 
 	_country_panel = CountryPanel.new()
@@ -156,9 +174,12 @@ func _ready() -> void:
 	_country_panel.country_requested.connect(func(tag): country_requested.emit(tag))
 	_country_panel.diplomacy_requested.connect(func(action, tag): diplomacy_requested.emit(action, tag))
 	_country_panel.gift_requested.connect(func(tag, amount): gift_requested.emit(tag, amount))
+	_country_panel.subsidy_requested.connect(func(tag, amount): subsidy_requested.emit(tag, amount))
+	_country_panel.form_requested.connect(func(id): form_requested.emit(id))
+	_country_panel.rank_requested.connect(func(): rank_requested.emit())
 	_country_panel.land_deal_requested.connect(func(tag, kind): land_deal_requested.emit(tag, kind))
 	_country_panel.budget_requested.connect(func(tag): budget_requested.emit(tag))
-	_country_panel.war_requested.connect(func(tag): war_requested.emit(tag))
+	_country_panel.war_requested.connect(func(tag, call_allies): war_requested.emit(tag, call_allies))
 	_country_panel.treaty_requested.connect(func(id, with): treaty_requested.emit(id, with))
 	_country_panel.levies_requested.connect(func(raise): levies_requested.emit(raise))
 	_country_panel.military_requested.connect(func(): military_requested.emit())
@@ -194,6 +215,11 @@ func _ready() -> void:
 	_army_panel.disband_requested.connect(func(id): disband_requested.emit(id))
 	_army_panel.board_requested.connect(func(id): board_requested.emit(id))
 	_army_panel.troops_requested.connect(func(ids): troops_requested.emit(ids))
+	_army_panel.assault_requested.connect(func(id): assault_requested.emit(id))
+	_army_panel.press_requested.connect(func(id): press_requested.emit(id))
+	_army_panel.volunteer_requested.connect(func(id, host): volunteer_requested.emit(id, host))
+	_army_panel.recall_requested.connect(func(id): recall_volunteers_requested.emit(id))
+	_army_panel.integrate_requested.connect(func(id): integrate_requested.emit(id))
 	_root.add_child(_army_panel)
 
 	_military_panel = MilitaryPanel.new()
@@ -206,6 +232,7 @@ func _ready() -> void:
 	_military_panel.policy_changed.connect(func(policy, index, step): policy_changed.emit(policy, index, step))
 	_military_panel.budget_requested.connect(func(tag): budget_requested.emit(tag))
 	_military_panel.war_requested.connect(func(id): war_panel_requested.emit(id))
+	_military_panel.idea_requested.connect(func(id): idea_requested.emit(id))
 	_root.add_child(_military_panel)
 
 	_treaty_panel = PeaceTreatyPanel.new()
@@ -279,6 +306,15 @@ func set_economy(economy: EconomySystem) -> void:
 
 func set_colonisation(colonisation: ColonisationSystem) -> void:
 	_province_panel.colonisation = colonisation
+
+
+func set_nations(nations: NationSystem) -> void:
+	_country_panel.nations = nations
+	_army_panel.nations = nations
+
+
+func set_religion(religion: ReligionSystem) -> void:
+	_province_panel.religion = religion
 
 
 func set_military(military: MilitarySystem) -> void:
@@ -390,10 +426,12 @@ func free_map_rect() -> Rect2:
 	var vs := get_viewport().get_visible_rect().size
 	var top := _safe.position.y + TOP_BAR_HEIGHT
 	var bottom := vs.y - (vs.y - _safe.end.y) - BOTTOM_BAR_HEIGHT
-	var right := vs.x
+	var left := _safe.position.x
+	var right := vs.x - (vs.x - _safe.end.x)
 	if _is_landscape():
-		right -= SIDE_PANEL_WIDTH + MARGIN * 2  # the drawer opening beside it
-	return Rect2(Vector2(_safe.position.x, top), Vector2(right - _safe.position.x, bottom - top))
+		# The country panel opens on the left, beside the map it frames.
+		left += minf(WIDE_PANEL_WIDTH, (right - left) * 0.5) + MARGIN * 2
+	return Rect2(Vector2(left, top), Vector2(right - left, bottom - top))
 
 
 ## The "select armies" button's state.
@@ -432,6 +470,31 @@ func hide_box() -> void:
 
 
 ## Treasury and this month's balance in the top bar.
+## Manpower and sailors on the top bar (just the sword when the bar is narrow).
+func set_pools(men: float, crews: float) -> void:
+	_pools = [men, crews]
+	_show_pools()
+
+
+func _show_pools() -> void:
+	if _military_button == null:
+		return
+	var wide_bar := get_viewport() != null and get_viewport().get_visible_rect().size.x >= 1100
+	_military_button.text = "⚔ %s   ⚓ %s" % [_short(_pools[0]), _short(_pools[1])] if wide_bar else "⚔"
+	_military_button.add_theme_font_size_override("font_size", 21 if wide_bar else 30)
+
+
+## 1234 -> "1.2k", 23456 -> "23k", 1234567 -> "1.2M".
+static func _short(n: float) -> String:
+	if n >= 1e6:
+		return "%.1fM" % (n / 1e6)
+	if n >= 1e4:
+		return "%dk" % int(n / 1000.0)
+	if n >= 1000.0:
+		return "%.1fk" % (n / 1000.0)
+	return str(int(n))
+
+
 func set_treasury(treasury: float, net: float) -> void:
 	_treasury_button.text = "%s ducats  %+.1f" % [DrawerPanel.thousands(roundi(treasury)), net]
 
@@ -590,10 +653,14 @@ func _build_top_bar() -> void:
 	_treasury_button.pressed.connect(func(): budget_requested.emit(_country_panel.player_tag))
 	row.add_child(_treasury_button)
 
-	_military_button = UITheme.button("⚔")
-	_military_button.add_theme_font_size_override("font_size", 30)
+	# Manpower and sailors in the pools; opens the Military tab.
+	_military_button = UITheme.link_button("⚔")
+	_military_button.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_military_button.clip_text = false  # as wide as the numbers
+	_military_button.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
+	_military_button.add_theme_font_size_override("font_size", 21)
 	_military_button.custom_minimum_size = Vector2(64, 60)
-	_military_button.tooltip_text = "Military"
+	_military_button.tooltip_text = "Military: manpower and sailors"
 	_military_button.pressed.connect(func(): military_requested.emit())
 	row.add_child(_military_button)
 
@@ -797,6 +864,7 @@ func _layout() -> void:
 		bar.size = Vector2(vs.x - left - right, TOP_BAR_HEIGHT)
 	_country_button.visible = vs.x >= 600  # too narrow on a folded phone in portrait
 	_treasury_button.visible = vs.x >= 900
+	_show_pools()
 
 	if _war_bar != null:
 		_war_bar.size = _war_bar.get_combined_minimum_size()
@@ -818,8 +886,8 @@ func _layout() -> void:
 	for panel in _drawer_panels():
 		if _is_landscape():
 			var w := minf(WIDE_PANEL_WIDTH, (vs.x - left - right) * 0.5) if panel.wide else SIDE_PANEL_WIDTH
-			# A province, army or fleet opens on the left; the rest on the right.
-			var on_left := panel == _province_panel or panel == _army_panel
+			# A province, army, fleet or country opens on the left; the rest on the right.
+			var on_left := panel == _province_panel or panel == _army_panel or panel == _country_panel
 			panel.position = Vector2(left + MARGIN if on_left else vs.x - right - w - MARGIN, panel_top)
 			panel.size = Vector2(w, panel_bottom - panel_top)
 			if panel.visible and not on_left:

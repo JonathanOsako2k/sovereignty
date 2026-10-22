@@ -38,8 +38,8 @@ func test_cores_come_with_time_and_stay() -> void:
 	var w := c.world
 	var cl := w.claims
 	var day := c.clock.day_number()
-	var lyon := w.province_near(45.76, 4.84)
-	check_eq(lyon.owner_id, "FRA", "Lyon is French")
+	var lyon := w.province_near(44.84, -0.58)  # Bordeaux, the king's in 1590 (Lyon held for the League)
+	check_eq(lyon.owner_id, "FRA", "Bordeaux is French")
 	cl.yearly(w, day)
 	w.transfer_province(lyon.id, "SAV")
 	cl.yearly(w, day + 365)

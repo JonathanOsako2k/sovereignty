@@ -25,7 +25,7 @@ war), plus an era-based soundtrack. The real world on **1 January
 | Sea tiles (incl. lake tiles) | 573 (20 on lakes) |
 | Polities | 238, all playable (`ENG` is only the default for debug starts) |
 | Uncolonised provinces | 1085 |
-| Tests | 149, all passing (incl. a headless end-to-end flow test) |
+| Tests | 181, all passing (incl. a headless end-to-end flow test) |
 | Data version | 7 (provinces redrawn: fewer in New Guinea, more in Australia, southern Canada, the US Pacific coast, the Russian Far East, Manchuria and Germany; older saves are refused with a message; saves also carry a fingerprint of the map) |
 
 Working features: title menu (Continue / New campaign / Load); **choose your
@@ -47,8 +47,10 @@ rivers; smooth borders; LOD with hysteresis; view-dependent streaming.
 **Simulating:** the economy, diplomacy, colonisation and war. Next up is
 Milestone 8, 1590-era politics (see §10).
 
-**Git:** repository initialised on `master`, **no commits yet**; everything is
-untracked. Commit only when the user asks. `.gitignore` excludes `.godot/`,
+**Git:** branch `main`, remote `origin` (github.com/JonathanOsako2k/sovereignty);
+commits so far: the initial one, the user's "first commit" and "Trading of land";
+the work since (21 Oct 2026: sieges, forts barring roads, pools, ideas, land
+prices, treaty money …) is uncommitted. Commit only when the user asks. `.gitignore` excludes `.godot/`,
 `tools/source_data/`, `*.apk`, `*.apk.idsig`, `*.aab`. The user has built an
 APK (`Sovereignty.apk`) themselves.
 
@@ -152,6 +154,7 @@ godot --path . -- --screenshot=out.png --country=FRA --occupy=5,3546 --mode=cont
 godot --path . -- --screenshot=out.png --menu[=choose|pause|saves]   # menu pages
 godot --path . -- --screenshot=out.png --play=TUR --load=<slot>
 godot --path . -- --screenshot=out.png --play=FRA --war=SPA --days=60 --treaty   # war debug: also --levies, --military, --army[=fleet], --march=lat,lon
+godot --path . -- --screenshot=out.png --play=BAV --country=BAV --scroll=420   # a panel scrolled down
 godot --path . --resolution 2560x1440 -- --screenshot=hd.png ...   # 2x DPI check
 godot --path . --resolution 450x980 -- --screenshot=p.png ...      # narrow window (phones are landscape-only)
 godot --path . --script res://tools/profile_zoom.gd             # zoom/pan performance probe
@@ -209,7 +212,17 @@ game.tscn
 | `src/simulation/economy_system.gd` | `EconomySystem.new(campaign)`: `production(p)` (raw/made units, value, named factors; `VALUE_SCALE` sets the money scale), `estate_incomes(p, value)`, `province_taxes(p)` (rate × reach × goodwill), `reach_of(p)`, `budgets()` / `budget(tag)` (named lines: "Taxes: <Estate>", customs, occupied lands, tribute, minting; administration, court, forts, interest, tribute), `monthly()` (ledger, policy effects on legitimacy/inflation/goodwill, deficit → loan or bankruptcy, unrest, construction), `yearly()` (deposit discoveries, signal `discovered`), loans (`interest_rate`, `credit_limit`, `loan_blocked`, `take_loan`, `repay_blocked`, `repay_loan(tag, i)`, `declare_bankruptcy`, `ai_repayments`), buildings (`building_cost`, `build_blocked`, `start_building`, `ai_construction`); `decimal()` keeps saved numbers JSON-exact |
 | `src/domain/goods.gd` | `Goods.CATALOGUE`: raw goods (kind farm/cash/wild/mine, yield, fixed price, map colour, `era`) and manufactured goods |
 | `src/domain/estates.gd` | `Estates`: roles, per-head income weights, `CUSTOMARY_TAX` / `TAX_MAX` (percent), `TAX_EXEMPT` (clergy), labour, `initial_shares()`, `split()` |
-| `src/domain/buildings.gd` | `Buildings.CATALOGUE` (extraction / income / protection / manufacture with recipes), `unsuitable()`, `relevant()`, `extraction_bonus()`, `recipe()`, `merchant_bonus()`, `customs_share()`, `upkeep()` |
+| `src/domain/cultures.gd` | `Cultures`: `GROUPS` (name, hue) and `CATALOGUE` (~150 cultures: name, group); `color_of` (group hue, shades per culture). Province.culture (scenario, not saved), Country.culture (saved) |
+| `src/domain/ranks.gd` | `Ranks`: county … empire (`Country.rank`, saved; `start_rank` for older saves): `court` (base + share of taxes, tribal ×0.5, colony ×0.25), `governance`/`efficiency` (development governed in full, by age; beyond it taxes × √(cap/dev), ≥ 0.4), `ties_of`/`ties_max`, `envoys`, `RAISE_COST`, `START` (the 1590 emperors etc.), `by_size` (development, held down by `TITLE_MAX` titles). Rising: `NationSystem.rank_blocked`/`raise_rank`, AI yearly at `AI_RISE_AT` of its governance. Ties block alliances, marriages, vassalage and new subsidies (`DiplomacyActions._ties_full`, `subsidy_blocked`); over the limit, subjects' loyalty −10 a tie |
+| `src/domain/formations.gd` | `Formations`: nations formed by a culture (Manchuria: Jurchen, 6 provinces); `apply_name` (Country.formed, base_name) |
+| `src/simulation/nation_system.gd` | `NationSystem.new(campaign, economy)`: `formation_blocked`/`form` (no other realm of the culture, min provinces, not a vassal — tributaries may), `integrate_blocked`/`integrate` (an army in uncolonised land of the people + fee), AI yearly forming and monthly integration |
+| `src/ui/flag_art.gd` | `FlagArt`: a country's flag from `assets/flags/<TAG>.png` (58 historical flags from Wikimedia Commons, drawn in their own proportions, no border; credits in `assets/flags/CREDITS.md`), a colony its mother's, else a design drawn from its tag and colour. Flags were vetted by hand: modern, city or fictitious flags (Ethiopia 1897, the Ottoman and Kazakh ones, Johor, Zanzibar 1963 …) were left out, so Russia, the Ottomans, Ming and the Mughals are drawn. A new flag needs a CREDITS.md row (test) |
+| `src/ui/title_card.gd` | `TitleCard`: flag, name and year over a white glow when a campaign starts or loads (not headless) |
+| `src/domain/religions.gd` | `Religions`: `CATALOGUE` (15 faiths: name, family, map colour), `unrest(faith, state)` (heresy 5, other family 10) |
+| `src/simulation/religion_system.gd` | `ReligionSystem.new(campaign, economy)`: missionaries in `world.missions` (id -> [tag, %]); `slots` by age, `send_cost`, `months_to_convert`, `blocked`, `send`, `recall`, `progress`, `monthly` (conversion, `converted` signal), `ai_monthly` |
+| `src/ui/loading_screen.gd` | `LoadingScreen` (CanvasLayer 100): the title painting, name, step text, progress bar; `begin`, `step`, `finish` (fades out after two frames; hides at once headless). The Game yields a drawn frame between steps (`_loading_step`; never when headless, so tests stay synchronous) |
+| `src/domain/ideas.gd` | `Ideas`: `CATALOGUE` (press gangs, drill grounds, naval academies, conscription; from years, dock needed), `SLOTS` by age, `START` (1590 holders of press gangs), `blocked()`; held in `Country.ideas` (saved; older saves: the scenario's) |
+| `src/domain/buildings.gd` | `Buildings.CATALOGUE` (extraction / income / protection / military (barracks) / naval (dock) / manufacture with recipes), `unsuitable()`, `relevant()`, `extraction_bonus()`, `recipe()`, `merchant_bonus()`, `customs_share()`, `upkeep()` |
 | `src/ui/budget_panel.gd` | `BudgetPanel` (wide): treasury, debt, inflation; for the player the policies first — tax % slider with − / + per estate (clergy shown exempt), court, minting, forts — then next month's lines and last month's ledger; slider drags hold panel refreshes |
 | `src/domain/colonisation.gd` | `Colonisation`: rules — `POLICIES` (colonies, overseas, upkeep), progress factors (access, `land_factor`, `familiarity`, `native_factor`, `disease_factor` with `MEDICINE` by year and `in_disease_zone`: tropical Africa, New Guinea), founding cost, `SETTLERS` |
 | `src/simulation/colonisation_system.gd` | `ColonisationSystem.new(campaign, economy)`: `home_climates`, `coast_tiles`, `sea_hops` (BFS over sea tiles from the home ports), `access` (frontier / strait / overseas), `rate` (named factors), `months_to_settle`, `outlook` (for maps), `blocked`, `found_colony`, `abandon`, `monthly` (progress, uprisings, completion via `transfer_province`), `ai_monthly`, `ai_yearly` (policy adoption); signals founded/completed/abandoned/uprising |
@@ -217,9 +230,9 @@ game.tscn
 | `src/domain/army.gd` | `Army`: owner, navy, location, regiments `[type, men, home]` (home = levy's province), morale, path, leg days, `aboard` (the fleet carrying it), `retreating`; `men`, `power`, `speed`, `upkeep`, `capacity` (a fleet's), `by_type`; save rows of 12 (10 read too) |
 | `src/domain/overseas.gd` | `Overseas` (static): `REGIONS` (colonial regions as lat/lon boxes per world region), `region_of`, `overseas_ids` (another world region, no route to the capital over own land), `NATION_NAMES` (historical names and seats), `update(world)` (monthly and at load: hands overseas land to its colonial nation or founds one at `NATION_MIN` = 3), `found_nation` |
 | `src/domain/claims.gd` | `Claims` (world.claims): cores and claims by province, `held` (owner and since when, until cored); `populate` (owners' cores, `RIGHTS_1590`), `yearly` (cores after `CORE_YEARS`), `grudges` (for the AI); saved by tag |
-| `src/domain/military.gd` | `Military` (world.military): armies, wars `{id, name, attackers, defenders, start, battle_score, refused}`, truces, sieges, recruiting, levies raised; an index of who fights whom (`war_index`, `war_ids_of`, `side_in`, `at_war`, `refusing_wars`; change wars only through `add_war` / `remove_war` / `join_war` / `leave_war`); `populate(world, year)` (1590 armies, navies with transports, forts, docks), `cargo_of`, `recount_levies`, `preferred_unit`, `home_port` / `home_sea`; to/check/load dict; signals changed / wars_changed / reset |
+| `src/domain/military.gd` | `Military` (world.military): armies, wars `{id, name, attackers, defenders, start, battle_score, refused}`, truces, sieges, recruiting, levies raised; an index of who fights whom (`war_index`, `war_ids_of`, `side_in`, `at_war`, `refusing_wars`; change wars only through `add_war` / `remove_war` / `join_war` / `leave_war`); `populate(world, year)` (1590 armies, navies with transports, forts, docks, barracks at standing-army capitals), `sailors` / `pressed` pools (saved), `wars_version`, `add_missing_barracks`, `cargo_of`, `recount_levies`, `preferred_unit`, `home_port` / `home_sea`; to/check/load dict; signals changed / wars_changed / reset |
 | `src/domain/policies.gd` | `Policies`: spending sliders (court, mint, forts, army, navy: range, step, default) and their effects (court legitimacy and nobles, mint inflation, upkeep, fort siege days, max morale) |
-| `src/simulation/military_system.gd` | `MilitarySystem.new(campaign, economy, actions)`: `can_enter`, `find_path` (A*, binary heap; straits by our fleet), `order_move`, `daily` (recruits, march, battles, sieges), `battle`, `estimate`, `siege_days`, `monthly` (manpower refill, supply/attrition, reinforcement, levy deaths), manpower (`manpower_limit(s)`, `manpower`, `manpower_growth`), levies (`raise_levies`, `disband_levies`, muster points; never automatic), `recruit`, `merge`/`split`/`disband`, `war_blocked`/`war_sides`/`declare_war`, `war_score`, `score_for`, `held_by`; treaties `{provinces, money, forts}`: `treaty_cost`, `treaty_blocked`, `treaty_accepted`, `describe_treaty`, `treaty_for` (white/demand/surrender), `conclude` (cedes land to whoever holds it, reparations via `economy.post`, razes forts, truces); `peace_accepted`/`peace_blocked`/`make_peace` (the simple peaces); AI (`ai_daily`: a seventh of armies a day, weekly levies and merging; `ai_monthly_peace`: treaties, offers to the player; `ai_yearly_wars`); signals incl. `peace_offered(war, treaty, from)`, `forts_changed` |
+| `src/simulation/military_system.gd` | `MilitarySystem.new(campaign, economy, actions)`: `can_enter`, `find_path` (A*, binary heap; straits by our fleet), `order_move`, `daily` (recruits, march, battles, sieges), `battle`, `estimate`; forts barring roads before 1800 (`fort_zones`, `zoc_blocks`, used by `find_path` and the march); sieges (`garrison`, `fort_strength`, `siege_odds` with reasons, monthly tries, `days_to_try`, `assault_chance` / `assault_blocked` / `assault`, AI storming at good odds); handing occupied land to an ally (`occupation_partners`, `transfer_occupation(_blocked)`); `monthly` (pool refill, supply/attrition, reinforcement, levy deaths); pools (`pools()`/`pool(tag)`: manpower and sailors ceilings and growth from people, barracks and docks; `manpower`, `sailors`, `pool_of(type)`: ships draw sailors); ideas (`idea_cost`, `idea_blocked`, `adopt_idea`); press gangs (`press_blocked`, `press_men`); `war_sides(…, call_allies)`, levies (`raise_levies`, `disband_levies`, muster points; never automatic), `recruit`, `merge`/`split`/`disband`, `war_blocked`/`war_sides`/`declare_war`, `war_score`, `score_for`, `held_by`; treaties `{provinces, money, forts}`: `treaty_cost`, `treaty_blocked`, `treaty_accepted`, `describe_treaty`, `treaty_for` (white/demand/surrender), `conclude` (cedes land to whoever holds it, reparations via `economy.post`, razes forts, truces); `peace_accepted`/`peace_blocked`/`make_peace` (the simple peaces); AI (`ai_daily`: a seventh of armies a day, weekly levies and merging; `ai_monthly_peace`: treaties, offers to the player; `ai_yearly_wars`); signals incl. `peace_offered(war, treaty, from)`, `forts_changed` |
 | `src/map/map_forces.gd` | `MapForces`: 3D banners and ships per army in the owner's colour (offset when sharing a province, gliding along the march), fort walls, piers at docks (placed on the real shore by rays through the id image via `province_at`, else a pixel scan; fleets in port lie off them); 2D men counts, selection rings, dashed routes with arrowheads, siege progress; `army_at`, `armies_in` (box); positions once a frame (`update_positions_later`), and only changed tokens touched |
 | `src/ui/army_panel.gd` | `ArmyPanel`: one army (men, spirit, place, status, upkeep, regiments) or several (merge); Split, Halt, Disband |
 | `src/ui/military_panel.gd` | `MilitaryPanel` (wide, the ⚔ Military tab): standing army, levies, ships, manpower, upkeep; mobilise or send home all, or region by region (`levy_districts`); army and navy maintenance sliders; armies and fleets (tap to select); wars (tap for the war's panel) |
@@ -407,16 +420,30 @@ some tests and does not count.
   levies, occupation, battle, peace and truce; peace treaties (costs rise with
   land, money and forts; reparations paid; a fort razed; no diplomacy with an
   enemy; the treaty screen's defaults); the AI offers the player a treaty;
-  forts hold out; merge/split and the 100k limit; manpower; recruitment; upkeep
-  by maintenance; saving and the format 6 upgrade; an AI war ends.
+  forts' garrisons; merge/split and the 100k limit; manpower; recruitment; upkeep
+  by maintenance; saving and the format 6 upgrade; an AI war ends; money paid
+  for peace.
+* `test_war_rules.gd` (7): siege odds (short of equipment, a great host, guns,
+  time, capitals, neglect, storming better); sieges begin only with enough men,
+  try monthly, storming costs men and waits, a fort falls within a year;
+  forts bar the roads before 1800 (zones, roads found keep to them, a taken
+  fort bars nothing, none from 1800); war without allies called; occupation
+  handed to an ally; pools from barracks and docks (start full, a new barracks
+  adds, ships draw sailors, refills, landlocked: none); ideas and press gangs
+  (1590 holders, taking one up, slots, ages, dock needed, pressing men and
+  sailors, once a year, only at home; saved; older saves); a colonial nation
+  is not seasoned to Africa.
 * `test_overseas.gd` (4): colonial regions (Mexico, Lima, Potosí, Salvador,
   Havana, Costa Rica, Goa; none in Europe); the colonial nations of 1590
   (New Spain holds Mexico City, its capital; Spain holds nothing there
   directly; nothing of Russia's overseas); three settled provinces found the
   Thirteen Colonies, a fourth joins, tribute, saved and restored, gone in a
   new campaign; no levies overseas.
-* `test_land_deals.gd` (3): land has a worth; a far outpost (Oran) sells more
-  easily than the heartland (Toledo); more money, a poorer seller help; a
+* `test_land_deals.gd` (4): land has a worth; an exclave over the sea (Oran)
+  is reached worse and is harder to govern than land by the capital; a far
+  outpost sells more easily than the heartland (Toledo); more money, a poorer
+  seller help; paying over the worth tempts less and less, capped, and a token
+  sum does not buy a poor seller's want; a
   rival is refused; capitals, others' land and money one lacks are blocked; a
   sale (land, money, core renounced); an exchange evened out with money; none
   at war; selling ours (cheaper, more willing; land beside theirs fits better
@@ -573,8 +600,13 @@ and use a separate SaveService instance).
 * **Economy follow-ups:** trade and pop demand → market prices (user: later,
   Victoria-3 style); population growth; balance — the Ming Empire nets
   ~+1,670 a month at the start (a third of the world's people; administration
-  costs only 0.25 per province), England ~+40, 179 of 238 countries in
-  surplus; watch AI building over decades. Every money change needs a named
+  costs only 0.25 per province), England ~+40; watch AI building over
+  decades. **Small realms in deficit**: 79 of 248 started in deficit; the
+  court by rank (22 Oct 2026) brought it to 50. Most of the rest pay for the
+  1590 military handed out by size alone (a capital fort at ≥ 3 provinces, a
+  standing army and barracks at ≥ 4, a navy at ≥ 4 coasts), e.g. the Kathiri
+  Sultanate (9 desert provinces: 0.95 taxes); tribal realms tax little
+  (tribesmen 8 %). To weigh: garrisons by wealth, not size. Every money change needs a named
   source (tests). Store new campaign fields in `campaign_state()` and bump
   `SaveService.SCHEMA_VERSION` with an explicit `_migrate` step (never change
   the save layout silently).
@@ -713,3 +745,79 @@ and use a separate SaveService instance).
 14. Land deals (20 Oct 2026): buying, selling and exchanging land, judged by
     named reasons, picked on the map. (README.md had a UTF-16 "# sovereignty"
     line appended by GitHub's quick-setup echo in PowerShell — removed.)
+20. Capitals and forts (22 Oct 2026): a capital is never simply occupied —
+    without a fort its city walls hold like a fort of `CITY_WALLS` (0.6:
+    600 men, walls −6) and it is besieged and may be stormed
+    (`MilitarySystem.walled`, used by the siege, assault, panels and map
+    labels; fort zones of control, battle defence and razing stay forts
+    only); the 1590 capital fort only for kingdoms and empires
+    (`Military.FORT_CAPITAL_RANK`; it was every realm of 3+ provinces), so
+    165 lesser seats are open and 31 historically fortified. Deficits at the
+    start 50 → 42.
+19. Ranks (22 Oct 2026): county, duchy, minor kingdom, major kingdom, empire
+    (`Ranks`), at the user's request after the small-realm deficit
+    investigation: the court is now the rank's base + a share of taxes (it
+    was a flat 2.0 + 0.02 per development, more than all the taxes of 54
+    small realms), tribal half, colonial a quarter; governance capacity
+    (taxes fall beyond it) and diplomatic ties and envoys by rank (envoys
+    were 2 for all: `Diplomacy.ENVOYS` is gone); a coronation to rise
+    (country panel, AI). Realms in deficit at the start: 79 → 50 (the rest
+    mostly from the 1590 military handed out by size). The Ming net
+    +1,754 → +1,144 (overstretched, a dearer court). Debug `--scroll=<px>`
+    scrolls open panels before a screenshot.
+18. Colonial finance and faiths (21 Oct 2026): colonial nations started deep
+    in deficit; now administration is scaled by development
+    (`ADMIN_FULL_DEVELOPMENT`, `ADMIN_MIN_SHARE`; forts likewise down to
+    `FORT_MIN_SHARE`), a colony's court is `COLONIAL_COURT_SHARE` of the
+    base, the crown takes `ROYAL_FIFTH` of gold and silver, the mother pays
+    `SITUADO_SHARE` of colonial forts plus what a colony needs to keep a
+    margin, a colony remits at most `COLONY_REMIT` of its surplus, founding
+    money `min(500, 30 + 2 × provinces)` (`Overseas.found_nation`), and
+    colonial navies are small (`COLONIAL_NAVY_MAX`). Portugal is still
+    ~−11 a month at the start (its spice trade is not modelled; the user has
+    not decided). Faiths: Siberia, Chukotka and Primorye animist (they were
+    Orthodox), Manchuria's Jurchens animist (they were Confucian), the Hexi
+    corridor and the Mekong fixed.
+17. A real 1590 (21 Oct 2026): the Catholic League (`LEA`, a generator
+    post-pass in `build_world.gd` from `LEAGUE_HELD`/`ROYALIST_HELD`, so no
+    province changes shape; France's capital Tours), the wars of 1590 and
+    Spain's volunteers (`Military.WARS_1590`, `VOLUNTEERS_1590`), Spain's
+    subsidy (scenario diplomacy `subsidies`), Dutch and Jurchen rights
+    (`Claims.RIGHTS_1590`), Jianzhou's aggression (`AI_AGGRESSION`); cultures
+    (`tools/world1590/cultures_1590.gd`) and the Culture map mode; civil wars
+    (`Military.civil_war`/`rebels_of`; annexation in `_fall`; `civil_score`,
+    `_civil_ticks`, `REBEL_DEMANDS`, `rebel_price`, `_settle_civil_war`,
+    `_ai_civil_peace`; the treaty panel's `_civil_terms`); volunteers
+    (`Army.volunteer_for`/`side()` used for every war check); subsidies
+    (`Diplomacy._subsidies`, budget lines, opinion +25, stopped when broke or
+    at war); Manchuria (`NationSystem`); islets drawn only for islands that
+    are nearest and never inside 1590 water (the Zuiderzee had been refilled
+    by Flevoland "islets"; Hyogo, Sado and Karimata had odd shapes); the
+    province panel's two-column pairs wrap both sides (a long "Taxes to …"
+    squeezed numbers into a column); the country panel wide, on the left, with
+    a flag; the title card. Older saves without the League still load
+    (`WorldState.LATER_COUNTRIES`).
+16. 1590 scenario and loading (21 Oct 2026): province religions and state
+    religions from `tools/world1590/religions_1590.gd`, about 240 historical
+    fortresses (`resources_1590.gd`), missionaries (`ReligionSystem`, budget
+    line Missionaries, unrest from faith), Religion and Buildings map modes;
+    AI takes up ideas yearly, builds barracks (`EconomySystem.ai_construction`)
+    and presses men at war; loading: the map font's MSDF glyphs cached in
+    `user://cache/map_font.res` (+ `.key`: font path, size, mtime, engine,
+    MSDF settings) and only the letters names use (overlay setup 1.8 s →
+    0.23 s on later starts), countries re-founded on a restore notify once
+    (the map was recoloured 9×), a new campaign restores its trusted start
+    without checks, labels rebuilt once; a loading screen and a boot splash
+    (`assets/splash.png`, the title painting). Desktop, to the first frame of a
+    new campaign: 5.1 s → 2.9 s (≈1.1 s of it the engine itself). Save format 9.
+15. War rules (21 Oct 2026): forts bar the roads about them before 1800
+    (zones of control); sieges as monthly tries with odds (numbers, guns,
+    siege equipment, time, walls) and storming at heavy cost; occupied land
+    handed to an ally; war declared without calling allies; manpower and
+    sailors as pools trained by barracks and docks (top bar ⚔/⚓); ideas with
+    press gangs; land prices: premium over the worth capped and diminishing,
+    exclaves (access from the capital) easier to buy; money paid to the
+    enemy in a peace; colonial nations settle with their mother country's
+    climates (no Portuguese Mozambique in the African interior); wider
+    scroll bars everywhere. Perf: the fort list is kept a month (rebuilding
+    it daily cost ~100 ms a wartime month).

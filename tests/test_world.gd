@@ -3,7 +3,7 @@ extends "res://tests/test_case.gd"
 const TOTAL_PROVINCES := 5000
 ## Who held these places on 1 January 1590.
 const HISTORICAL_OWNERS := [
-	["London", 51.51, -0.13, "ENG"], ["Edinburgh", 55.95, -3.19, "SCO"], ["Paris", 48.86, 2.35, "FRA"],
+	["London", 51.51, -0.13, "ENG"], ["Edinburgh", 55.95, -3.19, "SCO"], ["Paris", 48.86, 2.35, "LEA"],
 	["Madrid", 40.42, -3.70, "SPA"], ["Lisbon", 38.72, -9.14, "POR"], ["Amsterdam", 52.37, 4.90, "NED"],
 	["Brussels", 50.85, 4.35, "SPA"], ["Vienna", 48.21, 16.37, "AUS"], ["Prague", 50.08, 14.44, "AUS"],
 	["Venice", 45.44, 12.33, "VEN"], ["Rome", 41.90, 12.50, "PAP"], ["Naples", 40.85, 14.27, "SPA"],
@@ -25,14 +25,15 @@ const HISTORICAL_OWNERS := [
 ## borders where nearest-centre lookups are too coarse.
 const TOWN_OWNERS := [
 	# France against Franche-Comté and the Spanish Netherlands:
-	["Dijon", 47.32, 5.04, "FRA"], ["Chaumont", 48.11, 5.14, "FRA"], ["Troyes", 48.30, 4.08, "FRA"],
-	["Saint-Quentin", 49.85, 3.29, "FRA"], ["Laon", 49.56, 3.62, "FRA"], ["Amiens", 49.89, 2.30, "FRA"],
+	# The Catholic League's towns in 1590 (Saint-Quentin stood by the king).
+	["Dijon", 47.32, 5.04, "LEA"], ["Chaumont", 48.11, 5.14, "LEA"], ["Troyes", 48.30, 4.08, "LEA"],
+	["Saint-Quentin", 49.85, 3.29, "FRA"], ["Laon", 49.56, 3.62, "LEA"], ["Amiens", 49.89, 2.30, "LEA"],
 	["Besançon", 47.24, 6.02, "SPA"], ["Vesoul", 47.62, 6.15, "SPA"], ["Lons-le-Saunier", 46.67, 5.55, "SPA"],
 	["Arras", 50.29, 2.78, "SPA"], ["Lille", 50.63, 3.06, "SPA"],
 	["Abondance", 46.28, 6.72, "SAV"], ["Bonneville", 46.08, 6.40, "SAV"], ["Annecy", 45.90, 6.13, "SAV"],
 	["Chambéry", 45.57, 5.92, "SAV"], ["Bourg-en-Bresse", 46.21, 5.23, "SAV"],
-	["Grenoble", 45.19, 5.72, "FRA"], ["Vienne", 45.52, 4.87, "FRA"], ["Gap", 44.56, 6.08, "FRA"],
-	["Lyon", 45.76, 4.84, "FRA"], ["Nancy", 48.69, 6.18, "LOR"], ["Luxembourg", 49.61, 6.13, "SPA"],
+	["Grenoble", 45.19, 5.72, "LEA"], ["Vienne", 45.52, 4.87, "LEA"], ["Gap", 44.56, 6.08, "FRA"],
+	["Lyon", 45.76, 4.84, "LEA"], ["Nancy", 48.69, 6.18, "LOR"], ["Luxembourg", 49.61, 6.13, "SPA"],
 	["Colmar", 48.08, 7.36, "AUS"], ["Belfort", 47.64, 6.86, "AUS"], ["Saint-Dié", 48.28, 6.95, "LOR"],
 	["Épinal", 48.17, 6.45, "LOR"],
 	# Scandinavia: Norway's north, Jämtland, Bohuslän and Gotland were

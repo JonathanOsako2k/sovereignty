@@ -178,7 +178,21 @@ const TERRAIN_POP := {
 ## Population weight of land held by tribal polities (herders, forest peoples)
 ## against farmland in the same zone (user, 19 Oct 2026: Southern Mongolia had
 ## 5 million people, priced as part of Ming China).
-const TRIBAL_POP := 0.04
+const TRIBAL_POP := 0.25
+## Land no realm holds (hunters, herders, villages without a state) against a
+## realm's farmland in the same total. (Since Population1590 gives totals by
+## division — Inner Mongolia its own — these only share people out within a
+## total, so they need not be as stark as the old 0.04.)
+const UNHELD_POP := 0.5
+## A capital without a great city of its own (Population1590.CITIES) holds a
+## court and market town of this many people (thousands; no more than
+## CAPITAL_TOWN_SHARE of its total), taken from its division's or zone's total
+## like a city. Herders' camps (tribal realms) have none.
+const CAPITAL_TOWN_K := 6.0
+const CAPITAL_TOWN_SHARE := 0.3
+## No land feeds fewer people per km² than this share of the best farmland
+## (Land1590.people_factor): the high Kham valleys, the Chichimec plateau.
+const PEOPLE_LAND_MIN := 0.01
 
 ## Relative province density by terrain (sparse land gets bigger provinces).
 const TERRAIN_SEED := {

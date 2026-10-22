@@ -106,7 +106,9 @@ func _policies(c: Country) -> void:
 			top / 5 + 1)
 	_section_title("Spending and coin")
 	var s: Dictionary = c.spending
-	_spending("court", s.court, "Costs ×%.2f · legitimacy %+.2f a month · nobles' goodwill %+d" % [
+	_spending("court", s.court, "A %s's court: %s + %d %% of taxes%s · costs ×%.2f · legitimacy %+.2f a month · nobles' goodwill %+d" % [
+		Ranks.name_of(c.rank).to_lower(), str(snappedf(Ranks.COURT_BASE[c.rank], 0.01)),
+		roundi(Ranks.COURT_SHARE[c.rank] * 100.0), " (half: tribal)" if c.government_type == "tribal" else "",
 		Policies.court_cost(s.court), Policies.court_legitimacy(s.court), int(round(Policies.court_nobles(s.court)))])
 	_spending("mint", s.mint, "+%d %% of tax income · inflation %+.2f a month" % [s.mint, Policies.mint_inflation(s.mint)]
 		if s.mint > 0 else "No coin minted · inflation eases %.2f a month" % EconomySystem.INFLATION_EASING)

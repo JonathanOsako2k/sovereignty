@@ -10,7 +10,9 @@ extends RefCounted
 ## They weigh: a reluctance to part with land (or, buying, to spend on it);
 ## what they get (money, land of ours as worth to them) against what they give
 ## up (each province worth PRICE_YEARS of what it yields them; in a sale, the
-## price against the land's worth to them); land that is hard for them to
+## price against the land's worth to them) — falling short costs dearly, while
+## paying over the worth tempts them less and less, the richer they are the
+## less, and never past PREMIUM_CAP; land that is hard for them to
 ## govern (overseas, far from their capital, cut off from their realm,
 ## restless, not a core of theirs) goes more easily; land that matters to them
 ## (cores, rich provinces, land near their capital, a large share of the
@@ -21,17 +23,32 @@ extends RefCounted
 
 signal concluded(from: String, to: String, deal: Dictionary, message: String)
 
-## A province is worth this many years of what it yields its owner (at least MIN_WORTH).
-const PRICE_YEARS := 10.0
-const MIN_WORTH := 15.0
+## A province is worth this many years of what it produces (at least MIN_WORTH).
+const PRICE_YEARS := 5.0
+const MIN_WORTH := 40.0
+## Access from a capital: over one's own land, a coast to land on, neither;
+## and falling with distance to ACCESS_FAR_KM (no lower than ACCESS_FLOOR).
+const ACCESS_COASTAL := 0.6
+const ACCESS_CUT_OFF := 0.35
+const ACCESS_FAR_KM := 6000.0
+const ACCESS_FLOOR := 0.4
 const SALE_RELUCTANCE := -40
 const TRADE_RELUCTANCE := -15
 const PURCHASE_RELUCTANCE := -10  # they, buying land of ours
 const FIT_CAP := 20
-## What we offer against what they give up: points per whole share of its worth.
+## What we offer against what they give up: short of its worth, points per
+## whole share of it (to -VALUE_CAP); over it, a premium tempting them less and
+## less (PREMIUM_CAP × (1 − e^(−surplus / scale)), the scale the worth or
+## PREMIUM_INCOME_YEARS of their taxes, whichever is more, × PREMIUM_SCALE).
 const VALUE_POINTS := 50.0
 const VALUE_CAP := 60
-const HARD_CAP := 40
+const PREMIUM_CAP := 30.0
+const PREMIUM_SCALE := 1.0
+const PREMIUM_INCOME_YEARS := 0.5
+## Paid, their want of money counts in full only for a sum of this many months
+## of their taxes (less in proportion).
+const NEED_MONTHS := 6.0
+const HARD_CAP := 45
 const IMPORTANCE_CAP := 50
 ## A sold or traded province's old owner renounces its core there; the new owner
 ## is liked a little for a fair bargain.
@@ -52,27 +69,37 @@ func _init(p_campaign: Campaign, p_economy: EconomySystem, p_actions: DiplomacyA
 
 # --- What land is worth --------------------------------------------------------------
 
-## What a province is worth to its owner: PRICE_YEARS of the taxes and customs
-## it yields them (far provinces yield less), at least MIN_WORTH.
+## What a province is worth: PRICE_YEARS of what it produces, at least
+## MIN_WORTH — the land itself, whoever governs it.
 func worth(p: Province) -> float:
-	var yearly := 0.0
-	for role: String in economy.province_taxes(p):
-		yearly += economy.province_taxes(p)[role]
-	yearly = (yearly + economy.production(p).value * Buildings.customs_share(p)) * 12.0
-	return maxf(yearly * PRICE_YEARS, MIN_WORTH)
+	return maxf(economy.production(p).value * 12.0 * PRICE_YEARS, MIN_WORTH)
 
 
-## What a province would be worth to `tag` were it theirs: its yield at their
-## reach (far from their capital, less), more if they hold a core or claim there.
-func worth_to(p: Province, tag: String) -> float:
-	var reach_now := maxf(economy.reach_of(p), 0.01)
+## How well `tag` reaches a province from its capital (0-1): over its own land
+## (or, if it is not yet theirs, beside it), or only by sea, or neither — and
+## less the further it lies.
+func access(p: Province, tag: String, joined: Dictionary = {}) -> float:
 	var c := world.get_country(tag)
 	var cap := world.get_province(c.capital_province_id) if c else null
-	var reach_theirs := EconomySystem.REACH_MIN
-	if cap != null:
-		var km := DiplomacyActions._haversine(p.lat, p.lon, cap.lat, cap.lon)
-		reach_theirs = clampf(1.0 - km / EconomySystem.REACH_KM * (1.0 - EconomySystem.REACH_MIN), EconomySystem.REACH_MIN, 1.0)
-	var value := worth(p) / reach_now * reach_theirs
+	if cap == null:
+		return ACCESS_CUT_OFF * ACCESS_FLOOR
+	if joined.is_empty():
+		joined = Overseas._joined_to_capital(world, tag)
+	var linked := joined.has(p.id)
+	if not linked and p.owner_id != tag:
+		for n: int in p.neighbour_ids:
+			if joined.has(n):
+				linked = true  # beside their land: it would join it
+				break
+	var route := 1.0 if linked else (ACCESS_COASTAL if not p.sea_ids.is_empty() else ACCESS_CUT_OFF)
+	var km := DiplomacyActions._haversine(p.lat, p.lon, cap.lat, cap.lon)
+	return route * clampf(1.0 - km / ACCESS_FAR_KM, ACCESS_FLOOR, 1.0)
+
+
+## What a province would be worth to `tag` were it theirs: its worth as far as
+## they could reach it, more if they hold a core or claim there.
+func worth_to(p: Province, tag: String) -> float:
+	var value := worth(p) * access(p, tag)
 	if world.claims.is_core(tag, p.id):
 		value *= 1.5
 	elif world.claims.has_claim(tag, p.id):
@@ -153,7 +180,7 @@ func evaluate(from: String, to: String, deal: Dictionary) -> Dictionary:
 		label = "What our land is worth to them against the price"
 	elif give.is_empty():
 		label = "Our price against what it is worth to them"
-	reasons.append([label, clampi(int(round(VALUE_POINTS * (gained - lost) / base)), -VALUE_CAP, VALUE_CAP)])
+	reasons.append([label, value_points(gained - lost, base, to)])
 	if not take.is_empty():
 		reasons.append(["Hard for them to govern", _hard_to_govern(to, take)])
 		reasons.append(["Important to them", -_importance(to, take)])
@@ -175,9 +202,21 @@ func evaluate(from: String, to: String, deal: Dictionary) -> Dictionary:
 	return {"total": total, "accept": total >= 0, "reasons": reasons, "worth": lost, "offered": gained}
 
 
-## Points for land being hard for its owner to govern: per province, overseas,
-## far from the capital, cut off from the realm, restless, not a core — weighed
-## by what each is worth.
+## Points for what they get over (or short of) what they give up, `base` its
+## worth: short of it costs VALUE_POINTS per whole share; over it, the premium
+## tempts them less with every ducat — the more so the richer they are — up to
+## PREMIUM_CAP.
+func value_points(surplus: float, base: float, tag: String) -> int:
+	if surplus < 0.0:
+		return -mini(int(round(VALUE_POINTS * -surplus / maxf(base, 1.0))), VALUE_CAP)
+	var scale := maxf(base, economy.budget(tag).tax_income * 12.0 * PREMIUM_INCOME_YEARS) * PREMIUM_SCALE
+	return int(round(PREMIUM_CAP * (1.0 - exp(-surplus / maxf(scale, 1.0)))))
+
+
+## Points for land being hard for its owner to govern — above all how badly
+## they reach it from their capital (an exclave cut off from the realm, worse
+## without a coast; far off), then unrest and its not being a core — weighed by
+## what each is worth.
 func _hard_to_govern(tag: String, ids: Array) -> int:
 	var c := world.get_country(tag)
 	var cap := world.get_province(c.capital_province_id)
@@ -187,14 +226,7 @@ func _hard_to_govern(tag: String, ids: Array) -> int:
 	for id: int in ids:
 		var p := world.get_province(id)
 		var w := worth(p)
-		var points := 0.0
-		if world.overseas.has(id):
-			points += 20.0
-		if cap != null:
-			var km := DiplomacyActions._haversine(p.lat, p.lon, cap.lat, cap.lon)
-			points += 15.0 if km > 3000.0 else (8.0 if km > 1500.0 else 0.0)
-			if not joined.has(id):
-				points += 10.0
+		var points := (1.0 - access(p, tag, joined)) * 55.0
 		if p.unrest >= 10.0:
 			points += 5.0
 		if not world.claims.is_core(tag, id):
@@ -260,8 +292,9 @@ func _importance(tag: String, ids: Array) -> int:
 
 
 ## Points for their finances when money changes hands: paid, the poorer and the
-## deeper in debt the keener (and the richer, the less they need it); paying,
-## the poorer the less able.
+## deeper in debt the keener — in full only for a sum worth NEED_MONTHS of their
+## taxes (and the richer, the less they need it); paying, the poorer the less
+## able.
 func _finances(tag: String, money: int) -> int:
 	var c := world.get_country(tag)
 	var b: Dictionary = economy.budget(tag)
@@ -271,12 +304,14 @@ func _finances(tag: String, money: int) -> int:
 	var debt := c.debt
 	var net: float = b.get("net", 0.0)
 	if money > 0:
+		var need := 0.0
 		if poor:
-			points += 25
+			need += 25.0
 		if debt > 0.0:
-			points += mini(int(round(debt / (monthly * 12.0) * 15.0)), 20)
+			need += minf(debt / (monthly * 12.0) * 15.0, 20.0)
 		if net < 0.0:
-			points += 10
+			need += 10.0
+		points += int(round(need * minf(float(money) / (monthly * NEED_MONTHS), 1.0)))
 		if c.treasury > monthly * 12.0:
 			points -= 10
 	else:

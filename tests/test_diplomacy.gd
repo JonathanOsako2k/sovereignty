@@ -121,7 +121,10 @@ func test_envoys_and_fading() -> void:
 	var d := c.world.diplomacy
 	acts.perform(A.IMPROVE_RELATIONS, "ENG", "SCO")
 	acts.perform(A.IMPROVE_RELATIONS, "ENG", "FRA")
-	check(acts.blocked(A.IMPROVE_RELATIONS, "ENG", "DEN") != "", "only %d envoys" % Diplomacy.ENVOYS)
+	check_eq(acts.envoys_max("ENG"), 3, "a major kingdom sends three envoys")
+	check(acts.blocked(A.IMPROVE_RELATIONS, "ENG", "DEN") == "", "a third")
+	acts.perform(A.IMPROVE_RELATIONS, "ENG", "NED")
+	check(acts.blocked(A.IMPROVE_RELATIONS, "ENG", "DEN") != "", "only %d envoys" % acts.envoys_max("ENG"))
 	for month in 30:
 		d.monthly_update()
 	check_eq(d.modifier("SCO", "ENG", "improved"), Diplomacy.IMPROVE_CAP, "envoy work is capped")

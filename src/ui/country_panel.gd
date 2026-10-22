@@ -12,9 +12,16 @@ signal play_requested(tag: String)
 signal locate_requested(tag: String)
 signal diplomacy_requested(action: int, tag: String)
 signal gift_requested(tag: String, amount: int)
+## Paying them a subsidy of this many ducats a month (0: stopping it).
+signal subsidy_requested(tag: String, amount: int)
+## Forming a nation (Formations).
+signal form_requested(id: String)
+## Rising a rank (Ranks).
+signal rank_requested
 ## A land deal with them: LandDealPanel.Kind (buy, sell, exchange).
 signal land_deal_requested(tag: String, kind: int)
-signal war_requested(tag: String)
+## Declaring war on them, calling our allies or not.
+signal war_requested(tag: String, call_allies: bool)
 signal treaty_requested(war_id: int, with: String)
 signal levies_requested(raise: bool)
 signal military_requested
@@ -22,6 +29,8 @@ signal budget_requested(tag: String)
 
 var world: WorldState
 var actions: DiplomacyActions
+## Whether declaring war calls our allies (the toggle above Declare war).
+var _call_allies := true
 var tag := ""
 var player_tag := ""
 var choosing := false
@@ -31,11 +40,20 @@ var _locate_button: Button
 
 
 var military: MilitarySystem
+var nations: NationSystem
 var _gift_amounts := {}  # tag -> ducats last chosen
+var _flag: FlagArt
 
 
 func _init() -> void:
 	super()
+	wide = true  # long names, reasons and actions need the room
+	_flag = FlagArt.new()  # the flag in place of the colour swatch
+	_flag.custom_minimum_size = Vector2(60, 40)
+	_flag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_header.add_child(_flag)
+	_header.move_child(_flag, 0)
+	_swatch.visible = false
 	_play_button = UITheme.primary_button("")
 	_play_button.clip_text = true
 	_play_button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
@@ -60,6 +78,7 @@ func refresh() -> void:
 		return
 	var d := world.diplomacy
 	var stats := world.country_stats(tag)
+	_flag.show_flag(world, tag)
 	var government := c.government_type.capitalize() if c.government_type != "" else "—"
 	var subtitle := government
 	var overlord := d.overlord_of(tag)
@@ -71,6 +90,7 @@ func refresh() -> void:
 	var capital := world.get_province(c.capital_province_id)
 	var rows := [
 		["Government", government],
+		["Rank", Ranks.name_of(c.rank)],
 		["Capital", _province_link(capital) if capital else "None"],
 	]
 	if overlord != "":
@@ -86,9 +106,15 @@ func refresh() -> void:
 		["Population", thousands(stats.population)],
 		["Development", thousands(stats.development)],
 		["Area", "%s km²" % thousands(stats.area_km2)],
+		["Governance", _governance_text(c, stats.development)],
+		["Diplomatic ties", "%d of %d" % [actions.ties(tag), actions.ties_max(tag)] if actions else "—"],
 		["Treasury", _budget_link("%s ducats" % thousands(roundi(c.treasury)))],
 		["Legitimacy", "%d / 100" % roundi(c.legitimacy)],
 		["Stability", "%+d" % c.stability if c.stability != 0 else "0"],
+		["Primary culture", Cultures.name_of(c.culture)],
+		["State religion", Religions.name_of(c.religion)],
+		["Ideas", ", ".join(c.ideas.map(func(i: String) -> String: return Ideas.name_of(i))) if not c.ideas.is_empty()
+			else "None"],
 	])
 	_set_rows(rows)
 	_clear_extra()
@@ -102,6 +128,9 @@ func refresh() -> void:
 				_foreign_diplomacy()
 				_war_with()
 		_forces(tag == player_tag and not choosing)
+		if tag == player_tag and not choosing:
+			_rank()
+			_nation()
 		_ties(tag == player_tag and not choosing)
 	_play_button.visible = choosing
 	_play_button.text = "Play as %s" % c.name
@@ -145,7 +174,7 @@ func _ties(own: bool) -> void:
 			rivalled_by.append(other)
 	_tag_list("Counted a rival by", rivalled_by)
 	if own:
-		_tag_list("Envoys (%d / %d) improving relations with" % [d.envoys_of(tag).size(), Diplomacy.ENVOYS], d.envoys_of(tag))
+		_tag_list("Envoys (%d / %d) improving relations with" % [d.envoys_of(tag).size(), actions.envoys_max(tag)], d.envoys_of(tag))
 
 
 ## A titled list of country links (`note` adds e.g. the kind of subject).
@@ -184,6 +213,10 @@ func _foreign_diplomacy() -> void:
 		ties.append("Counts us a rival")
 	if d.is_improving(me, tag):
 		ties.append("Our envoy is there")
+	if d.subsidy(me, tag) > 0:
+		ties.append("We pay them %d a month" % d.subsidy(me, tag))
+	if d.subsidy(tag, me) > 0:
+		ties.append("They pay us %d a month" % d.subsidy(tag, me))
 	if not ties.is_empty():
 		var tie_label := UITheme.label(" · ".join(ties), 16)
 		tie_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -206,6 +239,7 @@ func _foreign_diplomacy() -> void:
 	list.append(A.SEND_INSULT)
 	list.append(A.RELEASE_SUBJECT if d.overlord_of(tag) == me else A.OFFER_VASSALAGE)
 	_gift_row()
+	_subsidy_row()
 	for action: int in list:
 		_extra.add_child(_action_button(action))
 	for spec: Array in [["Request to purchase land", "Choose provinces of theirs and a price", LandDealPanel.Kind.BUY],
@@ -235,14 +269,22 @@ func _war_with() -> void:
 	if war.is_empty():
 		var why := military.war_blocked(player_tag, tag)
 		var detail := why
+		if why == "" and not world.diplomacy.allies_of(player_tag).is_empty():
+			var call := UITheme.button(("☑  " if _call_allies else "☐  ") + "Call our allies to arms", true)
+			call.set_pressed_no_signal(_call_allies)
+			call.alignment = HORIZONTAL_ALIGNMENT_LEFT
+			call.toggled.connect(func(on: bool):
+				_call_allies = on
+				refresh())
+			_extra.add_child(call)
 		if why == "":
-			var sides := military.war_sides(player_tag, tag)
+			var sides := military.war_sides(player_tag, tag, _call_allies)
 			detail = "With us: %s · against us: %s" % [_names(sides.attackers), _names(sides.defenders)]
 			if not sides.refused.is_empty():
 				detail += " · disloyal, staying out: %s" % _names(sides.refused)
 		var b := _two_line_button("Declare war", detail, why != "")
 		b.add_theme_color_override("font_color", UITheme.DANGER)
-		b.pressed.connect(func(): war_requested.emit(tag))
+		b.pressed.connect(func(): war_requested.emit(tag, _call_allies))
 		_extra.add_child(b)
 		return
 	_war_summary(war)
@@ -393,6 +435,126 @@ func _gift_row() -> void:
 	slider.drag_started.connect(func(): _dragging = true)
 	slider.drag_ended.connect(func(_changed: bool): _dragging = false)
 	send.pressed.connect(func(): gift_requested.emit(tag, _gift_amounts.get(tag, proper)))
+
+
+## A subsidy: ducats a month (steps of 5, up to half our tax income), paid
+## until stopped, while we have money and are at peace with them.
+func _subsidy_row() -> void:
+	var d := world.diplomacy
+	var now := d.subsidy(player_tag, tag)
+	var budget: Dictionary = military.economy.budget(player_tag) if military != null else {}
+	var top := maxi(int(budget.get("tax_income", 0.0) * 0.5) / 5 * 5, maxi(now, 5))
+	var steps: Array[int] = []
+	for v in range(0, top + 1, 5):
+		steps.append(v)
+	var chosen: int = now
+	var head := HBoxContainer.new()
+	var title := UITheme.label("Subsidise them", 16)
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(title)
+	var value := UITheme.label("", 16, UITheme.ACCENT)
+	head.add_child(value)
+	_extra.add_child(head)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	var slider := UITheme.level_slider(steps.size(), maxi(steps.find(now), 0), mini(steps.size(), 9))
+	row.add_child(slider)
+	var set_button := UITheme.button("Set")
+	row.add_child(set_button)
+	_extra.add_child(row)
+	var note := UITheme.label("Paid every month while we have money; they think the better of us for it.", 13, UITheme.TEXT_DIM)
+	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_extra.add_child(note)
+	var why := actions.subsidy_blocked(player_tag, tag, 5) if actions else ""
+	if why != "":
+		var full := UITheme.label(why, 13, UITheme.DANGER)
+		full.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_extra.add_child(full)
+	var show := func(i: int) -> void:
+		chosen = steps[clampi(i, 0, steps.size() - 1)]
+		value.text = "%d a month" % chosen if chosen > 0 else "None"
+		set_button.disabled = chosen == now or (why != "" and chosen > 0)
+	show.call(maxi(steps.find(now), 0))
+	slider.value_changed.connect(func(v: float): show.call(int(v)))
+	slider.drag_started.connect(func(): _dragging = true)
+	slider.drag_ended.connect(func(_changed: bool): _dragging = false)
+	set_button.pressed.connect(func(): subsidy_requested.emit(tag, chosen))
+
+
+## How much of its land the realm governs in full: "444 of 600 development",
+## and, beyond it, the share of taxes its overstretched administration collects.
+func _governance_text(c: Country, development: int) -> String:
+	var year: int = world.start_date.year
+	if nations != null:
+		year = nations.campaign.clock.year
+	var cap := Ranks.governance(c.rank, year)
+	var text := "%s of %s development" % [thousands(development), thousands(cap)]
+	if development > cap:
+		text += " · taxes ×%.2f" % Ranks.efficiency(c.rank, year, development)
+	return text
+
+
+## Our rank: what it costs and gives, and rising to the next (the coronation).
+func _rank() -> void:
+	var c := world.get_country(tag)
+	if nations == null or c == null:
+		return
+	_section_title("Rank: %s" % Ranks.name_of(c.rank))
+	var year := nations.campaign.clock.year
+	var terms := _rank_terms(c.rank, year, c.government_type)
+	var about := UITheme.label(terms.left(1).to_upper() + terms.substr(1), 13, UITheme.TEXT_DIM)
+	about.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_extra.add_child(about)
+	if c.rank >= Ranks.EMPIRE:
+		return
+	var next := c.rank + 1
+	var then := UITheme.label("As a %s: %s" % [Ranks.name_of(next).to_lower(), _rank_terms(next, year,
+		c.government_type)], 13, UITheme.TEXT_DIM)
+	then.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_extra.add_child(then)
+	var why := nations.rank_blocked(tag)
+	var b := UITheme.primary_button("Rise to %s · %d ducats" % [Ranks.name_of(next).to_lower(),
+		int(ceil(nations.raise_cost(tag)))])
+	b.disabled = why != ""
+	b.pressed.connect(func(): rank_requested.emit())
+	_extra.add_child(b)
+	if why != "":
+		var note := UITheme.label(why, 13, UITheme.DANGER)
+		note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_extra.add_child(note)
+
+
+static func _rank_terms(rank: int, year: int, government: String) -> String:
+	var court := "court %s + %d %% of taxes a month" % [str(snappedf(Ranks.COURT_BASE[rank], 0.01)),
+		roundi(Ranks.COURT_SHARE[rank] * 100.0)]
+	if government == "tribal":
+		court += " (half: tribal)"
+	return "%s; governs %d development in full; keeps %d ties; %d envoy%s" % [court, Ranks.governance(rank, year),
+		Ranks.ties_max(rank), Ranks.envoys(rank), "" if Ranks.envoys(rank) == 1 else "s"]
+
+
+## Our people's nation, if we can form one: what it takes, and the button.
+func _nation() -> void:
+	var c := world.get_country(tag)
+	if nations == null or c == null:
+		return
+	for id: String in Formations.for_culture(c.culture):
+		if id in c.formed:
+			continue
+		var f: Dictionary = Formations.CATALOGUE[id]
+		_section_title("Form %s" % f.name)
+		var about := UITheme.label(f.about, 13, UITheme.TEXT_DIM)
+		about.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_extra.add_child(about)
+		var why := nations.formation_blocked(tag, id)
+		var b := UITheme.primary_button("Form %s" % f.name)
+		b.disabled = why != ""
+		b.pressed.connect(func(): form_requested.emit(id))
+		_extra.add_child(b)
+		if why != "":
+			var note := UITheme.label(why, 13, UITheme.DANGER)
+			note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			_extra.add_child(note)
 
 
 func _opinion_block(title: String, value: int, reasons: Array) -> void:

@@ -14,6 +14,8 @@ signal district_requested(muster_id: int, raise: bool)
 signal policy_changed(policy: String, index: int, step: int)
 signal budget_requested(tag: String)
 signal war_requested(war_id: int)
+## Taking up an idea.
+signal idea_requested(id: String)
 
 var world: WorldState
 var military: MilitarySystem
@@ -66,20 +68,21 @@ func refresh() -> void:
 	for p: Province in world.ownable_provinces():
 		if p.owner_id == tag and p.controller_id == tag and not world.overseas.has(p.id):
 			potential += MilitarySystem.levy_men(p)
-	var limit := military.manpower_limit(tag)
+	var pool := military.pool(tag)
 	var budget := economy.budget(tag)
 	_set_rows([
 		["Standing army", "%s men, %d regiments" % [DrawerPanel.thousands(standing), regiments]],
 		["Levies", "Under arms: %s" % DrawerPanel.thousands(levies) if m.levies_raised.has(tag)
 			else "At home (about %s)" % DrawerPanel.thousands(potential)],
 		["Ships", str(ships)],
-		["Manpower", ("%s of %s" if military.manpower(tag) <= limit else "%s (over the ceiling of %s)") % [
-			DrawerPanel.thousands(int(military.manpower(tag))), DrawerPanel.thousands(int(limit))]],
+		["Manpower", _pool_text(military.manpower(tag), pool.manpower, pool.manpower_growth)],
+		["Sailors", _pool_text(military.sailors(tag), pool.sailors, pool.sailors_growth)],
 		["Upkeep", "%.1f a month" % (_line(budget.expenses, EconomySystem.ARMY) + _line(budget.expenses, EconomySystem.NAVY))],
 	])
 	_clear_extra()
-	_hint("Manpower raises and refills regular regiments (+%s a month); levies come from the people instead." %
-		DrawerPanel.thousands(int(military.manpower_growth(tag, limit))))
+	_hint(("Manpower raises and refills regular regiments, sailors crew the ships; levies come from the people "
+		+ "instead. Barracks train %s soldiers a month and docks %s sailors (and raise the ceilings); without them "
+		+ "the pools fill only slowly.") % [DrawerPanel.thousands(int(pool.trained)), DrawerPanel.thousands(int(pool.crews))])
 
 	_section_title("Mobilisation")
 	var all_row := HBoxContainer.new()
@@ -124,6 +127,30 @@ func refresh() -> void:
 			none.tooltip_text = why
 			row.add_child(none)
 		_extra.add_child(row)
+
+	_section_title("Ideas")
+	var year := military.clock.year
+	_hint("%d of %d held (one more with each age). Taking one up costs %s ducats." % [c.ideas.size(), Ideas.slots(year),
+		DrawerPanel.thousands(int(ceil(military.idea_cost(tag))))])
+	for id: String in Ideas.CATALOGUE:
+		var idea: Dictionary = Ideas.CATALOGUE[id]
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 8)
+		var label := UITheme.label(idea.name, 15, UITheme.ACCENT if id in c.ideas else UITheme.TEXT)
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(label)
+		if id in c.ideas:
+			row.add_child(UITheme.label("Held", 15, UITheme.ACCENT))
+		elif tag == world.player_country_id:
+			var why := military.idea_blocked(tag, id)
+			var take := UITheme.button("Take up")
+			take.disabled = why != ""
+			take.tooltip_text = why
+			take.pressed.connect(func(): idea_requested.emit(id))
+			row.add_child(take)
+		_extra.add_child(row)
+		var why_not := military.idea_blocked(tag, id) if not id in c.ideas else ""
+		_hint(idea.about + ("" if why_not == "" or why_not.begins_with("Needs") and why_not.ends_with("ducats") else " (%s)" % why_not))
 
 	_section_title("Maintenance")
 	var s: Dictionary = c.spending
@@ -185,3 +212,11 @@ func _two_line_button(title: String, detail: String, disabled: bool) -> Button:
 	b.clip_text = true
 	b.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	return b
+
+
+## A pool: how many, of what ceiling, growing how fast.
+static func _pool_text(now: float, top: float, growth: float) -> String:
+	if now > top:
+		return "%s (over the ceiling of %s)" % [DrawerPanel.thousands(int(now)), DrawerPanel.thousands(int(top))]
+	return "%s of %s, +%s a month" % [DrawerPanel.thousands(int(now)), DrawerPanel.thousands(int(top)),
+		DrawerPanel.thousands(int(growth))]

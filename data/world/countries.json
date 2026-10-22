@@ -587,6 +587,11 @@
 			"color": "#a2c4c9"
 		},
 		{
+			"id": "LEA",
+			"name": "Catholic League",
+			"color": "#7b5ea7"
+		},
+		{
 			"id": "LIE",
 			"name": "Prince-Bishopric of Liège",
 			"color": "#7a8a3a"

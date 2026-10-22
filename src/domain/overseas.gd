@@ -222,8 +222,18 @@ static func found_nation(world: WorldState, mother: String, region: String, ids:
 	var color := m.color.lightened(0.18) if m.color.get_luminance() < 0.6 else m.color.darkened(0.18)
 	var c := world.create_country(name, adjective, color, "Colonial government")
 	c.colonial_region = region
+	c.religion = m.religion  # its settlers' faith
+	c.start_religion = c.religion
+	c.culture = m.culture  # and people
+	c.start_culture = c.culture
+	c.treasury = minf(500.0, 30.0 + 2.0 * ids.size())  # founding money, as every realm of 1590 has
 	c.colonial_policy = 1  # settle the frontier beside its land
 	c.start_colonial_policy = 1
+	var development := 0
+	for id: int in ids:
+		development += world.get_province(id).development
+	c.rank = Ranks.for_colony(name, development)  # a viceroyalty, a captaincy …
+	c.start_rank = c.rank
 	# Its seat: the province nearest the historical one, else the most populous.
 	var capital := -1
 	var best := -INF

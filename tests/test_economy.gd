@@ -457,7 +457,7 @@ func test_tribute_flows_from_subject_to_overlord() -> void:
 func test_occupied_provinces_pay_the_occupier() -> void:
 	var c := _campaign()
 	var e := EconomySystem.new(c)
-	var paris := _at(c, 48.86, 2.35)
+	var paris := _at(c, 47.39, 0.69)  # Tours, Henry IV's seat (Paris held for the League)
 	var paris_tax := 0.0
 	var taxes := e.province_taxes(paris)
 	for r: String in taxes:

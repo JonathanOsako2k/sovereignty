@@ -6,7 +6,7 @@ extends Node2D
 ## low star-fort walls where a province is fortified and a pier at each dock,
 ## on the side of its sea (from the region zoom in); fleets in port lie by it.
 ## Drawn in 2D above the map: the men under each token, rings round the
-## selected, their road ahead (dashed, to an arrowhead) and sieges' progress.
+## selected, their road ahead (dashed, to an arrowhead) and sieges (a fort: the odds of the next try).
 ## Taps and drags ask it what lies under them.
 
 const PICK_PX := 24.0
@@ -364,15 +364,11 @@ func _draw() -> void:
 		for loc: int in world.military.sieges:
 			var p := world.get_province(loc)
 			var s: Dictionary = world.military.sieges[loc]
-			var total := 10.0
-			if "fort" in p.buildings:
-				total = Policies.fort_days(world.get_country(p.owner_id).spending.forts if world.get_country(p.owner_id) else 100)
-				if world.get_country(p.owner_id) and world.get_country(p.owner_id).capital_province_id == p.id:
-					total *= MilitarySystem.CAPITAL_SIEGE
 			var at := map_camera.map_to_screen(overlay.near(p.label_position)) + Vector2(0, -26)
 			if not view.has_point(at):
 				continue
-			var text := "Siege %d %%" % mini(int(s.progress / total * 100.0), 99)
+			# A fort: the odds of the next try; open land: how far the occupation is.
+			var text := "Siege %d %%" % int(s.get("chance", 0.0)) if MilitarySystem.walled(world, p) 				else "Taking %d %%" % mini(int(s.progress / MilitarySystem.OCCUPY_DAYS * 100.0), 99)
 			var w := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_PX).x
 			draw_string_outline(font, at - Vector2(w * 0.5, 0), text, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_PX, 4, TEXT_OUTLINE)
 			draw_string(font, at - Vector2(w * 0.5, 0), text, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_PX, SIEGE_COLOR)

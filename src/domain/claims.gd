@@ -34,6 +34,12 @@ const RIGHTS_1590 := [
 	["claim", "MUG", "at", 31.61, 65.71],  # Kandahar
 	["claim", "JAP", "at", 35.18, 129.08],  # Busan: Hideyoshi's ambitions in Korea
 	["claim", "JAP", "at", 37.57, 126.98],  # Hanseong
+	["core", "FRA", "owner", "LEA"],  # the League's France is the crown's
+	["claim", "LEA", "owner", "FRA"],  # and the League claims the crown for "Charles X"
+	["core", "NED", "box", "SPA", 51.4, 53.6, 3.3, 7.3],  # the Netherlands Spain still holds
+	["claim", "NED", "box", "SPA", 49.4, 51.4, 2.3, 6.5],  # the Spanish Netherlands
+	["claim", "JIA", "owner", "HAI"],  # the Jurchens, each after the others' land
+	["claim", "HAI", "owner", "JIA"],
 ]
 
 var cores := {}  # province id -> Array of tags

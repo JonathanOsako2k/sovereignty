@@ -3,7 +3,7 @@ extends RefCounted
 ## Colour rules for each map mode. Pure functions of world state.
 
 enum Mode { POLITICAL, CONTROL, DIPLOMACY, COLONISATION, ECONOMY, GOODS, TOPOGRAPHY, VEGETATION, CLIMATE, POPULATION,
-	COLONIAL_REGIONS }
+	COLONIAL_REGIONS, RELIGION, BUILDINGS, CULTURE }
 
 const NAMES := {
 	Mode.POLITICAL: "Political",
@@ -17,23 +17,27 @@ const NAMES := {
 	Mode.CLIMATE: "Climate",
 	Mode.POPULATION: "Population",
 	Mode.COLONIAL_REGIONS: "Colonial regions",
+	Mode.RELIGION: "Religion",
+	Mode.BUILDINGS: "Buildings",
+	Mode.CULTURE: "Culture",
 }
 ## The bottom bar shows these groups; a group's modes slide out above it.
 const GROUPS := [
 	["Realm", [Mode.POLITICAL, Mode.CONTROL, Mode.DIPLOMACY, Mode.COLONISATION, Mode.COLONIAL_REGIONS]],
-	["Economy", [Mode.ECONOMY, Mode.GOODS]],
+	["Economy", [Mode.ECONOMY, Mode.GOODS, Mode.BUILDINGS]],
 	["Land", [Mode.TOPOGRAPHY, Mode.VEGETATION, Mode.CLIMATE]],
-	["People", [Mode.POPULATION]],
+	["People", [Mode.POPULATION, Mode.CULTURE, Mode.RELIGION]],
 ]
 ## Modes that write each province's value on the map (info_text), from the
 ## region zoom in; country names then keep to the world view.
 const INFO_MODES := [Mode.COLONISATION, Mode.ECONOMY, Mode.GOODS, Mode.TOPOGRAPHY, Mode.VEGETATION, Mode.CLIMATE,
-	Mode.POPULATION, Mode.COLONIAL_REGIONS]
+	Mode.POPULATION, Mode.COLONIAL_REGIONS, Mode.RELIGION, Mode.BUILDINGS, Mode.CULTURE]
 ## Info modes whose values are categories: connected provinces sharing one
 ## are named once, across their whole extent (like a country), and country
 ## names step aside. (Economy and population values differ province by
 ## province and stay on each.)
-const REGION_LABEL_MODES := [Mode.GOODS, Mode.TOPOGRAPHY, Mode.VEGETATION, Mode.CLIMATE, Mode.COLONIAL_REGIONS]
+const REGION_LABEL_MODES := [Mode.GOODS, Mode.TOPOGRAPHY, Mode.VEGETATION, Mode.CLIMATE, Mode.COLONIAL_REGIONS,
+	Mode.RELIGION, Mode.CULTURE]
 
 ## Land no state claims in 1590.
 const UNCOLONISED := Color(0.64, 0.61, 0.55)
@@ -102,6 +106,10 @@ const TAX_LOW := Color(0.90, 0.88, 0.80)
 const TAX_HIGH := Color(0.22, 0.48, 0.24)
 const POP_LOW := Color(0.93, 0.89, 0.76)
 const POP_HIGH := Color(0.55, 0.13, 0.12)
+## Buildings map: none (pale), a few, many (deep); under way, a step on.
+const BUILT_NONE := Color(0.90, 0.88, 0.82)
+const BUILT_MANY := Color(0.20, 0.30, 0.62)
+const BUILT_SCALE := 5.0
 ## Share of each stripe period covered by occupation stripes.
 const OCCUPATION_STRIPE := 0.42
 
@@ -157,6 +165,15 @@ static func province_color(world: WorldState, p: Province, mode: Mode, density_s
 			var density := float(p.population) / maxf(p.area_km2, 1.0)
 			var t := log(1.0 + density) / log(1.0 + maxf(density_scale, 1e-6))
 			return POP_LOW.lerp(POP_HIGH, clampf(t, 0.0, 1.0))
+		Mode.RELIGION:
+			return Religions.color_of(p.religion) if p.religion != "" else UNCOLONISED
+		Mode.CULTURE:
+			return Cultures.color_of(p.culture) if p.culture != "" else UNCOLONISED
+		Mode.BUILDINGS:
+			if p.owner_id == "":
+				return UNCOLONISED
+			var n := p.buildings.size() + (0.5 if not p.construction.is_empty() else 0.0)
+			return BUILT_NONE.lerp(BUILT_MANY, clampf(n / BUILT_SCALE, 0.0, 1.0))
 	return UNCOLONISED
 
 
@@ -190,6 +207,17 @@ static func info_text(p: Province, mode: Mode, economy: EconomySystem = null) ->
 		Mode.COLONIAL_REGIONS:
 			var region := Overseas.region_of(p)
 			return Overseas.region_short(region) if region != "" else ""
+		Mode.RELIGION:
+			return Religions.name_of(p.religion) if p.religion != "" else ""
+		Mode.CULTURE:
+			return Cultures.name_of(p.culture) if p.culture != "" else ""
+		Mode.BUILDINGS:
+			var names: Array[String] = []
+			for id: String in p.buildings:
+				names.append(Buildings.short_name(id))
+			if not p.construction.is_empty():
+				names.append(Buildings.short_name(p.construction[0]) + " …")
+			return " · ".join(names)
 	return ""
 
 

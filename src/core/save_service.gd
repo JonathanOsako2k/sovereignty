@@ -30,7 +30,7 @@ const FORMAT := "sovereignty-save"
 ## 6: colonisation (colonial policy, colonies in progress).
 ## 7: armies, navies, wars (military); spending policies in percent (court,
 ##    minting, forts, army, navy) instead of levels.
-const SCHEMA_VERSION := 8
+const SCHEMA_VERSION := 9
 const DEFAULT_DIR := "user://saves"
 ## Folder name inside the device's Documents (Android).
 const DEVICE_FOLDER := "Sovereignty"
@@ -279,6 +279,8 @@ func _migrate(data: Dictionary) -> Dictionary:
 				_upgrade_6_to_7(data)
 			7:
 				_upgrade_7_to_8(data)
+			8:
+				_upgrade_8_to_9(data)
 			_:
 				errors.append("save format %d is too old to load (no upgrade to %d)" % [version, version + 1])
 				return {}
@@ -378,6 +380,17 @@ static func _upgrade_7_to_8(data: Dictionary) -> void:
 		for row: Variant in military.armies:
 			if row is Array and row.size() == 10:
 				row.append_array([0, false])
+
+
+## 9 (21 Oct 2026): provinces hold a religion (null: as at the start); countries
+## a state religion and ideas, the military sailors (older saves get the start's).
+static func _upgrade_8_to_9(data: Dictionary) -> void:
+	var world: Variant = data.campaign.get("world")
+	if world is Dictionary and world.get("provinces") is Array:
+		for row: Variant in world.provinces:
+			if row is Array and row.size() == 13:
+				row.append(null)
+		world["province_fields"] = WorldState.PROVINCE_FIELDS.duplicate()
 
 
 ## Fingerprints of earlier drawings of the map that saves may still carry

@@ -44,12 +44,15 @@ func check(data: Variant) -> PackedStringArray:
 
 
 ## Replaces the whole campaign state. All or nothing: on any problem the
-## campaign is left as it was and the diagnostics are returned.
-func restore(data: Variant) -> PackedStringArray:
-	var errors := check(data)
+## campaign is left as it was and the diagnostics are returned. `trusted`: the
+## state was made by to_dict() itself (a new campaign's start), so it is
+## applied without checking it (checking 5000 provinces twice is most of the
+## time a new campaign takes).
+func restore(data: Variant, trusted := false) -> PackedStringArray:
+	var errors := PackedStringArray() if trusted else check(data)
 	if not errors.is_empty():
 		return errors
-	errors = world.restore_campaign_state(data.world)
+	errors = world.restore_campaign_state(data.world, trusted)
 	if not errors.is_empty():
 		return errors
 	world.diplomacy.load_dict(data.diplomacy)
@@ -60,6 +63,7 @@ func restore(data: Variant) -> PackedStringArray:
 	else:
 		world.military.load_dict(data.military)
 		world.military.add_missing_docks(world)  # a save from before docks
+		world.military.add_missing_barracks(world)  # a save from before barracks
 	if data.get("claims") == null:
 		world.claims.populate(world, clock.day_number())  # an older save: rights as at the start
 	else:
@@ -73,7 +77,7 @@ func restore(data: Variant) -> PackedStringArray:
 func start_new(player_tag: String, seed_value: int = DEFAULT_SEED) -> PackedStringArray:
 	var data := _initial.duplicate(true)
 	data.world.player = player_tag
-	var errors := restore(data)
+	var errors := restore(data, world.countries.has(player_tag))
 	if errors.is_empty():
 		rng.reseed(seed_value)
 	return errors

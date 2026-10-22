@@ -16,6 +16,8 @@ const TOUCH_SIZE := Vector2(52, 48)
 ## Slider grabber diameter: big enough to drag with a thumb.
 const GRABBER_SIZE := 34
 
+## Vertical scroll bars' width (px): wide enough to drag on a phone.
+const SCROLL_WIDTH := 24.0
 static var _grabber: Texture2D
 static var _grabber_highlight: Texture2D
 static var _tick: Texture2D
@@ -57,6 +59,19 @@ static func build() -> Theme:
 	t.set_icon("grabber_disabled", "HSlider", _grabber_icon(false))
 	t.set_icon("tick", "HSlider", _tick_icon())
 	t.set_constant("center_grabber", "HSlider", 1)
+
+	# Scroll bars a thumb can catch: a wide track, a solid grabber.
+	var scroll_track := _box(BUTTON.darkened(0.25), PANEL_BORDER.darkened(0.5), 1, 8, 0)
+	scroll_track.content_margin_left = SCROLL_WIDTH * 0.5
+	scroll_track.content_margin_right = SCROLL_WIDTH * 0.5
+	t.set_stylebox("scroll", "VScrollBar", scroll_track)
+	t.set_stylebox("scroll_focus", "VScrollBar", scroll_track)
+	for state: Array in [["grabber", ACCENT.darkened(0.35)], ["grabber_highlight", ACCENT.darkened(0.15)],
+			["grabber_pressed", ACCENT]]:
+		var g := _box(state[1], ACCENT.darkened(0.5), 1, 8, 0)
+		g.content_margin_left = SCROLL_WIDTH * 0.5
+		g.content_margin_right = SCROLL_WIDTH * 0.5
+		t.set_stylebox(state[0], "VScrollBar", g)
 	return t
 
 

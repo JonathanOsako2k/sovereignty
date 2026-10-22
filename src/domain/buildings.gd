@@ -6,7 +6,8 @@ extends RefCounted
 ## * extraction — more raw goods from the same workers;
 ## * income — money for the state (customs) or the merchants (markets);
 ## * protection — forts (sieges take months);
-## * naval — docks, where fleets berth and ships are built;
+## * military — barracks, which train soldiers into the manpower pool;
+## * naval — docks, where fleets berth, ships are built and sailors trained;
 ## * manufacture — turn part of the province's raw output into a made good.
 
 const CATALOGUE := {
@@ -29,10 +30,13 @@ const CATALOGUE := {
 		"customs": 0.08, "coastal": true, "about": "Tariffs: 8 % of the province's output to the treasury"},
 	# Protection
 	"fort": {"name": "Fort", "type": "protection", "cost": 100.0, "months": 24, "upkeep": 1.0,
-		"about": "Sieges here take months, not days; 1 ducat a month upkeep"},
+		"about": "A garrison: besiegers need guns and months to take it; before 1800 it bars the roads about it; 1 ducat a month upkeep"},
+	# Military
+	"barracks": {"name": "Barracks", "type": "military", "cost": 80.0, "months": 12, "upkeep": 1.0,
+		"about": "Trains the people into soldiers: more manpower each month, and a higher ceiling; 1 ducat a month upkeep"},
 	# Naval
 	"dock": {"name": "Dock", "type": "naval", "cost": 80.0, "months": 12, "upkeep": 0.5, "coastal": true,
-		"about": "Our fleets berth here — safe, repaired and refilled at half upkeep; ships are built here"},
+		"about": "Our fleets berth here — safe, repaired and refilled at half upkeep; ships are built and sailors trained here"},
 	# Manufacture: turns half the raw output into the made good.
 	"weavery": {"name": "Weavery", "type": "manufacture", "cost": 90.0, "months": 18, "min_development": 3,
 		"recipes": {"wool": ["cloth", 1.0], "cotton": ["cloth", 1.0], "silk": ["silk_fabric", 1.0]},
@@ -58,6 +62,12 @@ const MANUFACTURE_MERCHANT_BONUS := 0.5
 
 static func name_of(id: String) -> String:
 	return CATALOGUE[id].name if CATALOGUE.has(id) else id
+
+
+## A word for the map: "Fort", "Dock", "Customs" …
+static func short_name(id: String) -> String:
+	return {"farm_estates": "Estates", "lumber_camp": "Lumber", "fishing_harbour": "Fishery",
+		"customs_house": "Customs", "kilns": "Kilns"}.get(id, name_of(id).get_slice(" ", 0))
 
 
 static func type_of(id: String) -> String:

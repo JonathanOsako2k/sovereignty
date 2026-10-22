@@ -42,6 +42,36 @@ const NATURAL_VEGETATION := {
 	"ET": "sparse", "EF": "desert",
 }
 
+## How thickly a land of each Köppen class was peopled in 1590 against the
+## best farmland (monsoon rice, the Gangetic plain, the Yangtze), for spreading
+## a region's people over its provinces: savanna millet and Mediterranean grain
+## less, the northern forests and the steppe far less, desert and ice hardly
+## at all (a great river's oasis aside: people_factor).
+const KOPPEN_PEOPLE := {
+	"Af": 0.35, "Am": 1.0, "As": 0.8, "Aw": 0.7,
+	"BWh": 0.03, "BWk": 0.03, "BSh": 0.25, "BSk": 0.25,
+	"Cfa": 1.0, "Cfb": 0.8, "Cfc": 0.2, "Csa": 0.7, "Csb": 0.7, "Csc": 0.3,
+	"Cwa": 1.1, "Cwb": 0.8, "Cwc": 0.3,
+	"Dfa": 0.6, "Dfb": 0.5, "Dfc": 0.08, "Dfd": 0.03, "Dsa": 0.5, "Dsb": 0.5, "Dsc": 0.08, "Dsd": 0.03,
+	"Dwa": 0.9, "Dwb": 0.5, "Dwc": 0.08, "Dwd": 0.03,
+	"ET": 0.02, "EF": 0.0,
+}
+## The same for the lie of the land.
+const TOPOGRAPHY_PEOPLE := {"flatland": 1.0, "plateau": 0.8, "hills": 0.7, "mountains": 0.3, "wetlands": 0.5}
+## In the tropics (this far from the equator) the healthy highlands — Ethiopia,
+## the Andes, Mexico, the Great Lakes — held people best, up to a height.
+const TROPICS_LATITUDE := 25.0
+const TROPICAL_HIGHLAND := [1000.0, 3600.0]
+const TROPICAL_HIGHLAND_PEOPLE := 1.4
+## Elsewhere high ground was thinly peopled (Tibet, the Pamirs).
+const HIGH_GROUND := 2500.0
+const HIGH_GROUND_PEOPLE := 0.4
+const VERY_HIGH_GROUND := 4200.0
+const VERY_HIGH_GROUND_PEOPLE := 0.15
+## A great river: more people along it, and in dry land an oasis.
+const RIVER_PEOPLE := 1.5
+const RIVER_OASIS_PEOPLE := 12.0
+
 ## Topography thresholds: the province's median ruggedness (elevation step to
 ## the neighbouring 5' cells, metres; the median so a mountainous fringe does
 ## not decide) and its mean elevation.
@@ -63,6 +93,9 @@ const FARMLAND_DENSITY := 18.0
 ## In deserts and dry scrub a great river with this many people per km² means
 ## irrigated fields along it (the Nile, Mesopotamia, the Oxus).
 const RIVER_OASIS_DENSITY := 1.5
+## …counted on no more than this much of the province (km²): a vast desert
+## province with a river through it (Timbuktu, Dongola) stays desert.
+const RIVER_OASIS_AREA := 30000.0
 ## Köppen's alpine tundra (ET/EF) closer to the equator than this is mountain
 ## cold, not polar: the game calls it subarctic.
 const ALPINE_LATITUDE := 55.0
@@ -174,7 +207,40 @@ func main_koppen(id: int) -> String:
 	return KOPPEN[best] if best >= 0 else ""
 
 
+## The province's climate's capacity for people: its Köppen classes' mix
+## (KOPPEN_PEOPLE), so a province half rice plain and half hills counts both.
+func climate_capacity(id: int) -> float:
+	var total := 0
+	var sum := 0.0
+	for k in KOPPEN.size():
+		var n := _kg[id * KOPPEN.size() + k]
+		total += n
+		sum += n * float(KOPPEN_PEOPLE.get(KOPPEN[k], 0.3))
+	return sum / total if total > 0 else 0.3
+
+
 # --- Classification ----------------------------------------------------------------
+
+## How many people a province's land fed against the best farmland, per km²:
+## its climate (`capacity`, climate_capacity), the lie of the land, its height
+## (the tropics' highlands best; elsewhere high ground poor), and a great river
+## (an oasis in dry land).
+static func people_factor(capacity: float, topography: String, mean_elev: float, lat: float,
+		great_river: bool, koppen: String) -> float:
+	var f: float = capacity * float(TOPOGRAPHY_PEOPLE.get(topography, 0.8))
+	if absf(lat) < TROPICS_LATITUDE:
+		if mean_elev >= TROPICAL_HIGHLAND[0] and mean_elev < TROPICAL_HIGHLAND[1]:
+			f *= TROPICAL_HIGHLAND_PEOPLE
+		elif mean_elev >= VERY_HIGH_GROUND:
+			f *= VERY_HIGH_GROUND_PEOPLE
+	elif mean_elev >= VERY_HIGH_GROUND:
+		f *= VERY_HIGH_GROUND_PEOPLE
+	elif mean_elev >= HIGH_GROUND:
+		f *= HIGH_GROUND_PEOPLE
+	if great_river:
+		f *= RIVER_OASIS_PEOPLE if koppen.begins_with("BW") else RIVER_PEOPLE
+	return f
+
 
 static func climate_of(koppen: String, lat: float) -> String:
 	if (koppen == "ET" or koppen == "EF") and absf(lat) < ALPINE_LATITUDE:
@@ -200,7 +266,7 @@ static func topography_of(mean_elev: float, rugged: float, wet_share: float) -> 
 ## jungle, marsh, tundra… or ""); `density`: people per km² in 1590;
 ## `great_river`: a major river runs through it.
 static func vegetation_of(koppen: String, topography: String, mean_elev: float, lat: float,
-		hint: String, density: float, great_river := false) -> String:
+		hint: String, density: float, great_river := false, area_km2 := 0.0) -> String:
 	var veg: String = NATURAL_VEGETATION.get(koppen, "woods")
 	# Named landscapes from Natural Earth sharpen the climate's guess.
 	match hint:
@@ -221,7 +287,7 @@ static func vegetation_of(koppen: String, topography: String, mean_elev: float, 
 	# irrigated river valleys in dry lands, like the Nile).
 	if density >= FARMLAND_DENSITY and topography != "mountains":
 		veg = "farmland"
-	elif great_river and veg in ["desert", "sparse"] and density >= RIVER_OASIS_DENSITY:
+	elif great_river and veg in ["desert", "sparse"] 			and density * minf(1.0, RIVER_OASIS_AREA / maxf(area_km2, 1.0)) >= RIVER_OASIS_DENSITY:
 		veg = "farmland"
 	return veg
 

@@ -149,7 +149,7 @@ func setup(p_world: WorldState, p_map_view: MapView, p_camera: MapCamera) -> voi
 	_viewport.msaa_3d = Viewport.MSAA_4X
 	_viewport.gui_disable_input = true
 	add_child(_viewport)
-	_font = _map_font()
+	_font = _load_map_font()
 	get_viewport().size_changed.connect(_fit_to_screen)
 	_fit_to_screen()
 
@@ -208,13 +208,64 @@ func _fit_to_screen() -> void:
 
 ## Serif map lettering rendered as a multi-channel signed distance field, so it
 ## stays crisp at any label scale.
-static func _map_font() -> Font:
-	var font := SystemFont.new()
-	font.font_names = PackedStringArray(["Georgia", "Palatino Linotype", "Book Antiqua", "Noto Serif", "serif"])
+const MAP_FONT_NAMES := ["Georgia", "Palatino Linotype", "Book Antiqua", "Noto Serif", "serif"]
+const MSDF_PIXEL_RANGE := 32  # outlines up to half this width render cleanly
+const MSDF_SIZE := 64
+## The map font with its distance-field glyphs, kept on the device: making the
+## glyphs takes seconds on a phone, loading them milliseconds. Remade when the
+## system font, the engine or these settings change (GLYPH_CACHE_KEY).
+const GLYPH_CACHE := "user://cache/map_font.res"
+const GLYPH_CACHE_KEY := "user://cache/map_font.key"
+var _glyph_cache_key := ""
+
+
+## The system serif as a font file (its glyphs can then be saved), from the
+## glyph cache when it is still good; a SystemFont if the file cannot be read.
+func _load_map_font() -> Font:
+	var path := ""
+	for n: String in MAP_FONT_NAMES:
+		path = OS.get_system_font_path(n)
+		if path != "" and not path.to_lower().ends_with(".ttc"):  # a collection: no face index to give
+			break
+		path = ""
+	if path == "":
+		return _system_map_font()
+	_glyph_cache_key = "%s|%d|%d|%s|%d|%d" % [path, FileAccess.get_size(path), FileAccess.get_modified_time(path),
+		Engine.get_version_info().string, MSDF_SIZE, MSDF_PIXEL_RANGE]
+	if FileAccess.file_exists(GLYPH_CACHE) and FileAccess.file_exists(GLYPH_CACHE_KEY) \
+			and FileAccess.get_file_as_string(GLYPH_CACHE_KEY) == _glyph_cache_key:
+		var cached := ResourceLoader.load(GLYPH_CACHE, "FontFile", ResourceLoader.CACHE_MODE_IGNORE) as FontFile
+		if cached != null and cached.multichannel_signed_distance_field:
+			return cached
+	var bytes := FileAccess.get_file_as_bytes(path)
+	if bytes.is_empty():
+		return _system_map_font()
+	var font := FontFile.new()
+	font.data = bytes
 	font.multichannel_signed_distance_field = true
-	font.msdf_pixel_range = 32  # outlines up to half this width render cleanly
-	font.msdf_size = 64
+	font.msdf_pixel_range = MSDF_PIXEL_RANGE
+	font.msdf_size = MSDF_SIZE
 	return font
+
+
+static func _system_map_font() -> Font:
+	var font := SystemFont.new()
+	font.font_names = PackedStringArray(MAP_FONT_NAMES)
+	font.multichannel_signed_distance_field = true
+	font.msdf_pixel_range = MSDF_PIXEL_RANGE
+	font.msdf_size = MSDF_SIZE
+	return font
+
+
+## Keeps the glyphs made so far for the next start.
+func _save_glyph_cache() -> void:
+	if not _font is FontFile or _glyph_cache_key == "":
+		return
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(GLYPH_CACHE.get_base_dir()))
+	if ResourceSaver.save(_font, GLYPH_CACHE, ResourceSaver.FLAG_COMPRESS) == OK:
+		var f := FileAccess.open(GLYPH_CACHE_KEY, FileAccess.WRITE)
+		if f != null:
+			f.store_string(_glyph_cache_key)
 
 
 static func to_3d(map_pos: Vector2, height := 0.0) -> Vector3:
@@ -860,7 +911,7 @@ func _build_province_label_pool() -> void:
 			_province_label_grid[key] = PackedInt32Array()
 		_province_label_grid[key].append(p.id)
 	var plain := SystemFont.new()
-	plain.font_names = (_font as SystemFont).font_names
+	plain.font_names = PackedStringArray(MAP_FONT_NAMES)
 	_name_font = plain
 	_name_canvas = Node2D.new()
 	_name_canvas.draw.connect(_draw_province_names)
@@ -874,9 +925,11 @@ func _label_cell(pos: Vector2) -> int:
 ## Makes the distance-field glyph of every character a name on the map can
 ## use, before any name is laid out: a glyph made later grows the shared atlas
 ## under names already laid out and garbles them (letters swapped for others).
-## Every name — provinces, seas, wastelands, countries, colonial regions,
-## goods — in both cases, plain and accented Latin, digits and punctuation;
-## letters already made are skipped, so this is cheap to repeat.
+## Every name — provinces, seas, wastelands, countries (and the colonial
+## nations that may be founded), colonial regions, goods — in both cases,
+## plain Latin, digits and punctuation; letters already made (or loaded from
+## the glyph cache) are skipped, so this is cheap to repeat. New glyphs are
+## saved to the cache.
 func _prewarm_glyphs() -> void:
 	var chars := {}
 	var add := func(text: String) -> void:
@@ -886,15 +939,16 @@ func _prewarm_glyphs() -> void:
 			chars[ch] = true
 	for code in range(0x20, 0x7F):
 		chars[String.chr(code)] = true
-	for code in range(0xA0, 0x180):
-		chars[String.chr(code)] = true
 	add.call("–—’‘“”·…→←≈×÷•€")
 	for p: Province in world.provinces.values():
 		add.call(p.name)
 	for c: Country in world.countries.values():
 		add.call(c.name)
+		add.call(c.adjective)
 	for r: Array in Overseas.REGIONS:
 		add.call(r[1])
+	for named: Array in Overseas.NATION_NAMES.values():
+		add.call(named[0])
 	for good: String in Goods.CATALOGUE:
 		add.call(Goods.name_of(good))
 	var fresh := PackedInt32Array()
@@ -906,15 +960,26 @@ func _prewarm_glyphs() -> void:
 	if fresh.is_empty():
 		return
 	var ts := TextServerManager.get_primary_interface()
+	var file := _font as FontFile
+	var before := _glyph_count(file)
 	for rid: RID in _font.get_rids():
 		for code in fresh:
 			ts.font_render_range(rid, Vector2i(48, 0), code, code)
+	if file != null and _glyph_count(file) != before:
+		_save_glyph_cache()  # letters new to this device
 	if _name_font != null:
 		_name_font.get_string_size("".join(PackedStringArray(chars.keys())), HORIZONTAL_ALIGNMENT_LEFT, -1,
 			int(PROVINCE_LABEL_PX))
 
 
 var _glyphs_made := {}  # character codes whose distance-field glyphs exist
+
+
+## Glyphs a font file holds (its first size).
+static func _glyph_count(f: FontFile) -> int:
+	if f == null or f.get_cache_count() == 0 or f.get_size_cache_list(0).is_empty():
+		return 0
+	return f.get_glyph_list(0, f.get_size_cache_list(0)[0]).size()
 
 
 ## Province names at the province level and closer, for what is on screen
@@ -1214,15 +1279,19 @@ func _on_province_selected(province_id: int) -> void:
 func _on_countries_changed() -> void:
 	if not _countries_pending:
 		_countries_pending = true
+		var epoch := _labels_epoch
 		(func():
 			_countries_pending = false
-			_on_campaign_restored()).call_deferred()
+			if epoch == _labels_epoch:  # not rebuilt since (a restore rebuilds at once)
+				_on_campaign_restored()).call_deferred()
 
 
 var _countries_pending := false
+var _labels_epoch := 0  # counts rebuilds of every name and keep
 
 
 func _on_campaign_restored() -> void:
+	_labels_epoch += 1
 	_prewarm_glyphs()  # names founded since (colonial nations) may bring new letters
 	_rebuild_all_country_labels()
 	_update_label_blockers()

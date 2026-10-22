@@ -92,7 +92,7 @@ func test_save_then_load_restores_identical_world() -> void:
 	check(service.load_into(b, "slot1"), "load: %s" % [service.errors])
 	check_eq(_diff(b.to_dict(), a.to_dict()), "", "state after load")
 	var paris := b.world.province_near(48.86, 2.35)
-	check(paris.owner_id == "FRA" and paris.controller_id == "SPA", "occupation survives")
+	check(paris.owner_id == "LEA" and paris.controller_id == "SPA", "occupation survives")
 	check_eq(b.world.player_country_id, "FRA", "player survives")
 	check_eq(b.clock.format_date(), a.clock.format_date(), "date survives")
 	check(b.clock.paused, "a loaded campaign starts paused")
@@ -163,7 +163,7 @@ func test_unknown_ids_produce_diagnostics() -> void:
 	service.save(c, "bad")
 	_rewrite(service, "bad", func(data: Dictionary) -> void:
 		var rows: Array = data.campaign.world.provinces
-		rows.append([999999, "ENG", "ENG", 100, 1, 0.0, null, [], [], [], null, "", 0.0])
+		rows.append([999999, "ENG", "ENG", 100, 1, 0.0, null, [], [], [], null, "", 0.0, null])
 		rows[0][1] = "XXX"
 		data.campaign.world.countries["ZZZ"] = data.campaign.world.countries["ENG"]
 		data.campaign.world.countries["FRA"].capital = 424242)

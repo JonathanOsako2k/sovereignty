@@ -165,6 +165,8 @@ func refresh() -> void:
 		_ours.add_child(_row(war, tag, men, false))
 	for tag: String in theirs:
 		_theirs.add_child(_row(war, tag, men, true))
+	if war.get("civil", false):
+		_note("A civil war: every province its leaders take from each other is annexed outright.")
 	if not war.get("refused", []).is_empty():
 		var names: Array = war.refused.map(func(t: String) -> String: return MilitarySystem.short_name(world, t))
 		_note("Stayed out (disloyal vassals): " + ", ".join(names))

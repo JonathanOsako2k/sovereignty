@@ -205,6 +205,7 @@ func test_colonies_survive_save_and_load() -> void:
 	for row: Array in old.world.provinces:
 		row.resize(11)
 	SaveService._upgrade_5_to_6(data)
+	SaveService._upgrade_8_to_9(data)  # (6 to 8 leave provinces alone)
 	check(b.restore(old).is_empty(), "upgraded format 5 restores")
 	check_eq(b.world.get_country("KON").colonial_policy, 0, "scenario policy for Kongo")
 	check_eq(b.world.get_country("SPA").colonial_policy, 3, "and Spain")

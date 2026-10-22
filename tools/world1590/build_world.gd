@@ -26,6 +26,9 @@ const Regions := preload("res://tools/world1590/regions_1590.gd")
 const Politics := preload("res://tools/world1590/polities_1590.gd")
 const Land1590 := preload("res://tools/world1590/land_1590.gd")
 const Resources := preload("res://tools/world1590/resources_1590.gd")
+const Religions1590 := preload("res://tools/world1590/religions_1590.gd")
+const Cultures1590 := preload("res://tools/world1590/cultures_1590.gd")
+const Pop := preload("res://tools/world1590/population_1590.gd")
 
 const SRC := "res://tools/source_data/"
 const MAP_WIDTH := 6144
@@ -153,13 +156,18 @@ func _initialize() -> void:
 	_attach_places(provinces)
 	_assign_owners(provinces)
 	_assign_names(provinces)
-	_assign_population(provinces)
-	var countries := _build_countries(provinces)
-	_log("Politics, names and population assigned")
 	_assign_land(provinces)
-	_log("Climate, topography and vegetation assigned")
+	_log("Climate and topography assigned")
+	_assign_population(provinces)
+	_assign_vegetation(provinces)
+	var countries := _build_countries(provinces)
+	_assign_league(provinces, countries)
+	_log("Politics, names, population and vegetation assigned")
 	_assign_goods(provinces)
 	_log("Goods, deposits and 1590 buildings assigned")
+	_assign_religions(provinces, countries)
+	_assign_cultures(provinces, countries)
+	_log("Religions and cultures assigned")
 	_write_outputs(provinces, countries)
 	_log("Outputs written")
 	_report(provinces, countries)
@@ -292,7 +300,9 @@ func _rasterize_divisions() -> void:
 		var raw := str(pr.name_en) if pr.get("name_en") != null else str(pr.get("name", ""))
 		if raw == "" or raw == "<null>":
 			raw = str(pr.get("name", "Unnamed"))
-		units.append({"name": Regions.historic_admin_name(raw), "adm0": str(pr.adm0_a3)})
+		units.append({"name": Regions.historic_admin_name(raw), "adm0": str(pr.adm0_a3),
+			"iso": str(pr.iso_3166_2) if pr.get("iso_3166_2") != null else "",
+			"ne_region": str(pr.region) if pr.get("region") != null else ""})
 		geo.fill_polygons(unit, f.polygons, units.size() - 1)
 	for p in W * H:
 		if adm[p] == 0:
@@ -2111,38 +2121,134 @@ func _unique_name(candidates: Array[String], p: Dictionary, used: Dictionary, ce
 	return "%s %d" % [base, k]
 
 
+## People (Population1590): each total — a group of first-level divisions, or
+## what a zone's total leaves for its other land — spread over its provinces by
+## their land (terrain, coast; a capital without a great city of its own
+## draws people; herders and forest peoples live thinly), the great cities set
+## down where they stand within their total. Development follows the density.
 func _assign_population(provinces: Array) -> void:
-	var zone_weight := {}
+	var land: Array = []
 	for p: Dictionary in provinces:
-		if p.wasteland or p.sea:
+		if not (p.wasteland or p.sea):
+			land.append(p)
+	# Division groups: a unit takes the first entry naming it.
+	var groups: int = Pop.DIVISIONS_K.size()
+	var unit_group := PackedInt32Array()
+	unit_group.resize(units.size())
+	unit_group.fill(-1)
+	for g in groups:
+		for key: String in Pop.DIVISIONS_K[g][0]:
+			var found := 0
+			for u in range(1, units.size()):
+				var d: Dictionary = units[u]
+				if d.get("iso", "") == key or "%s:%s" % [d.adm0, d.get("ne_region", "")] == key:
+					if unit_group[u] < 0:
+						unit_group[u] = g
+					found += 1
+			if found == 0:
+				print("  population: no division %s" % key)
+	# The great cities: the province each stands in (one named after it nearby
+	# first: a harbour city's point may fall across the water).
+	var by_id := {}
+	for p: Dictionary in land:
+		by_id[p.id] = p
+	var city_pop := {}  # province id -> people of its great cities
+	for c: Array in Pop.CITIES:
+		var id := _city_province(c, by_id)
+		if id == 0:
+			print("  population: %s stands on no land province" % c[0])
 			continue
-		var w: float = p.area * Regions.TERRAIN_POP[p.terrain]
+		city_pop[id] = city_pop.get(id, 0.0) + float(c[3]) * 1000.0
+	# Weights, and each province's share of every total by its sample points:
+	# keys 0..groups-1 are division groups, groups + z what zone z leaves.
+	var shares := {}  # province id -> {key: share}
+	var key_weight := {}  # key -> summed weight
+	var group_zones := {}  # division group -> {zone: weight}
+	for p: Dictionary in land:
+		# The land's own capacity (climate, ground, height, rivers: _assign_land).
+		var w: float = p.area * maxf(p.people_land, Regions.PEOPLE_LAND_MIN)
 		if p.coastal:
 			w *= 1.2
-		if p.capital_of != "":
-			w *= 3.0
-		if p.place != null and p.place.pop > 50000.0:
-			w *= 1.0 + 0.15 * log(p.place.pop / 50000.0) / log(10.0)
 		# Herders and forest peoples (tribal polities) live far more thinly than
-		# farmers in the same zone: the Tümed plain is not the North China Plain.
-		if p.owner != "" and Politics.POLITIES.get(p.owner, ["", ""])[1] == "tribal":
+		# farmers in the same total: the Tümed plain is not the North China
+		# Plain; land no realm holds, thinly too.
+		if p.owner == "":
+			w *= Regions.UNHELD_POP
+		elif Politics.POLITIES.get(p.owner, ["", ""])[1] == "tribal":
 			w *= Regions.TRIBAL_POP
 		p.pop_weight = w
-		zone_weight[p.zone] = zone_weight.get(p.zone, 0.0) + w
-	for p: Dictionary in provinces:
-		if p.wasteland or p.sea:
+		var points: Array = p.samples if not p.samples.is_empty() else [p.seed]
+		var counts := {}
+		for i: int in points:
+			var u := unit[i]
+			var z: int = zone[i] if zone[i] != 0 else p.zone
+			var key: int = unit_group[u] if u > 0 and unit_group[u] >= 0 else groups + z
+			counts[key] = counts.get(key, 0) + 1
+		var s := {}
+		for key: int in counts:
+			s[key] = float(counts[key]) / points.size()
+			key_weight[key] = key_weight.get(key, 0.0) + w * s[key]
+			if key < groups:
+				var zw: Dictionary = group_zones.get(key, {})
+				zw[p.zone] = zw.get(p.zone, 0.0) + w * s[key]
+				group_zones[key] = zw
+		shares[p.id] = s
+	# Totals: the division groups', and what each zone's total leaves (a group
+	# counts against the zone holding most of it).
+	var target := {}
+	var claimed := {}
+	for g: int in group_zones:
+		target[g] = float(Pop.DIVISIONS_K[g][1]) * 1000.0
+		var zw: Dictionary = group_zones[g]
+		var home := -1
+		for z: int in zw:
+			if home < 0 or zw[z] > zw[home]:
+				home = z
+		claimed[home] = claimed.get(home, 0.0) + target[g]
+	for z in range(1, zone_keys.size()):
+		var total := float(Pop.TOTAL_K.get(zone_keys[z], Regions.POPULATION_K.get(zone_keys[z], 2))) * 1000.0
+		var left: float = total - claimed.get(z, 0.0)
+		if left < 0.0:
+			print("  population: %s's divisions hold %d thousand more than its total" % [zone_keys[z], int(-left / 1000.0)])
+		target[groups + z] = maxf(left, 0.0)
+	# A capital without a great city keeps a court town (not a herders' camp).
+	for p: Dictionary in land:
+		if p.capital_of == "" or city_pop.has(p.id) or Politics.POLITIES.get(p.owner, ["", ""])[1] == "tribal":
 			continue
-		var share: float = p.pop_weight / maxf(zone_weight[p.zone], 1e-9)
-		p.population = maxi(100, int(round(zone_pop[p.zone] * share / 100.0)) * 100)
+		var s: Dictionary = shares[p.id]
+		var main := -1
+		for key: int in s:
+			if main < 0 or s[key] > s[main]:
+				main = key
+		city_pop[p.id] = minf(Regions.CAPITAL_TOWN_K * 1000.0, target.get(main, 0.0) * Regions.CAPITAL_TOWN_SHARE)
+	# A city's people come out of its province's main total.
+	for id: int in city_pop:
+		var s: Dictionary = shares[id]
+		var main := -1
+		for key: int in s:
+			if main < 0 or s[key] > s[main]:
+				main = key
+		target[main] = target.get(main, 0.0) - city_pop[id]
+		if target[main] < 0.0:
+			print("  population: the cities of province %d exceed their total by %d thousand" % [id, int(-target[main] / 1000.0)])
+			target[main] = 0.0
+	for p: Dictionary in land:
+		var people: float = city_pop.get(p.id, 0.0)
+		var s: Dictionary = shares[p.id]
+		for key: int in s:
+			var kw: float = key_weight[key]
+			if kw > 0.0:
+				people += target.get(key, 0.0) * p.pop_weight * s[key] / kw
+		p.population = maxi(100, int(round(people / 100.0)) * 100)
 		var density: float = p.population / maxf(p.area, 1.0)
 		var dev := int(round(1.5 + 2.0 * log(density + 1.0) / log(10.0)))
 		p.development = clampi(dev + (2 if p.capital_of != "" else 0), 1, 10)
 
 
 ## EU5-style land: climate (Köppen-Geiger), topography (ETOPO1 elevation and
-## ruggedness), vegetation (climate + landscape + 1590 settlement). Runs after
-## geometry and population, and draws nothing from `rng`, so it never moves a
-## province.
+## ruggedness), and how many people the land fed (Land1590.people_factor, for
+## _assign_population). Runs after geometry and draws nothing from `rng`, so it
+## never moves a province. Vegetation follows the people: _assign_vegetation.
 func _assign_land(provinces: Array) -> void:
 	var land := Land1590.new()
 	if not land.load_data(province_count + waste_count + sea_count + 1):
@@ -2164,17 +2270,28 @@ func _assign_land(provinces: Array) -> void:
 		var koppen := land.main_koppen(p.id)
 		var elev := land.mean_elevation(p.id)
 		var rugged := land.median_ruggedness(p.id)
+		p.koppen = koppen
 		p.climate = Land1590.climate_of(koppen, p.lat)
 		p.topography = Land1590.topography_of(elev, rugged, p.marsh_share)
+		if p.wasteland and p.terrain == "glacier":
+			p.climate = "arctic"
+		p.elevation = int(round(elev))
+		p.people_land = Land1590.people_factor(land.climate_capacity(p.id), p.topography, elev, p.lat,
+			p.great_river_px >= 3, koppen)
+
+
+## Vegetation: the natural cover the climate supports, the landscape, and
+## farmland where the 1590 people were thick on the ground (_assign_population).
+func _assign_vegetation(provinces: Array) -> void:
+	for p: Dictionary in provinces:
+		if p.sea:
+			continue
 		var hint: String = p.terrain
 		if p.wasteland:
 			hint = {"glacier": "desert", "mountains": "", "tundra": "tundra", "desert": "desert"}.get(p.terrain, "")
 		var density: float = 0.0 if p.wasteland else p.population / maxf(p.area, 1.0)
-		var great_river: bool = p.great_river_px >= 3
-		p.vegetation = Land1590.vegetation_of(koppen, p.topography, elev, p.lat, hint, density, great_river)
-		if p.wasteland and p.terrain == "glacier":
-			p.climate = "arctic"
-		p.elevation = int(round(elev))
+		p.vegetation = Land1590.vegetation_of(p.koppen, p.topography, float(p.elevation), p.lat, hint, density,
+			p.great_river_px >= 3, p.area)
 
 
 ## Every land province's good (named sites first, then its land), its hidden
@@ -2252,6 +2369,67 @@ func _assign_goods(provinces: Array) -> void:
 				p.buildings.append(entry[0])
 				placed += 1
 	print("  %d gold veins hidden, %d buildings at work in 1590" % [veins, placed])
+
+
+## The Catholic League's France (see polities_1590.gd): French provinces in its
+## towns' reach become the League's, Paris its capital; the king's government
+## sits at Tours. After the map is drawn, so no province changes shape.
+func _assign_league(provinces: Array, countries: Dictionary) -> void:
+	if not countries.has("FRA"):
+		return
+	var near := func(p: Dictionary, list: Array) -> bool:
+		for c: Array in list:
+			if Geo.haversine_km(p.lat, p.lon, c[0][0], c[0][1]) <= c[1]:
+				return true
+		return false
+	var league := 0
+	var paris := _province_at_point(Politics.LEAGUE_CAPITAL[0], Politics.LEAGUE_CAPITAL[1])
+	var tours := _province_at_point(Politics.ROYAL_CAPITAL[0], Politics.ROYAL_CAPITAL[1])
+	for p: Dictionary in provinces:
+		if p.sea or p.wasteland or p.owner != "FRA" or p.id == tours:
+			continue
+		if (near.call(p, Politics.LEAGUE_HELD) and not near.call(p, Politics.ROYALIST_HELD)) or p.id == paris:
+			p.owner = "LEA"
+			league += 1
+	countries["LEA"] = {"name": Politics.LEAGUE[0], "government": Politics.LEAGUE[1], "color": Politics.LEAGUE[2],
+		"capital": paris, "provinces": league}
+	countries.FRA.capital = tours
+	countries.FRA.provinces -= league
+	print("  the Catholic League holds %d provinces" % league)
+
+
+## Every province's people in 1590 and every realm's primary culture (see
+## cultures_1590.gd); no random numbers, so the map is untouched.
+func _assign_cultures(provinces: Array, countries: Dictionary) -> void:
+	var by_id := {}
+	var counts := {}
+	for p: Dictionary in provinces:
+		by_id[p.id] = p
+		if p.sea or p.wasteland:
+			continue
+		p.culture = Cultures1590.province_culture(p.adm, p.region, p.owner, p.lat, p.lon, Geo.haversine_km)
+		counts[p.culture] = counts.get(p.culture, 0) + 1
+	for tag: String in countries:
+		var c: Dictionary = countries[tag]
+		c.culture = Cultures1590.STATE.get(tag, by_id[c.capital].culture)
+	print("  cultures: %d in use" % counts.size())
+
+
+## Every province's faith in 1590 and every realm's state religion (see
+## religions_1590.gd); no random numbers, so the map is untouched.
+func _assign_religions(provinces: Array, countries: Dictionary) -> void:
+	var by_id := {}
+	var counts := {}
+	for p: Dictionary in provinces:
+		by_id[p.id] = p
+		if p.sea or p.wasteland:
+			continue
+		p.religion = Religions1590.province_religion(p.adm, p.region, p.owner, p.lat, p.lon, Geo.haversine_km)
+		counts[p.religion] = counts.get(p.religion, 0) + 1
+	for tag: String in countries:
+		var c: Dictionary = countries[tag]
+		c.religion = Religions1590.STATE.get(tag, by_id[c.capital].religion)
+	print("  religions: %s" % str(counts))
 
 
 func _province_at_point(lat: float, lon: float) -> int:
@@ -2348,14 +2526,18 @@ func _assign_colors(provinces: Array, countries: Dictionary) -> void:
 ## Islands of a few pixels are hard to see and to tap, and the raster loses
 ## most of their islets (each smaller than a pixel). On the drawn map each such
 ## island is drawn from its real shape: every land polygon of the source map
-## of the same country within ISLET_REACH_KM — its own and its islets — at its
+## near it (its islets: see ISLET_MAX_PX) — its own and its islets — at its
 ## true place, each pixel a small round spot (ISLET_RADIUS), into the sea only
 ## and never beside other land. So the Maldives show as their chain of atolls,
 ## Saint Helena as one small island. Only the drawing changes: statistics,
 ## neighbours and coasts are as found. (Mainland slivers are left as they are.)
 const ISLAND_MIN_PX := 40
 const ISLET_RADIUS := 2.0
-const ISLET_REACH_KM := 600.0
+## Islets from the source map: polygons smaller than this (larger land is on
+## the map already), joined to the island whose land is nearest within
+## ISLET_SEARCH_PX.
+const ISLET_MAX_PX := 40.0
+const ISLET_SEARCH_PX := 12
 
 
 func _enlarge_islands(drawn: PackedInt32Array, provinces: Array) -> int:
@@ -2377,52 +2559,58 @@ func _enlarge_islands(drawn: PackedInt32Array, provinces: Array) -> int:
 		if alone:
 			var u: int = unit[seed_px[p.id - 1]]
 			islands.append([p, str(units[u].get("adm0", "")), geo.y_to_lat(p.label[1] + 0.5), _lon(p.label[0])])
-	# Their islets, from the source map: the nearest island of the same country.
+	# Their islets, from the source map: small polygons (a large one is on the
+	# map already) whose nearest land on the map is the island itself — islets
+	# off a mainland or a larger island are left alone — and never in water
+	# that was open in 1590 (the Zuiderzee's polders are not islets).
 	var spots := {}  # province id -> PackedInt32Array of pixels to draw round
+	var island_ids := {}
+	var countries_with := {}
 	for isl: Array in islands:
 		var own := PackedInt32Array()
 		var p: Dictionary = isl[0]
+		island_ids[p.id] = true
+		countries_with[isl[1]] = true
 		for y in range(p.min_y, p.max_y + 1):
 			for x in range(p.min_x, p.max_x + 1):
 				var q: int = y * W + (x + W) % W
 				if drawn[q] == p.id:
 					own.append(q)
 		spots[p.id] = own
+	var waters := []
+	for water: Array in Regions.HISTORIC_WATER:
+		var wpts := PackedVector2Array()
+		for ll: Array in water[1]:
+			wpts.append(Vector2(geo.lon_to_x(ll[1]), geo.lat_to_y(ll[0])))
+		waters.append(wpts)
 	for f in Geo.load_features(SRC + "ne_10m_admin_1_states_provinces.geojson"):
-		var adm0 := str(f.props.get("adm0_a3", ""))
+		if not countries_with.has(str(f.props.get("adm0_a3", ""))):
+			continue
 		for rings: Array in f.polygons:
 			var ring: PackedVector2Array = rings[0]
-			var c := Vector2.ZERO
-			for v in ring:
-				c += v
-			c /= maxf(ring.size(), 1)
-			var best := -1
-			var best_km := ISLET_REACH_KM
-			for k in islands.size():
-				if islands[k][1] != adm0:
-					continue
-				var km := Geo.haversine_km(c.y, c.x, islands[k][2], islands[k][3])
-				if km < best_km:
-					best_km = km
-					best = k
-			if best < 0:
-				continue
 			var pts := PackedVector2Array()
 			var lo := Vector2(INF, INF)
 			var hi := Vector2(-INF, -INF)
+			var c := Vector2.ZERO
 			for v in ring:
 				var px := Vector2(geo.lon_to_x(v.x), geo.lat_to_y(v.y))
 				pts.append(px)
 				lo = lo.min(px)
 				hi = hi.max(px)
-			var id: int = islands[best][0].id
-			var cpx := Vector2(geo.lon_to_x(c.x), geo.lat_to_y(c.y))
-			spots[id].append(int(cpx.y) * W + (int(cpx.x) + W) % W)
-			if hi.x - lo.x < 40.0 and hi.y - lo.y < 40.0:
-				for y in range(int(lo.y), int(hi.y) + 1):
-					for x in range(int(lo.x), int(hi.x) + 1):
-						if Geometry2D.is_point_in_polygon(Vector2(x + 0.5, y + 0.5), pts):
-							spots[id].append(y * W + (x + W) % W)
+				c += px
+			if hi.x - lo.x >= ISLET_MAX_PX or hi.y - lo.y >= ISLET_MAX_PX:
+				continue
+			c /= maxf(pts.size(), 1)
+			if waters.any(func(w: PackedVector2Array) -> bool: return Geometry2D.is_point_in_polygon(c, w)):
+				continue
+			var id := _nearest_land(drawn, int(c.x), int(c.y), sea)
+			if not island_ids.has(id):
+				continue
+			spots[id].append(int(c.y) * W + (int(c.x) + W) % W)
+			for y in range(int(lo.y), int(hi.y) + 1):
+				for x in range(int(lo.x), int(hi.x) + 1):
+					if Geometry2D.is_point_in_polygon(Vector2(x + 0.5, y + 0.5), pts):
+						spots[id].append(y * W + (x + W) % W)
 	# Each spot drawn round, into the sea, never beside other land.
 	var r := int(ceil(ISLET_RADIUS))
 	for id: int in spots:
@@ -2440,6 +2628,77 @@ func _enlarge_islands(drawn: PackedInt32Array, provinces: Array) -> int:
 					if sea.has(drawn[n]) and not _beside_other_land(drawn, n, id, sea):
 						drawn[n] = id
 	return islands.size()
+
+
+## The province of the land pixel nearest (x, y) within ISLET_SEARCH_PX (-1: none).
+## The province a great city (Population1590.CITIES row) stands in: a land
+## province within CITY_NAME_PX named after it (its 1590 or modern name), else
+## the one at its point.
+const CITY_NAME_PX := 14
+
+
+func _city_province(c: Array, by_id: Dictionary) -> int:
+	var names: Array[String] = [String(c[0]).to_lower(), String(c[4]).to_lower() if c.size() > 4 else ""]
+	if String(c[0]).contains(" ("):
+		names.append(String(c[0]).get_slice(" (", 0).to_lower())
+		names.append(String(c[0]).get_slice(" (", 1).trim_suffix(")").to_lower())
+	var x := clampi(int(geo.lon_to_x(float(c[2]))), 0, W - 1)
+	var y := clampi(int(geo.lat_to_y(float(c[1]))), 0, H - 1)
+	var best := 0
+	var best_d := INF
+	for dy in range(-CITY_NAME_PX, CITY_NAME_PX + 1):
+		var ny := y + dy
+		if ny < 0 or ny >= H:
+			continue
+		for dx in range(-CITY_NAME_PX, CITY_NAME_PX + 1):
+			var d := dx * dx + dy * dy
+			if d >= best_d:
+				continue
+			var v := ids[ny * W + (x + dx + W) % W]
+			if v >= 1 and v <= province_count and by_id.has(v) and String(by_id[v].name).to_lower() in names:
+				best_d = d
+				best = v
+	return best if best != 0 else _province_at(float(c[1]), float(c[2]))
+
+
+## The land province at a place, or the nearest within ISLET_SEARCH_PX (a
+## harbour city's point may fall on the water); 0 if none.
+func _province_at(lat: float, lon: float) -> int:
+	var x := clampi(int(geo.lon_to_x(lon)), 0, W - 1)
+	var y := clampi(int(geo.lat_to_y(lat)), 0, H - 1)
+	var best := 0
+	var best_d := INF
+	for dy in range(-ISLET_SEARCH_PX, ISLET_SEARCH_PX + 1):
+		var ny := y + dy
+		if ny < 0 or ny >= H:
+			continue
+		for dx in range(-ISLET_SEARCH_PX, ISLET_SEARCH_PX + 1):
+			var d := dx * dx + dy * dy
+			if d >= best_d:
+				continue
+			var v := ids[ny * W + (x + dx + W) % W]
+			if v >= 1 and v <= province_count:
+				best_d = d
+				best = v
+	return best
+
+
+func _nearest_land(drawn: PackedInt32Array, x: int, y: int, sea: Dictionary) -> int:
+	var best := -1
+	var best_d := INF
+	for dy in range(-ISLET_SEARCH_PX, ISLET_SEARCH_PX + 1):
+		var ny := y + dy
+		if ny < 0 or ny >= H:
+			continue
+		for dx in range(-ISLET_SEARCH_PX, ISLET_SEARCH_PX + 1):
+			var d := dx * dx + dy * dy
+			if d >= best_d:
+				continue
+			var v := drawn[ny * W + (x + dx + W) % W]
+			if v != 0 and not sea.has(v):
+				best_d = d
+				best = v
+	return best
 
 
 func _beside_other_land(drawn: PackedInt32Array, n: int, id: int, sea: Dictionary) -> bool:
@@ -2562,13 +2821,14 @@ func _write_outputs(provinces: Array, countries: Dictionary) -> void:
 		scenario_countries[tag] = {
 			"capital": c.capital, "government": c.government,
 			"treasury": mini(500, 30 + c.provinces * 2), "legitimacy": 75, "stability": 0,
-			"colonial": Politics.COLONIAL_POLICY.get(tag, 0),
+			"colonial": Politics.COLONIAL_POLICY.get(tag, 0), "religion": c.religion, "culture": c.culture,
 		}
 	var scenario_provinces := {}
 	for p: Dictionary in provinces:
 		if not p.wasteland and not p.sea:
 			scenario_provinces[str(p.id)] = {"owner": p.owner, "controller": p.owner,
-				"population": p.population, "development": p.development, "buildings": p.buildings}
+				"population": p.population, "development": p.development, "buildings": p.buildings,
+				"religion": p.religion, "culture": p.culture}
 	_write_json("res://data/scenarios/1590.json", {
 		"version": DATA_VERSION,
 		"name": "The Long Century — 1 January 1590",
@@ -2595,6 +2855,7 @@ func _scenario_diplomacy(countries: Dictionary) -> Dictionary:
 		"alliances": Politics.ALLIANCES.filter(keep),
 		"marriages": Politics.ROYAL_MARRIAGES.filter(keep),
 		"rivals": Politics.RIVALRIES.filter(keep),
+		"subsidies": Politics.SUBSIDIES.filter(keep),
 	}
 
 

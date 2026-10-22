@@ -177,6 +177,12 @@ func colony_progress_changed() -> void:
 func economy_changed() -> void:
 	_refresh_later(MapModes.Mode.ECONOMY)
 	_refresh_later(MapModes.Mode.GOODS)
+	_refresh_later(MapModes.Mode.BUILDINGS)
+
+
+## A province converted: the religion map redraws if shown.
+func religion_changed() -> void:
+	_refresh_later(MapModes.Mode.RELIGION)
 
 
 func _refresh_later(only_mode := -1) -> void:

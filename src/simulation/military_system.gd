@@ -3,11 +3,15 @@ extends RefCounted
 ## War through the scheduler (the state lives in Military):
 ## * marching along the quickest road — A* over the province graph, a leg's
 ##   days set by distance, the army's pace and the ground; armies cross a sea
-##   zone where their own fleet holds it; neutral land is closed to them;
+##   zone where their own fleet holds it; neutral land is closed to them; before
+##   1800 enemy forts bar the roads about them (fort_zones);
 ## * battles when enemies meet (strength, ground, forts, luck; the loser falls
 ##   back as far as its technology allows — see retreat_steps — destroyed only
-##   when cut off or overwhelmed), sieges of forts and occupation of open land
-##   — control only, never ownership;
+##   when cut off or overwhelmed), sieges of forts (monthly tries, guns,
+##   storming) and occupation of open land — control only, never ownership;
+##   occupied land may be handed to an ally in the war;
+## * manpower and sailors: pools trained by barracks and docks, refilling
+##   regiments and crews; ideas that add to them (press gangs);
 ## * fleets carrying armies over the sea (ships' capacity; boarding at a port
 ##   or offshore, landing on a coast of the fleet's sea);
 ## * attrition where the land cannot feed an army, reinforcements and
@@ -20,6 +24,8 @@ extends RefCounted
 
 signal battle_fought(report: Dictionary)
 signal province_occupied(province_id: int, by: String)
+## In a civil war a province taken is annexed outright.
+signal province_annexed(province_id: int, by: String, from: String)
 signal war_declared(war: Dictionary)
 signal peace_made(war: Dictionary, summary: String)
 ## An AI side's leader offers the player a treaty (see conclude): accepting
@@ -56,10 +62,54 @@ const RETREAT_BY_AGE := [[1750, 5], [1830, 4], [1900, 3], [100000, 2]]
 const MOUNTED_SPEED := 30.0
 # --- Over the sea ---
 const LANDING_DAYS := 3.0
+## Before this year a fort bars the roads about it to its enemies (fort_zones).
+const FORT_ZOC_UNTIL := 1800
 # --- Sieges ---
+## Open land falls to an army standing on it in OCCUPY_DAYS (sooner with guns).
+## A fort holds a garrison (FORT_GARRISON men; fewer if its upkeep is
+## neglected, half again at a capital: fort_strength) and needs at least as
+## many besiegers. A capital without a fort is never simply occupied: its old
+## walls and watch hold like a fort of CITY_WALLS strength (walled). Every SIEGE_PHASE_DAYS they try their luck (siege_odds):
+## SIEGE_BASE, plus SIEGE_PER_PHASE for every try that failed (to
+## SIEGE_TIME_CAP: hunger, disease, breaches), plus their numbers
+## (SIEGE_PER_GARRISON for every garrison's worth beyond the first, to
+## SIEGE_NUMBERS_CAP), plus their guns (the share of siege power in the army ×
+## SIEGE_ARTILLERY, to SIEGE_ARTILLERY_CAP), minus the walls (SIEGE_WALLS ×
+## the fort's strength) and, short of siege equipment — guns, or the ladders
+## and saps of a great host (IMPROVISED_SIEGE a man), against
+## SIEGE_EQUIPMENT_NEED a man of the garrison — up to SIEGE_NO_EQUIPMENT.
+## Or they storm it (assault): ASSAULT_BASE + the siege's chance ×
+## ASSAULT_FACTOR (to ASSAULT_MAX), after ASSAULT_MIN_DAYS and no more than
+## once every ASSAULT_EVERY_DAYS, losing ASSAULT_LOSS of the stormers if it
+## falls and ASSAULT_FAIL_LOSS if it holds. AI armies storm at
+## AI_ASSAULT_CHANCE or better.
 const OCCUPY_DAYS := 10.0
 const CAPITAL_SIEGE := 1.5
+const CITY_WALLS := 0.6
 const MIN_SIEGE_MEN := 1000
+const FORT_GARRISON := 1000
+const SIEGE_PHASE_DAYS := 30
+const SIEGE_BASE := 10.0
+const SIEGE_PER_PHASE := 5.0
+const SIEGE_TIME_CAP := 40.0
+const SIEGE_PER_GARRISON := 4.0
+const SIEGE_NUMBERS_CAP := 16.0
+const SIEGE_ARTILLERY := 100.0
+const SIEGE_ARTILLERY_CAP := 30.0
+const SIEGE_WALLS := 10.0
+const SIEGE_NO_EQUIPMENT := 42.0
+const SIEGE_EQUIPMENT_NEED := 0.5
+const IMPROVISED_SIEGE := 0.05
+const SIEGE_MAX_CHANCE := 90.0
+const ASSAULT_MIN_DAYS := 10
+const ASSAULT_EVERY_DAYS := 15
+const ASSAULT_BASE := 5.0
+const ASSAULT_FACTOR := 1.5
+const ASSAULT_MAX := 80.0
+const ASSAULT_LOSS := 0.1
+const ASSAULT_FAIL_LOSS := 0.25
+const ASSAULT_MORALE := 0.3
+const AI_ASSAULT_CHANCE := 60.0
 # --- Levies, supply, recovery ---
 const LEVY_SHARE := 0.004  # of commoners and tribesmen
 const MIN_LEVY_REGIMENT := 200
@@ -74,10 +124,33 @@ const REINFORCE_SHARE := 0.1
 const REINFORCE_COST := 0.5
 const MORALE_RECOVERY := 0.2
 const REINFORCEMENTS := "Reinforcements"
-## Manpower for regular (professional) regiments — not levies: a share of the
-## realm's people, refilling over MANPOWER_REFILL_MONTHS.
+## Soldiers for regular (professional) regiments — not levies — and sailors for
+## ships' crews come from pools. Each has a ceiling: MANPOWER_SHARE of the
+## people of the land a country holds (SAILOR_SHARE of those on its coasts),
+## plus TRAINED_MONTHS of what its barracks and docks train. A pool refills by
+## itself only slowly (its people's share over POOL_GROWTH_MONTHS), but mostly
+## from training: a barracks turns BARRACKS_SHARE of its province's people a
+## month into soldiers (at least BARRACKS_MIN), a dock DOCK_SHARE into sailors
+## (at least DOCK_MIN). Over its ceiling (land lost, men pressed) a pool loses
+## POOL_EXCESS_LOSS of the excess a month. Ideas: drill grounds and naval
+## academies train IDEA_TRAINING times as many; conscription multiplies the
+## people's share by CONSCRIPTION; press gangs seize PRESS_SHARE of a
+## province's commoners (once in PRESS_EVERY_DAYS, PRESS_UNREST unrest).
 const MANPOWER_SHARE := 0.003
-const MANPOWER_REFILL_MONTHS := 120.0
+const SAILOR_SHARE := 0.002
+const POOL_GROWTH_MONTHS := 240.0
+const BARRACKS_SHARE := 0.0004
+const BARRACKS_MIN := 100.0
+const DOCK_SHARE := 0.0003
+const DOCK_MIN := 30.0
+const TRAINED_MONTHS := 12.0
+const POOL_EXCESS_LOSS := 0.1
+const IDEA_TRAINING := 1.5
+const CONSCRIPTION := 2.0
+const PRESS_SHARE := 0.01
+const PRESS_EVERY_DAYS := 365
+const PRESS_UNREST := 10.0
+const PRESS_MIN := 50
 const RECRUITMENT := "Raising %s"
 # --- Peace and the AI ---
 const OCCUPATION_WEIGHT := 0.6
@@ -85,6 +158,9 @@ const PEACE_DEMAND := 50.0
 const WHITE_PEACE_YEARS := 4.0
 const OFFER_EVERY_DAYS := 180
 const AI_WAR_CHANCE := 0.05
+## Realms readier for war than most: tag -> [times the yearly chance, odds it
+## needs]. Nurhaci's Jianzhou, uniting the Jurchens.
+const AI_AGGRESSION := {"JIA": [8.0, 1.0]}
 const AI_WAR_ODDS := 1.5
 ## AI planning: the nearest targets it weighs, the provinces a route search may
 ## open before giving up, and the days an army with no target waits to look again.
@@ -124,9 +200,17 @@ func _init(p_campaign: Campaign, p_economy: EconomySystem, p_actions: DiplomacyA
 	m = world.military
 	m.reset.connect(_after_reset)
 	m.changed.connect(economy.changed)
+	world.province_controller_changed.connect(func(_id: int, _old: String, _new: String): _zones_key = "")
+	forts_changed.connect(func():
+		_forts_key = ""
+		_zones_key = "")
+	_fill_pools()
 
 
 func _after_reset() -> void:
+	_zones_key = ""
+	_forts_key = ""
+	_fill_pools()
 	_recount_levies()
 	economy.changed()
 
@@ -151,6 +235,91 @@ func _open_subject(tag: String, subject: String) -> bool:
 		var overlord := world.diplomacy.overlord_of(subject)
 		var side := m.side_in(id, overlord)
 		if side >= 0 and m.side_in(id, tag) == 1 - side:
+			return true
+	return false
+
+
+# --- Forts barring the roads -----------------------------------------------------------
+
+## Before FORT_ZOC_UNTIL a fort bars the roads about it to its enemies: an army
+## in its zone — the fort and the land beside it that the fort's side holds —
+## may march into the fort, or out of the zone, but not on to another province
+## of the zone: it must take the fort, or go round. Retreats are not barred.
+var _zones := {}  # tag -> {province id: [ids of hostile forts whose zone it is in]}
+var _zones_key := ""  # the day and wars they hold for ("" after control changed)
+var _fort_list: Array[Province] = []
+var _fort_land := {}  # fort province id -> its land neighbours
+var _forts_key := ""  # the month the fort list holds for ("" after forts were pulled down)
+var _zoc_hit := false  # the last road search was barred by a fort
+
+
+## The zones of the forts hostile to `tag` (none from FORT_ZOC_UNTIL, nor at
+## peace): province id -> [fort province ids].
+func fort_zones(tag: String) -> Dictionary:
+	if clock.year >= FORT_ZOC_UNTIL or not m.in_any_war(tag):
+		return {}
+	# Forts are built a month at a time: the list (with each fort's land
+	# neighbours) holds for the month.
+	var month := "%d-%d" % [clock.year, clock.month]
+	if month != _forts_key:
+		_forts_key = month
+		_fort_list.clear()
+		_fort_land.clear()
+		for p: Province in world.ownable_provinces():
+			if "fort" in p.buildings:
+				_fort_list.append(p)
+				var land: Array[Province] = []
+				for n: int in p.neighbour_ids:
+					var q := world.get_province(n)
+					if q != null and not q.is_sea and not q.is_wasteland:
+						land.append(q)
+				_fort_land[p.id] = land
+	# Zones hold until control, the wars or the forts change.
+	var key := "%d:%s" % [m.wars_version, _forts_key]
+	if key != _zones_key:
+		_zones.clear()
+		_zones_key = key
+	if not _zones.has(tag):
+		var enemies := _enemies_of(tag)
+		var zones := {}
+		for f: Province in _fort_list:
+			if not enemies.has(f.controller_id):
+				continue
+			_zone_add(zones, f.id, f.id)
+			for q: Province in _fort_land[f.id]:
+				if enemies.has(q.controller_id):
+					_zone_add(zones, q.id, f.id)
+		_zones[tag] = zones
+	return _zones[tag]
+
+
+## The countries `tag` is at war with (tag -> true).
+func _enemies_of(tag: String) -> Dictionary:
+	var out := {}
+	var index := m.war_index()
+	var sides: Dictionary = index[0]
+	for id: int in index[1].get(tag, []):
+		var war: Dictionary = sides[id]
+		var mine: int = war[tag]
+		for t: String in war:
+			if war[t] != mine:
+				out[t] = true
+	return out
+
+
+static func _zone_add(zones: Dictionary, id: int, fort: int) -> void:
+	if not zones.has(id):
+		zones[id] = []
+	zones[id].append(fort)
+
+
+## Whether a fort's zone bars the march from one province to the next (into
+## a hostile fort itself, never: it may always be besieged).
+static func zoc_blocks(zones: Dictionary, from: int, to: int) -> bool:
+	if not zones.has(from) or not zones.has(to) or to in zones[to]:
+		return false
+	for f: int in zones[from]:
+		if f != to and f in zones[to]:
 			return true
 	return false
 
@@ -209,9 +378,11 @@ func find_path(army: Army, target: int, limit := 0) -> Array[int]:
 	if army.navy:
 		if not goal.is_sea and not can_berth(army.owner, goal):
 			return []
-	elif goal.is_sea or not can_enter(army.owner, goal):
+	elif goal.is_sea or not can_enter(army.side(), goal):
 		return []
 	var seas := {} if army.navy else _fleet_seas(army.owner)
+	var zones := {} if army.navy else fort_zones(army.side())
+	_zoc_hit = false
 	var speed := army.speed()
 	var g := {army.location: 0.0}
 	var came := {}
@@ -247,8 +418,11 @@ func find_path(army: Army, target: int, limit := 0) -> Array[int]:
 				if done.has(n):
 					continue
 				if not enter.has(n):
-					enter[n] = can_enter(army.owner, world.get_province(n))
+					enter[n] = can_enter(army.side(), world.get_province(n))
 				if enter[n]:
+					if not zones.is_empty() and zoc_blocks(zones, cur, n):
+						_zoc_hit = true
+						continue
 					steps.append([n, maxf(MIN_LEG_DAYS, kms[i] / speed * grounds[i])])
 			# Across a sea zone our fleet holds.
 			for sea_id: int in cp.sea_ids:
@@ -258,8 +432,11 @@ func find_path(army: Army, target: int, limit := 0) -> Array[int]:
 					if c == cur or c in cp.neighbour_ids or done.has(c):
 						continue
 					if not enter.has(c):
-						enter[c] = can_enter(army.owner, world.get_province(c))
+						enter[c] = can_enter(army.side(), world.get_province(c))
 					if enter[c]:
+						if not zones.is_empty() and zoc_blocks(zones, cur, c):
+							_zoc_hit = true
+							continue
 						steps.append([c, leg_days(cp, world.get_province(c), speed)])
 		for step: Array in steps:
 			var n: int = step[0]
@@ -323,12 +500,12 @@ func _steps(army: Army, p: Province, seas: Dictionary, target := -1) -> Array[in
 			out.append(target)
 		return out
 	for n: int in p.neighbour_ids:
-		if can_enter(army.owner, world.get_province(n)):
+		if can_enter(army.side(), world.get_province(n)):
 			out.append(n)
 	for s: int in p.sea_ids:
 		if seas.has(s):
 			for c: int in world.get_province(s).coast_ids:
-				if c != p.id and not c in out and can_enter(army.owner, world.get_province(c)):
+				if c != p.id and not c in out and can_enter(army.side(), world.get_province(c)):
 					out.append(c)
 	return out
 
@@ -369,8 +546,10 @@ func order_move(army: Army, target: int, limit := 0) -> String:
 			return "That dock is not open to us" if "dock" in goal.buildings else "Fleets keep to the sea or berth at our docks"
 		if goal != null and not army.navy and goal.is_sea:
 			return "Armies cannot march on water"
-		if goal != null and not army.navy and not can_enter(army.owner, goal):
+		if goal != null and not army.navy and not can_enter(army.side(), goal):
 			return "%s's land is closed to us (not at war)" % world.get_country(goal.owner_id).name
+		if _zoc_hit:
+			return "Enemy forts bar the road: take them, or go round"
 		return "No way there"
 	army.path = path
 	army.leg_total = leg_days(world.get_province(army.location), world.get_province(path[0]), army.speed())
@@ -503,7 +682,7 @@ func order_landing(army: Army, target: int) -> String:
 		return "The fleet is under sail: land when it has stopped"
 	if not can_land_at(fleet, p):
 		return "Land on a coast of the sea the fleet is on"
-	if not can_enter(army.owner, p):
+	if not can_enter(army.side(), p):
 		return "%s's land is closed to us (not at war)" % world.get_country(p.owner_id).name
 	army.path = [target] as Array[int]
 	army.leg_total = 1.0 if fleet.location == target else LANDING_DAYS
@@ -589,8 +768,11 @@ func _march() -> void:
 		a.leg_days -= 1.0
 		while a.leg_days <= 0.0 and not a.path.is_empty():
 			var next := world.get_province(a.path[0])
-			if not a.navy and not can_enter(a.owner, next):
+			if not a.navy and not can_enter(a.side(), next):
 				a.path.clear()  # a peace closed the road
+				break
+			if not a.navy and not a.retreating and zoc_blocks(fort_zones(a.side()), a.location, next.id):
+				a.path.clear()  # an enemy fort bars the road now
 				break
 			if a.navy and not next.is_sea and not can_berth(a.owner, next):
 				a.path.clear()  # the dock is closed to us now
@@ -624,7 +806,7 @@ func _enemies_at(a: Army) -> Array[Army]:
 	var out: Array[Army] = []
 	for b: Army in m.armies.values():
 		if b.location == a.location and b.navy == a.navy and b.owner != a.owner and b.aboard == 0 \
-				and not b.retreating and m.at_war(a.owner, b.owner):
+				and not b.retreating and m.at_war(a.side(), b.side()):
 			out.append(b)
 	return out
 
@@ -660,12 +842,12 @@ func _fight() -> void:
 			var pair := _hostile_pair(here)
 			if pair.is_empty():
 				break
-			var war := m.war_between(pair[0].owner, pair[1].owner)
-			var side0 := Military.side_of(war, pair[0].owner)
+			var war := m.war_between(pair[0].side(), pair[1].side())
+			var side0 := Military.side_of(war, pair[0].side())
 			var a_side: Array[Army] = []
 			var b_side: Array[Army] = []
 			for x: Army in here:
-				var s := Military.side_of(war, x.owner)
+				var s := Military.side_of(war, x.side())
 				if s == side0:
 					a_side.append(x)
 				elif s >= 0:
@@ -678,7 +860,7 @@ func _fight() -> void:
 func _hostile_pair(armies: Array) -> Array:
 	for i in armies.size():
 		for j in range(i + 1, armies.size()):
-			if m.at_war(armies[i].owner, armies[j].owner):
+			if m.at_war(armies[i].side(), armies[j].side()):
 				return [armies[i], armies[j]]
 	return []
 
@@ -763,12 +945,14 @@ func battle(a_side: Array[Army], b_side: Array[Army], war: Dictionary) -> Dictio
 			x.retreating = true
 			x.leg_total = leg_days(world.get_province(x.location), world.get_province(road[0]), x.speed())
 			x.leg_days = x.leg_total
-	var winner_side := Military.side_of(war, winners[0].owner)
+	var winner_side := Military.side_of(war, winners[0].side())
 	var gain := clampf((lost_losers + destroyed) / 2000.0, 1.0, 15.0)
 	war.battle_score = clampf(war.battle_score + (gain if winner_side == 0 else -gain), -BATTLE_SCORE_CAP, BATTLE_SCORE_CAP)
 	_apply_levy_deaths()
-	var report := {"province": location, "navy": navy, "attacker": attackers[0].owner, "defender": defenders[0].owner,
-		"winner": winners[0].owner, "attacker_losses": lost_winners if attackers_win else lost_losers + destroyed,
+	# Sides by who fights the war (volunteers count for their hosts); `tags`, the
+	# countries whose armies were there.
+	var report := {"province": location, "navy": navy, "attacker": attackers[0].side(), "defender": defenders[0].side(),
+		"winner": winners[0].side(), "attacker_losses": lost_winners if attackers_win else lost_losers + destroyed,
 		"defender_losses": lost_losers + destroyed if attackers_win else lost_winners, "war": war.id,
 		"tags": _tags_of(attackers + defenders)}
 	m.changed.emit()
@@ -849,7 +1033,7 @@ func retreat_path(a: Army) -> Array[int]:
 	var home := world.get_province(c.capital_province_id) if c else null
 	var hostile := {}  # province (or sea) ids where enemies of `a` stand
 	for x: Army in m.armies.values():
-		if x.navy == a.navy and x.aboard == 0 and m.at_war(a.owner, x.owner):
+		if x.navy == a.navy and x.aboard == 0 and m.at_war(a.side(), x.side()):
 			hostile[x.location] = true
 	var came := {a.location: -1}
 	var depth := {a.location: 0}
@@ -875,7 +1059,7 @@ func retreat_path(a: Army) -> Array[int]:
 							steps.append(n)
 			else:
 				for n: int in cp.neighbour_ids:
-					if can_enter(a.owner, world.get_province(n)):
+					if can_enter(a.side(), world.get_province(n)):
 						steps.append(n)
 			for n: int in steps:
 				if came.has(n) or hostile.has(n):
@@ -885,7 +1069,7 @@ func retreat_path(a: Army) -> Array[int]:
 				depth[n] = steps_out
 				var p := world.get_province(n)
 				var safe := can_berth(a.owner, p) if a.navy and not p.is_sea else \
-					(a.navy or (p.controller_id != "" and _friendly(a.owner, p.controller_id)))
+					(a.navy or (p.controller_id != "" and _friendly(a.side(), p.controller_id)))
 				var km := DiplomacyActions._haversine(p.lat, p.lon, home.lat, home.lon) if home else 0.0
 				# Friendly ground first (nearest home); else the farthest reach towards home.
 				var score: float = (1e7 if safe else steps_out * 1e5) - km
@@ -907,22 +1091,95 @@ func retreat_path(a: Army) -> Array[int]:
 
 # --- Sieges -------------------------------------------------------------------------
 
-## Days to take a province: a fort holds out (more if well kept, more for a
-## capital); open land falls in days.
-func siege_days(p: Province) -> float:
-	if not "fort" in p.buildings:
-		return OCCUPY_DAYS
+## Whether a province must be besieged: a fort, or a capital (its city walls).
+static func walled(world: WorldState, p: Province) -> bool:
+	if "fort" in p.buildings:
+		return true
 	var owner := world.get_country(p.owner_id)
-	var days: float = Policies.fort_days(owner.spending.forts if owner else 100)
-	if owner != null and owner.capital_province_id == p.id:
-		days *= CAPITAL_SIEGE
-	return days
+	return owner != null and owner.capital_province_id == p.id
+
+
+## How strong a fort is: its upkeep (neglected, weaker) and more at a capital;
+## a capital without one, its city walls (CITY_WALLS); open land, 0.
+func fort_strength(p: Province) -> float:
+	var owner := world.get_country(p.owner_id)
+	var capital := owner != null and owner.capital_province_id == p.id
+	if not "fort" in p.buildings:
+		return CITY_WALLS if capital else 0.0
+	var strength := maxf(0.25, (owner.spending.forts if owner else 100) / 100.0)
+	if capital:
+		strength *= CAPITAL_SIEGE
+	return strength
+
+
+## Men holding a fort or a capital's walls (0 for open land).
+func garrison(p: Province) -> int:
+	return int(FORT_GARRISON * fort_strength(p)) if walled(world, p) else 0
+
+
+## Armies standing at a province (not marching, not aboard) at war with its holder.
+func besiegers_at(loc: int) -> Array[Army]:
+	var p := world.get_province(loc)
+	var out: Array[Army] = []
+	if p == null or p.controller_id == "":
+		return out
+	for a: Army in m.armies_at(loc):
+		if not a.navy and a.path.is_empty() and a.aboard == 0 and m.at_war(a.side(), p.controller_id):
+			out.append(a)
+	return out
+
+
+## The chance (percent) that a fort falls at the next try, and why:
+## {chance, reasons: [[reason, points]], men, garrison}. `armies`: the
+## besiegers (by default those there); `phases`: tries failed so far (by
+## default the siege's).
+func siege_odds(p: Province, armies: Array = [], phases := -1) -> Dictionary:
+	if armies.is_empty():
+		armies = besiegers_at(p.id)
+	if phases < 0:
+		phases = int(m.sieges.get(p.id, {}).get("phases", 0))
+	var men := 0
+	var guns := 0.0
+	for a: Army in armies:
+		men += a.men()
+		guns += a.siege_power() * a.men()
+	var held := maxf(garrison(p), 1.0)
+	var reasons := [["Fortune of the siege", SIEGE_BASE]]
+	if phases > 0:
+		reasons.append(["Months under siege (%d)" % phases, minf(phases * SIEGE_PER_PHASE, SIEGE_TIME_CAP)])
+	var numbers := clampf((men / held - 1.0) * SIEGE_PER_GARRISON, 0.0, SIEGE_NUMBERS_CAP)
+	if numbers > 0.0:
+		reasons.append(["Our numbers against the garrison", numbers])
+	var artillery := minf(guns / maxf(men, 1.0) * SIEGE_ARTILLERY, SIEGE_ARTILLERY_CAP)
+	if artillery > 0.0:
+		reasons.append(["Artillery", artillery])
+	var short := clampf(1.0 - (guns + men * IMPROVISED_SIEGE) / (held * SIEGE_EQUIPMENT_NEED), 0.0, 1.0)
+	if short > 0.0:
+		reasons.append(["Short of siege equipment", -SIEGE_NO_EQUIPMENT * short])
+	reasons.append(["The walls" if "fort" in p.buildings else "The city walls", -SIEGE_WALLS * fort_strength(p)])
+	var total := 0.0
+	for r: Array in reasons:
+		total += r[1]
+	return {"chance": clampf(total, 0.0, SIEGE_MAX_CHANCE), "reasons": reasons, "men": men, "garrison": int(held)}
+
+
+## The odds (percent) of storming a fort whose siege stands at `chance`.
+static func assault_chance(chance: float) -> float:
+	return clampf(ASSAULT_BASE + chance * ASSAULT_FACTOR, 0.0, ASSAULT_MAX)
+
+
+## Days until the next try at a fort under siege.
+func days_to_try(loc: int) -> int:
+	var s: Dictionary = m.sieges.get(loc, {})
+	if s.is_empty():
+		return SIEGE_PHASE_DAYS
+	return maxi(ceili((int(s.get("phases", 0)) + 1) * SIEGE_PHASE_DAYS - float(s.progress)), 0)
 
 
 func _besiege() -> void:
 	var standing := {}
 	for a: Army in m.armies.values():
-		if not a.navy and a.path.is_empty() and a.aboard == 0 and m.in_any_war(a.owner):
+		if not a.navy and a.path.is_empty() and a.aboard == 0 and m.in_any_war(a.side()):
 			if not standing.has(a.location):
 				standing[a.location] = []
 			standing[a.location].append(a)
@@ -932,46 +1189,451 @@ func _besiege() -> void:
 		if p.controller_id == "":
 			continue
 		var here: Array = standing[loc]
-		var besiegers := here.filter(func(a: Army) -> bool: return m.at_war(a.owner, p.controller_id))
+		var besiegers := here.filter(func(a: Army) -> bool: return m.at_war(a.side(), p.controller_id))
 		if besiegers.is_empty():
 			continue
 		var lead: Army = besiegers[0]
 		for b: Army in besiegers:
 			if b.men() > lead.men():
 				lead = b
-		if here.any(func(a: Army) -> bool: return m.at_war(a.owner, lead.owner)):
+		if here.any(func(a: Army) -> bool: return m.at_war(a.side(), lead.side())):
 			continue  # the defenders are still in the field here
 		var men := 0
 		var siege := 0.0
 		for b: Army in besiegers:
 			men += b.men()
 			siege += b.siege_power() * b.men()
-		if men < MIN_SIEGE_MEN:
-			continue
+		var fort := walled(world, p)
+		if men < MIN_SIEGE_MEN or (fort and men < garrison(p)):
+			continue  # too few to shut the garrison in
 		var s: Dictionary = m.sieges.get(loc, {})
-		if s.is_empty() or not (s.by == lead.owner or _friendly(s.by, lead.owner)):
-			s = {"by": lead.owner, "progress": 0.0}
-		s.progress += 1.0 + siege / men
+		if s.is_empty() or not (s.by == lead.side() or _friendly(s.by, lead.side())):
+			s = {"by": lead.side(), "progress": 0.0, "phases": 0, "assault": -1}
 		m.sieges[loc] = s
 		active[loc] = true
-		if s.progress >= siege_days(p):
-			m.sieges.erase(loc)
-			active.erase(loc)
-			var war := m.war_between(lead.owner, p.controller_id)
-			var liberating := p.owner_id == lead.owner or (not war.is_empty()
-				and Military.side_of(war, p.owner_id) == Military.side_of(war, lead.owner))
-			var taker := p.owner_id if liberating else lead.owner
-			world.set_controller(loc, taker)
-			province_occupied.emit(loc, taker)
+		if not fort:
+			s.progress += 1.0 + siege / men
+			if s.progress >= OCCUPY_DAYS:
+				_fall(p, lead.side())
+				active.erase(loc)
+			continue
+		s.progress += 1.0
+		var odds := siege_odds(p, besiegers, int(s.phases))
+		s["chance"] = odds.chance
+		if s.progress >= (int(s.phases) + 1) * SIEGE_PHASE_DAYS:
+			if rng.randf() * 100.0 < odds.chance:
+				_fall(p, lead.side())
+				active.erase(loc)
+			else:
+				s.phases = int(s.phases) + 1
+		elif lead.owner != world.player_country_id and assault_chance(odds.chance) >= AI_ASSAULT_CHANCE \
+				and assault_blocked(lead.owner, loc) == "":
+			assault(lead.owner, loc)  # the AI storms when the odds are good
+			if not m.sieges.has(loc):
+				active.erase(loc)
 	for loc: int in m.sieges.keys():
 		if not active.has(loc):
 			m.sieges.erase(loc)
 
 
+## A province falls to `by`: freed if it was its own or its side's, else held
+## — or, in a civil war, taken from the other claimant outright (annexed).
+func _fall(p: Province, by: String) -> void:
+	m.sieges.erase(p.id)
+	var war := m.war_between(by, p.controller_id)
+	var liberating := p.owner_id == by or (not war.is_empty()
+		and Military.side_of(war, p.owner_id) == Military.side_of(war, by))
+	var taker := p.owner_id if liberating else by
+	var leaders: Array = [war.attackers[0], war.defenders[0]] if not war.is_empty() else []
+	if not liberating and war.get("civil", false) and taker in leaders and p.owner_id in leaders:
+		var loser := p.owner_id
+		var annexed: Array = war.get("annexed", [0.0, 0.0])
+		annexed[Military.side_of(war, taker)] += p.development
+		war["annexed"] = annexed
+		world.transfer_province(p.id, taker)
+		province_annexed.emit(p.id, taker, loser)
+		if world.country_stats(loser).provinces == 0:
+			var summary := "%s is no more: %s holds the realm" % [_name(loser), _name(taker)]
+			_end_war(war)
+			peace_made.emit(war, summary)
+		return
+	world.set_controller(p.id, taker)
+	province_occupied.emit(p.id, taker)
+
+
+## Two countries of one culture, one holding a core on the other's capital:
+## a war between them is a civil war (see Military.civil_war).
+func is_civil_war(a: String, b: String) -> bool:
+	return Military.civil_war(world, a, b)
+
+
+## Our armies besieging a province.
+func our_besiegers(tag: String, loc: int) -> Array[Army]:
+	var out: Array[Army] = []
+	for a: Army in besiegers_at(loc):
+		if a.owner == tag:
+			out.append(a)
+	return out
+
+
+## Why `tag` cannot storm the fort at `loc` ("" if it can).
+func assault_blocked(tag: String, loc: int) -> String:
+	var p := world.get_province(loc)
+	if p == null or not walled(world, p):
+		return "Only forts and capitals are stormed (open land is simply occupied)"
+	var s: Dictionary = m.sieges.get(loc, {})
+	if s.is_empty():
+		return "We are not besieging it"
+	if our_besiegers(tag, loc).is_empty():
+		return "None of our armies besiege it"
+	if float(s.progress) < ASSAULT_MIN_DAYS:
+		return "The siege works need %d more days" % ceili(ASSAULT_MIN_DAYS - float(s.progress))
+	var last := int(s.get("assault", -1))
+	if last >= 0 and clock.day_number() - last < ASSAULT_EVERY_DAYS:
+		return "Our men need %d more days after the last assault" % (ASSAULT_EVERY_DAYS - (clock.day_number() - last))
+	return ""
+
+
+## Storms a fort under siege with our armies there: it falls or holds by the
+## odds, and the stormers lose men (ASSAULT_LOSS of them if it falls,
+## ASSAULT_FAIL_LOSS if it holds) and spirit. {taken, lost, chance} ({} if it
+## cannot be stormed).
+func assault(tag: String, loc: int) -> Dictionary:
+	if assault_blocked(tag, loc) != "":
+		return {}
+	var p := world.get_province(loc)
+	var s: Dictionary = m.sieges[loc]
+	var ours := our_besiegers(tag, loc)
+	var chance := assault_chance(siege_odds(p, besiegers_at(loc), int(s.phases)).chance)
+	var taken := rng.randf() * 100.0 < chance
+	for a: Army in ours:
+		a.morale = maxf(a.morale - (ASSAULT_MORALE * 0.5 if taken else ASSAULT_MORALE), 0.0)
+	var lost := _casualties(ours, ASSAULT_LOSS if taken else ASSAULT_FAIL_LOSS)
+	s["assault"] = clock.day_number()
+	if taken:
+		_fall(p, ours[0].side() if not ours.is_empty() else tag)
+	m.changed.emit()
+	return {"taken": taken, "lost": lost, "chance": chance}
+
+
+# --- Civil wars and their rebels -----------------------------------------------------------
+
+## A civil war (Military.civil_war) is fought for the realm itself: what a
+## leader takes from the other is annexed outright (no occupation), and its war
+## score (civil_score, the attackers') is the battles, the land each side has
+## annexed from the other (its development's share of both realms, at
+## CIVIL_ANNEX_WEIGHT), and a monthly tick of CIVIL_TICK — for the state while
+## the rebels hold under REBELS_FEW of the realm, for the rebels while they hold
+## over REBELS_MANY (to CIVIL_TICK_CAP either way).
+## Its peace never trades land: the rebels have demands, each worth points
+## (REBEL_DEMANDS); they lay down arms once the demands granted are worth at
+## least their price — REBEL_PRICE less the state's war score (nothing when the
+## state is clearly winning) — and the state concedes no more than that. Their
+## land then returns to the crown, unless their leaders keep it as vassals.
+const CIVIL_ANNEX_WEIGHT := 1.0
+const CIVIL_TICK := 2.0
+const CIVIL_TICK_CAP := 40.0
+const REBELS_FEW := 0.25
+const REBELS_MANY := 0.5
+const REBEL_PRICE := 20.0
+const REBEL_DEMANDS := {
+	"amnesty": {"name": "An amnesty for all who took up arms", "value": 5},
+	"pensions": {"name": "Pensions for their leaders (half a year of our taxes)", "value": 10},
+	"privileges": {"name": "Their nobles' and clergy's privileges confirmed", "value": 15},
+	"governorships": {"name": "Their leaders keep their lands, as our vassals", "value": 25},
+	"faith": {"name": "A ruler of their faith", "value": 30},
+	"throne": {"name": "The crown for their claimant", "value": 60},
+}
+
+
+## The state (the crown) and the rebels in a civil war: [state, rebels].
+func civil_parties(war: Dictionary) -> Array:
+	var rebels: String = war.get("rebels", "")
+	if rebels == "":
+		rebels = war.defenders[0]
+	return [war.attackers[0] if rebels == war.defenders[0] else war.defenders[0], rebels]
+
+
+## The attackers' war score in a civil war (see above).
+func civil_score(war: Dictionary) -> float:
+	var parties := civil_parties(war)
+	var dev := 0.0
+	for p: Province in world.ownable_provinces():
+		if p.owner_id in parties:
+			dev += p.development
+	var annexed: Array = war.get("annexed", [0.0, 0.0])
+	var land: float = (annexed[0] - annexed[1]) / maxf(dev, 1.0) * 100.0 * CIVIL_ANNEX_WEIGHT
+	return clampf(land + war.battle_score + float(war.get("tick", 0.0)), -100.0, 100.0)
+
+
+## The share of the realm (both parties' development) the rebels hold.
+func rebel_share(war: Dictionary) -> float:
+	var parties := civil_parties(war)
+	var dev := [0.0, 0.0]
+	for p: Province in world.ownable_provinces():
+		var i := parties.find(p.owner_id)
+		if i >= 0:
+			dev[i] += p.development
+	return dev[1] / maxf(dev[0] + dev[1], 1.0)
+
+
+func _civil_ticks() -> void:
+	for w: Dictionary in m.wars:
+		if not w.get("civil", false):
+			continue
+		var share := rebel_share(w)
+		var state_attacks: bool = civil_parties(w)[0] == w.attackers[0]
+		var step := 0.0
+		if share < REBELS_FEW:
+			step = CIVIL_TICK
+		elif share > REBELS_MANY:
+			step = -CIVIL_TICK
+		w["tick"] = clampf(float(w.get("tick", 0.0)) + (step if state_attacks else -step), -CIVIL_TICK_CAP, CIVIL_TICK_CAP)
+
+
+## The war score of the state (the crown) in a civil war.
+func state_score(war: Dictionary) -> float:
+	return civil_score(war) * (1.0 if civil_parties(war)[0] == war.attackers[0] else -1.0)
+
+
+## The rebels' demands in this war (a ruler of their faith only if theirs differs).
+func rebel_demands(war: Dictionary) -> Array[String]:
+	var parties := civil_parties(war)
+	var state := world.get_country(parties[0])
+	var rebels := world.get_country(parties[1])
+	var out: Array[String] = []
+	for id: String in REBEL_DEMANDS:
+		if id == "faith" and (state == null or rebels == null or state.religion == rebels.religion):
+			continue
+		out.append(id)
+	return out
+
+
+func demands_value(granted: Array) -> int:
+	var total := 0
+	for id: String in granted:
+		total += int(REBEL_DEMANDS.get(id, {}).get("value", 0))
+	return total
+
+
+## What the rebels' demands must be worth for them to lay down arms now.
+func rebel_price(war: Dictionary) -> float:
+	return maxf(REBEL_PRICE - state_score(war), 0.0)
+
+
+## Whether the other party agrees: granted by the state, the rebels take it if
+## it is worth their price; pressed by the rebels, the state yields if it is
+## worth no more than that.
+func civil_accepted(war: Dictionary, from: String, granted: Array) -> bool:
+	var value := float(demands_value(granted))
+	if from == civil_parties(war)[0]:
+		return value >= rebel_price(war)
+	return value <= rebel_price(war)
+
+
+## The cheapest set of demands worth the rebels' price (the throne last of all).
+func cheapest_settlement(war: Dictionary) -> Array[String]:
+	var price := rebel_price(war)
+	var ids := rebel_demands(war)
+	ids.sort_custom(func(a: String, b: String) -> bool: return REBEL_DEMANDS[a].value < REBEL_DEMANDS[b].value)
+	var out: Array[String] = []
+	var total := 0
+	for id: String in ids:
+		if float(total) >= price:
+			break
+		out.append(id)
+		total += int(REBEL_DEMANDS[id].value)
+	return out
+
+
+## The rebels lay down arms on the demands granted: their land returns to the
+## crown (or, governorships granted, they keep it as its vassals).
+func _settle_civil_war(war: Dictionary, granted: Array) -> String:
+	var parties := civil_parties(war)
+	var state := world.get_country(parties[0])
+	var rebels := world.get_country(parties[1])
+	var summary := describe_treaty(war, parties[0], {"granted": granted})
+	war["signed"] = parties.duplicate()
+	if "pensions" in granted:
+		economy.post(state, "Pensions to the %s leaders" % rebels.adjective,
+			-minf(economy.budget(state.id).tax_income * 6.0, maxf(state.treasury, 0.0)))
+	if "privileges" in granted:
+		for i in [0, 1]:  # nobility and clergy
+			state.satisfaction[i] = minf(state.satisfaction[i] + 20.0, 100.0)
+	if "faith" in granted:
+		state.religion = rebels.religion
+	if "throne" in granted:
+		state.legitimacy = 25.0
+		state.stability = maxi(state.stability - 2, WorldState.MIN_STABILITY)
+	var rebel_land: Array[int] = []
+	for p: Province in world.ownable_provinces():
+		if p.owner_id == rebels.id:
+			rebel_land.append(p.id)
+	_end_war(war)
+	if "governorships" in granted:
+		world.diplomacy.set_subject(state.id, rebels.id, "vassal")
+	else:
+		for a: Army in m.armies.values():
+			if a.owner == rebels.id:
+				m.remove_army(a.id)  # they go home and disband
+		for id: int in rebel_land:
+			world.transfer_province(id, state.id)
+			if "amnesty" in granted:
+				var p := world.get_province(id)
+				p.unrest = maxf(p.unrest - 10.0, 0.0)
+	economy.changed()
+	peace_made.emit(war, summary)
+	return summary
+
+
+## A civil war's AI: rebels clearly beaten submit (their demands refused); a
+## state that cannot win grants the cheapest settlement after a year; offers
+## to the player instead of signing for it.
+func _ai_civil_peace(w: Dictionary, player: String, today: int) -> void:
+	var parties := civil_parties(w)
+	var price := rebel_price(w)
+	var years := (today - int(w.start)) / 365.0
+	var granted: Array[String] = []
+	if price <= 0.0:
+		granted = []  # they submit
+	elif years >= 1.0 and state_score(w) < 0.0:
+		granted = cheapest_settlement(w)
+		if "throne" in granted and state_score(w) > -40.0:
+			return  # the crown holds on
+	else:
+		return
+	var state: String = parties[0]
+	var rebels: String = parties[1]
+	if state == player or rebels == player:
+		var by := rebels if state == player else state
+		if _may_offer(w, by, today):
+			peace_offered.emit(w, {"with": player, "granted": granted}, by)
+		return
+	_settle_civil_war(w, granted)
+
+
+# --- Volunteers -------------------------------------------------------------------------
+
+## An army sent to fight in another country's war without its own country
+## joining it (Army.volunteer_for): it marches, fights and besieges as the
+## host's, and what it takes is the host's; its own country pays for it and
+## stays at peace with the host's enemies. It comes home when the host's wars
+## end, when its country goes to war with the host, or when recalled.
+
+## Countries an army of `tag` may volunteer for: at war, not with us, in wars we are not in.
+func volunteer_hosts(tag: String) -> Array[String]:
+	var out: Array[String] = []
+	var seen := {}
+	for w: Dictionary in m.wars:
+		if Military.side_of(w, tag) >= 0:
+			continue
+		for t: String in w.attackers + w.defenders:
+			if not seen.has(t) and t != tag and not m.at_war(tag, t) and world.get_country(t) != null:
+				seen[t] = true
+				out.append(t)
+	out.sort_custom(func(a: String, b: String) -> bool: return _name(a) < _name(b))
+	return out
+
+
+## Why an army cannot go to fight for `host` ("" if it can).
+func volunteer_blocked(a: Army, host: String) -> String:
+	if a.navy:
+		return "Fleets do not go as volunteers"
+	if a.volunteer_for != "":
+		return "Already fighting for %s" % _name(a.volunteer_for)
+	if a.aboard != 0 or a.retreating:
+		return "Not while aboard ship or falling back"
+	if a.has_levies():
+		return "Levies serve at home"
+	if host == a.owner or world.get_country(host) == null:
+		return "Not here"
+	if not m.in_any_war(host):
+		return "%s is at peace" % _name(host)
+	if m.at_war(a.owner, host):
+		return "We are at war with %s" % _name(host)
+	for w: Dictionary in m.wars_of(host):
+		if Military.side_of(w, a.owner) >= 0:
+			return "We fight in that war ourselves"
+	return ""
+
+
+func send_volunteers(a: Army, host: String) -> bool:
+	if volunteer_blocked(a, host) != "":
+		return false
+	a.volunteer_for = host
+	a.path.clear()
+	m.changed.emit()
+	return true
+
+
+## Volunteers come home: out of land closed to their own country, to its capital.
+func recall_volunteers(a: Army) -> void:
+	if a.volunteer_for == "":
+		return
+	a.volunteer_for = ""
+	a.path.clear()
+	if a.aboard == 0 and not can_enter(a.owner, world.get_province(a.location)):
+		var cap := world.get_province(world.get_country(a.owner).capital_province_id)
+		if cap != null:
+			a.location = cap.id
+	m.changed.emit()
+
+
+## Volunteers whose host is at peace again, or at war with their own country, come home.
+func _check_volunteers() -> void:
+	for a: Army in m.armies.values():
+		var host := a.volunteer_for
+		if host != "" and (world.get_country(host) == null or not m.in_any_war(host) or m.at_war(a.owner, host)):
+			recall_volunteers(a)
+
+
+# --- Handing over occupied land --------------------------------------------------------
+
+## Who `from` may hand an enemy province it holds to: those fighting on its
+## side in the war with the province's owner.
+func occupation_partners(from: String, p: Province) -> Array[String]:
+	var out: Array[String] = []
+	if p == null or p.controller_id != from or p.owner_id == from or p.owner_id == "":
+		return out
+	var war := m.war_between(from, p.owner_id)
+	if war.is_empty():
+		return out
+	for t: String in (war.attackers if Military.side_of(war, from) == 0 else war.defenders):
+		if t != from and world.get_country(t) != null:
+			out.append(t)
+	return out
+
+
+## Why `from` cannot hand the province to `to` ("" if it can).
+func transfer_occupation_blocked(from: String, to: String, p: Province) -> String:
+	if p == null or p.controller_id != from:
+		return "We do not hold it"
+	if p.owner_id == from:
+		return "It is our own land"
+	if m.war_between(from, p.owner_id).is_empty():
+		return "Not taken in a war"
+	if not to in occupation_partners(from, p):
+		return "%s does not fight on our side in this war" % _name(to)
+	return ""
+
+
+## Hands an enemy province we hold to an ally in the war: they hold it now.
+func transfer_occupation(from: String, to: String, province_id: int) -> bool:
+	var p := world.get_province(province_id)
+	if transfer_occupation_blocked(from, to, p) != "":
+		return false
+	m.sieges.erase(province_id)
+	world.set_controller(province_id, to)
+	m.changed.emit()
+	return true
+
+
 # --- The month -----------------------------------------------------------------------
 
 func monthly() -> void:
-	_refill_manpower()
+	_check_volunteers()
+	_civil_ticks()
+	_refill_pools()
 	_supply()
 	_reinforce()
 	_apply_levy_deaths()
@@ -997,7 +1659,7 @@ func _supply() -> void:
 		var supply := (SUPPLY_BASE + p.development * SUPPLY_PER_DEVELOPMENT + p.population * SUPPLY_PER_PERSON) * harsh
 		for a: Army in here:
 			var share := 0.0
-			var hostile := p.controller_id != "" and m.at_war(a.owner, p.controller_id)
+			var hostile := p.controller_id != "" and m.at_war(a.side(), p.controller_id)
 			var limit := supply * (0.5 if hostile else 1.0)
 			if men > limit:
 				share += minf(0.1, 0.01 + 0.04 * (men / limit - 1.0))
@@ -1007,34 +1669,255 @@ func _supply() -> void:
 				_casualties([a], share)
 
 
-## Each country's manpower ceiling: MANPOWER_SHARE of the people of the land
-## it holds. tag -> men.
-func manpower_limits() -> Dictionary:
+# --- Manpower and sailors ---------------------------------------------------------------
+
+## Each country's pools: tag -> {manpower, sailors: ceilings; manpower_growth,
+## sailors_growth: a month; trained, crews: soldiers its barracks and sailors
+## its docks train a month} (see MANPOWER_SHARE).
+func pools() -> Dictionary:
 	var out := {}
 	for p: Province in world.ownable_provinces():
-		if p.owner_id != "" and p.controller_id == p.owner_id:
-			out[p.owner_id] = out.get(p.owner_id, 0.0) + p.population * MANPOWER_SHARE
+		if p.owner_id == "" or p.controller_id != p.owner_id:
+			continue
+		if not out.has(p.owner_id):
+			out[p.owner_id] = {"people": 0.0, "coast": 0.0, "trained": 0.0, "crews": 0.0}
+		var o: Dictionary = out[p.owner_id]
+		o.people += p.population * MANPOWER_SHARE
+		if p.is_coastal:
+			o.coast += p.population * SAILOR_SHARE
+		if "barracks" in p.buildings:
+			o.trained += maxf(BARRACKS_MIN, p.population * BARRACKS_SHARE)
+		if "dock" in p.buildings:
+			o.crews += maxf(DOCK_MIN, p.population * DOCK_SHARE)
+	for tag: String in out:
+		var o: Dictionary = out[tag]
+		var c := world.get_country(tag)
+		if Ideas.has(c, "conscription"):
+			o.people *= CONSCRIPTION
+		if Ideas.has(c, "drill_grounds"):
+			o.trained *= IDEA_TRAINING
+		if Ideas.has(c, "naval_academies"):
+			o.crews *= IDEA_TRAINING
+		o["manpower"] = o.people + o.trained * TRAINED_MONTHS
+		o["manpower_growth"] = o.people / POOL_GROWTH_MONTHS + o.trained
+		o["sailors"] = o.coast + o.crews * TRAINED_MONTHS
+		o["sailors_growth"] = o.coast / POOL_GROWTH_MONTHS + o.crews
 	return out
 
 
+func pool(tag: String) -> Dictionary:
+	return pools().get(tag, {"manpower": 0.0, "manpower_growth": 0.0, "sailors": 0.0, "sailors_growth": 0.0,
+		"trained": 0.0, "crews": 0.0})
+
+
 func manpower_limit(tag: String) -> float:
-	return manpower_limits().get(tag, 0.0)
+	return pool(tag).manpower
 
 
 func manpower(tag: String) -> float:
 	return m.manpower.get(tag, 0.0)
 
 
-## Monthly growth: a share of the ceiling.
-func manpower_growth(tag: String, limit := -1.0) -> float:
-	return (limit if limit >= 0.0 else manpower_limit(tag)) / MANPOWER_REFILL_MONTHS
+## Monthly growth of manpower (by itself and from barracks).
+func manpower_growth(tag: String) -> float:
+	return pool(tag).manpower_growth
 
 
-func _refill_manpower() -> void:
-	var limits := manpower_limits()
+func sailor_limit(tag: String) -> float:
+	return pool(tag).sailors
+
+
+func sailors(tag: String) -> float:
+	return m.sailors.get(tag, 0.0)
+
+
+func sailor_growth(tag: String) -> float:
+	return pool(tag).sailors_growth
+
+
+## The pool a unit draws its men from: ships' crews from sailors, the rest
+## from manpower.
+static func pool_of(type: String) -> String:
+	return "sailors" if UnitTypes.get_type(type).domain == "sea" else "manpower"
+
+
+func _pool_men(tag: String, which: String) -> float:
+	return sailors(tag) if which == "sailors" else manpower(tag)
+
+
+func _draw(tag: String, which: String, men: float) -> void:
+	if which == "sailors":
+		m.sailors[tag] = sailors(tag) - men
+	else:
+		m.manpower[tag] = manpower(tag) - men
+
+
+## Pools a country has never had (a new campaign, an older save without
+## sailors) start full.
+func _fill_pools() -> void:
+	var all := pools()
+	for tag: String in all:
+		if not m.manpower.has(tag):
+			m.manpower[tag] = float(int(all[tag].manpower))
+		if not m.sailors.has(tag):
+			m.sailors[tag] = float(int(all[tag].sailors))
+
+
+func _refill_pools() -> void:
+	var all := pools()
 	for tag: String in world.countries:
-		var top: float = limits.get(tag, 0.0)
-		m.manpower[tag] = EconomySystem.decimal(minf(m.manpower.get(tag, 0.0) + top / MANPOWER_REFILL_MONTHS, top), 1.0)
+		var o: Dictionary = all.get(tag, {})
+		m.manpower[tag] = _grow(manpower(tag), o.get("manpower", 0.0), o.get("manpower_growth", 0.0))
+		m.sailors[tag] = _grow(sailors(tag), o.get("sailors", 0.0), o.get("sailors_growth", 0.0))
+	var today := clock.day_number()
+	for id: int in m.pressed.keys():
+		if today - int(m.pressed[id]) >= PRESS_EVERY_DAYS:
+			m.pressed.erase(id)
+
+
+## A pool's next month: up towards its ceiling, or (over it) some way down.
+static func _grow(now: float, top: float, growth: float) -> float:
+	if now > top:
+		return EconomySystem.decimal(now - (now - top) * POOL_EXCESS_LOSS, 1.0)
+	return EconomySystem.decimal(minf(now + growth, top), 1.0)
+
+
+# --- Ideas ------------------------------------------------------------------------------
+
+## What taking up an idea costs `tag`: Ideas.ADOPT_MONTHS of its taxes (at
+## least Ideas.ADOPT_MIN), with inflation.
+func idea_cost(tag: String) -> float:
+	var c := world.get_country(tag)
+	return EconomySystem.decimal(maxf(Ideas.ADOPT_MIN, economy.budget(tag).tax_income * Ideas.ADOPT_MONTHS)
+		* (1.0 + c.inflation / 100.0))
+
+
+func _has_dock(tag: String) -> bool:
+	for p: Province in world.ownable_provinces():
+		if p.owner_id == tag and "dock" in p.buildings:
+			return true
+	return false
+
+
+func idea_blocked(tag: String, id: String) -> String:
+	var c := world.get_country(tag)
+	if c == null:
+		return "No such country"
+	return Ideas.blocked(c, id, clock.year, _has_dock(tag), idea_cost(tag))
+
+
+func adopt_idea(tag: String, id: String) -> bool:
+	if idea_blocked(tag, id) != "":
+		return false
+	_adopt(world.get_country(tag), id, idea_cost(tag))
+	return true
+
+
+func _adopt(c: Country, id: String, cost: float) -> void:
+	economy.post(c, "Taking up %s" % Ideas.name_of(id), -cost)
+	c.ideas.append(id)
+	m.changed.emit()
+
+
+## AI realms take up an idea when they have room and the money (IDEA_RESERVE
+## times its cost and AI_IDEA_SPARE more): seafaring ones (a dock and a navy)
+## press gangs and naval academies first, the others drill grounds; any of them
+## conscription in its age.
+const AI_IDEA_RESERVE := 1.5
+const AI_IDEA_SPARE := 50.0
+## AI realms at war press men while a pool is under this share of its ceiling.
+const AI_PRESS_BELOW := 0.25
+
+
+func ai_yearly_ideas(player: String) -> void:
+	var year := clock.year
+	var docked := {}
+	for p: Province in world.ownable_provinces():
+		if "dock" in p.buildings and p.owner_id != "":
+			docked[p.owner_id] = true
+	var navies := {}
+	for a: Army in m.armies.values():
+		if a.navy:
+			navies[a.owner] = true
+	# Priced first, all from one budget pass: each idea taken up changes the
+	# budgets, and pricing after it would work them all out again.
+	var costs := {}
+	for tag: String in world.countries:
+		var c := world.get_country(tag)
+		if tag != player and c.ideas.size() < Ideas.slots(year) and c.capital_province_id != 0:
+			costs[tag] = idea_cost(tag)
+	for tag: String in costs:
+		var c := world.get_country(tag)
+		var cost: float = costs[tag]
+		if c.treasury < cost * AI_IDEA_RESERVE + AI_IDEA_SPARE:
+			continue
+		var seafaring: bool = docked.has(tag) and navies.has(tag)
+		var order := ["conscription"] + (["press_gangs", "naval_academies", "drill_grounds"] if seafaring
+			else ["drill_grounds", "press_gangs", "naval_academies"])
+		for id: String in order:
+			if Ideas.blocked(c, id, year, docked.has(tag), cost) == "":
+				_adopt(c, id, cost)
+				break
+
+
+## AI armies (and fleets in port) at war press men at home while their pool
+## runs low.
+func ai_monthly_press(player: String) -> void:
+	var all := {}
+	for a: Army in m.armies.values():
+		if a.owner == player or not Ideas.has(world.get_country(a.owner), "press_gangs") or not m.in_any_war(a.owner):
+			continue
+		if all.is_empty():
+			all = pools()
+		var o: Dictionary = all.get(a.owner, {})
+		var low: bool = sailors(a.owner) < o.get("sailors", 0.0) * AI_PRESS_BELOW if a.navy \
+			else manpower(a.owner) < o.get("manpower", 0.0) * AI_PRESS_BELOW
+		if low and press_blocked(a) == "":
+			press_men(a)
+
+
+# --- Press gangs ------------------------------------------------------------------------
+
+## Men press gangs would seize where they stand: PRESS_SHARE of its commoners.
+static func press_count(p: Province) -> int:
+	return int(p.pops.get("commoners", 0) * PRESS_SHARE)
+
+
+## Why an army (or fleet) cannot press men where it stands ("" if it can):
+## the idea, our own province (a fleet: its dock), once a year.
+func press_blocked(a: Army) -> String:
+	if not Ideas.has(world.get_country(a.owner), "press_gangs"):
+		return "Needs the idea Press gangs"
+	if a.aboard != 0:
+		return "Not from aboard ship"
+	var p := world.get_province(a.location)
+	if p.is_sea:
+		return "Only in port, at a dock of ours"
+	if p.owner_id != a.owner or p.controller_id != a.owner:
+		return "Only in our own provinces"
+	if m.pressed.has(p.id):
+		var wait := int(m.pressed[p.id]) + PRESS_EVERY_DAYS - clock.day_number()
+		if wait > 0:
+			return "Its people were pressed lately: again in %d days" % wait
+	if press_count(p) < PRESS_MIN:
+		return "Too few common people here"
+	return ""
+
+
+## Press gangs seize PRESS_SHARE of the province's commoners for the army (a
+## fleet's: for the navy): they leave the land, and unrest rises. The men taken.
+func press_men(a: Army) -> int:
+	if press_blocked(a) != "":
+		return 0
+	var p := world.get_province(a.location)
+	var n := press_count(p)
+	p.add_people("commoners", -n)
+	p.unrest = minf(p.unrest + PRESS_UNREST, WorldState.MAX_UNREST)
+	_draw(a.owner, "sailors" if a.navy else "manpower", -n)
+	m.pressed[p.id] = clock.day_number()
+	economy.touch(p)
+	m.changed.emit()
+	return n
 
 
 ## Armies on friendly ground and fleets in port fill their ranks (paid for,
@@ -1047,28 +1930,29 @@ func _reinforce() -> void:
 		var key := a.location * 2 + (1 if a.navy else 0)
 		if not owners_at.has(key):
 			owners_at[key] = {}
-		owners_at[key][a.owner] = true
+		owners_at[key][a.side()] = true
 	for a: Army in m.armies.values():
 		var c := world.get_country(a.owner)
 		if c == null:
 			continue
 		var p := world.get_province(a.location)
-		var friendly := not p.is_sea and a.aboard == 0 and p.controller_id != "" and _friendly(a.owner, p.controller_id)
+		var friendly := not p.is_sea and a.aboard == 0 and p.controller_id != "" and _friendly(a.side(), p.controller_id)
 		var top: float = Policies.max_morale(c.spending.navy if a.navy else c.spending.army)
 		a.morale = minf(top, a.morale + (MORALE_RECOVERY if friendly else MORALE_RECOVERY * 0.25))
 		if not friendly:
 			continue
 		var others: Dictionary = owners_at[a.location * 2 + (1 if a.navy else 0)]
-		if others.size() > 1 and others.keys().any(func(o: String) -> bool: return o != a.owner and m.at_war(a.owner, o)):
+		if others.size() > 1 and others.keys().any(func(o: String) -> bool: return o != a.side() and m.at_war(a.side(), o)):
 			continue
+		var which := "sailors" if a.navy else "manpower"
 		for r: Array in a.regiments:
 			var u := UnitTypes.get_type(r[0])
 			if r[0] == "levy" or r[1] >= u.men:
 				continue
-			var add := mini(mini(u.men - r[1], int(u.men * REINFORCE_SHARE)), int(manpower(a.owner)))
+			var add := mini(mini(u.men - r[1], int(u.men * REINFORCE_SHARE)), int(_pool_men(a.owner, which)))
 			if add <= 0:
 				continue
-			m.manpower[a.owner] = manpower(a.owner) - add
+			_draw(a.owner, which, add)
 			r[1] += add
 			costs[a.owner] = costs.get(a.owner, 0.0) + u.cost * REINFORCE_COST * add / float(u.men)
 	for tag: String in costs:
@@ -1262,8 +2146,8 @@ func recruit_blocked(tag: String, p: Province, type: String) -> String:
 	var cost := recruit_cost(tag, type)
 	if c.treasury < cost:
 		return "Needs %d ducats" % int(ceil(cost))
-	if manpower(tag) < u.men:
-		return "Needs %s manpower" % DrawerPanel.thousands(u.men)
+	if _pool_men(tag, pool_of(type)) < u.men:
+		return "Needs %s %s" % [DrawerPanel.thousands(u.men), pool_of(type)]
 	return ""
 
 
@@ -1276,7 +2160,7 @@ func recruit(tag: String, p: Province, type: String) -> bool:
 	if recruit_blocked(tag, p, type) != "":
 		return false
 	economy.post(world.get_country(tag), RECRUITMENT % UnitTypes.name_of(type), -recruit_cost(tag, type))
-	m.manpower[tag] = manpower(tag) - UnitTypes.get_type(type).men
+	_draw(tag, pool_of(type), UnitTypes.get_type(type).men)
 	m.recruiting.append([tag, p.id, type, int(UnitTypes.get_type(type).months) * 30])
 	return true
 
@@ -1418,9 +2302,10 @@ func war_blocked(attacker: String, defender: String) -> String:
 ## Who would fight: {attackers, defenders, refused}. The defender's overlord
 ## leads its defence; loyal subjects follow their overlords, disloyal ones
 ## stay out (`refused`: their land is open to the enemy, and attacking it
-## brings them in); the defender's allies come to its aid, the attacker's
-## allies join if they think well of the cause.
-func war_sides(attacker: String, defender: String) -> Dictionary:
+## brings them in); the defender's allies come to its aid; the attacker's
+## allies, if it calls them (`call_allies`), join when they think well of the
+## cause.
+func war_sides(attacker: String, defender: String, call_allies := true) -> Dictionary:
 	var d := world.diplomacy
 	var lead := d.overlord_of(defender) if d.overlord_of(defender) != "" else defender
 	var attackers: Array = [attacker]
@@ -1444,7 +2329,7 @@ func war_sides(attacker: String, defender: String) -> Dictionary:
 		if not ally in attackers and not ally in defenders and not d.is_allied(ally, attacker) \
 				and d.overlord_of(ally) == "":
 			defenders.append(ally)
-	for ally: String in d.allies_of(attacker):
+	for ally: String in d.allies_of(attacker) if call_allies else []:
 		if not ally in attackers and not ally in defenders and not d.is_allied(ally, lead) \
 				and d.overlord_of(ally) == "" and d.opinion(ally, attacker) >= 50:
 			attackers.append(ally)
@@ -1464,13 +2349,16 @@ static func short_name(world: WorldState, tag: String) -> String:
 
 ## Declares war. Nobody's levies are called by it: each country (the AI in its
 ## planning, the player in the Military tab) decides to mobilise.
-func declare_war(attacker: String, defender: String, _player := "") -> Dictionary:
+func declare_war(attacker: String, defender: String, _player := "", call_allies := true) -> Dictionary:
 	if war_blocked(attacker, defender) != "":
 		return {}
-	var sides := war_sides(attacker, defender)
+	var sides := war_sides(attacker, defender, call_allies)
 	var war := {"id": m.next_war, "name": "%s–%s War" % [short_name(world, attacker), short_name(world, defender)],
 		"attackers": sides.attackers, "defenders": sides.defenders, "start": clock.day_number(), "battle_score": 0.0,
-		"refused": sides.refused}
+		"refused": sides.refused, "civil": is_civil_war(attacker, defender), "annexed": [0.0, 0.0], "tick": 0.0}
+	war["rebels"] = Military.rebels_of(world, attacker, defender) if war.civil else ""
+	if war.civil:
+		war.name = "%s Civil War" % world.get_country(attacker).adjective
 	m.next_war += 1
 	m.add_war(war)
 	world.diplomacy.add_modifier(defender, attacker, "war", -60.0)
@@ -1514,6 +2402,8 @@ func _stats_of(war: Dictionary, stats: Dictionary) -> Dictionary:
 
 
 func war_score(war: Dictionary, stats := {}) -> float:
+	if war.get("civil", false):
+		return civil_score(war)
 	var st := _stats_of(war, stats)
 	var dev: Array = st.dev
 	var lost: Array = st.lost
@@ -1539,7 +2429,8 @@ func held_by(war: Dictionary, side: int, stats := {}) -> Array[Province]:
 ##   our side holds goes to its holder, the rest to `from`;
 ## * give: land of ours (our side's) to cede — to whichever of theirs holds it,
 ##   else to them;
-## * money: ducats they pay; forts: provinces of theirs whose forts come down;
+## * money: ducats they pay (negative: ducats we pay them); forts: provinces of
+##   theirs whose forts come down;
 ## * subjugate: they become our vassal; release / transfer: subjects of theirs
 ##   set free, or made ours; break: countries they must break alliance with.
 ## Each demand costs war score: land what holding it earns (its share of their
@@ -1547,8 +2438,9 @@ func held_by(war: Dictionary, side: int, stats := {}) -> Array[Province]:
 ## our cores, less for our claims), money by their year of taxes, forts,
 ## vassals and alliances by fixed or weighted points (vassalage by their might
 ## against ours, up to half off for holding their land). Land we give is worth its
-## share of ours. They sign when our score and what we give cover what we ask
-## (a white peace unless they are clearly winning).
+## share of ours, money we pay them by their year of taxes. They sign when our
+## score and what we give cover what we ask (asking nothing, unless they are
+## clearly winning).
 const TREATY_BASE := 5.0
 const MONEY_PER_YEAR_OF_TAXES := 25.0
 const FORT_COST := 4.0
@@ -1695,14 +2587,19 @@ func treaty_cost(war: Dictionary, from: String, treaty: Dictionary, stats := {})
 	return minf(cost, 100.0)
 
 
-## What the land `from` gives is worth to them, in war score.
+## What the land and money `from` gives are worth to them, in war score.
 func treaty_value(war: Dictionary, from: String, treaty: Dictionary, stats := {}) -> float:
 	var give: Array = treaty.get("give", [])
-	if give.is_empty():
+	var paid := -int(treaty.get("money", 0))
+	if give.is_empty() and paid <= 0:
 		return 0.0
 	var to := treaty_with(war, from, treaty)
-	var our_dev := scope_development(war, from, is_full_peace(war, from, to), stats)
 	var value := 0.0
+	if paid > 0:
+		value += float(paid) / _year_of_taxes(to) * MONEY_PER_YEAR_OF_TAXES
+	if give.is_empty():
+		return value
+	var our_dev := scope_development(war, from, is_full_peace(war, from, to), stats)
 	for id: int in give:
 		var p := world.get_province(id)
 		var capital := world.get_country(p.owner_id).capital_province_id == p.id
@@ -1719,7 +2616,7 @@ static func _empty_treaty(treaty: Dictionary) -> bool:
 	for key: String in _TERM_LISTS:
 		if not treaty.get(key, []).is_empty():
 			return false
-	return int(treaty.get("money", 0)) <= 0 and not treaty.get("subjugate", false)
+	return int(treaty.get("money", 0)) == 0 and not treaty.get("subjugate", false)
 
 
 ## Why `from` cannot put this treaty ("" if it can).
@@ -1729,6 +2626,15 @@ func treaty_blocked(war: Dictionary, from: String, treaty: Dictionary) -> String
 	var side := Military.side_of(war, from)
 	if side < 0:
 		return "We are not in this war"
+	if war.get("civil", false) and is_full_peace(war, from, treaty_with(war, from, treaty)):
+		for key: String in _TERM_LISTS:
+			if not treaty.get(key, []).is_empty():
+				return "In a civil war no land changes hands at the peace: grant or press the rebels' demands"
+		if int(treaty.get("money", 0)) != 0 or treaty.get("subjugate", false):
+			return "In a civil war the peace is the rebels' demands, granted or not"
+		for id: String in treaty.get("granted", []):
+			if not id in rebel_demands(war):
+				return "Not one of their demands"
 	var to := treaty_with(war, from, treaty)
 	if Military.side_of(war, to) != 1 - side:
 		return "%s is not our enemy in this war" % _name(to)
@@ -1749,6 +2655,9 @@ func treaty_blocked(war: Dictionary, from: String, treaty: Dictionary) -> String
 	var payer := world.get_country(to)
 	if int(treaty.get("money", 0)) > int(maxf(payer.treasury, 0.0)):
 		return "They have only %d ducats" % int(maxf(payer.treasury, 0.0))
+	var us := world.get_country(from)
+	if -int(treaty.get("money", 0)) > int(maxf(us.treasury, 0.0)):
+		return "We have only %d ducats" % int(maxf(us.treasury, 0.0))
 	for id: int in treaty.get("forts", []):
 		var p := world.get_province(id)
 		if p == null or not "fort" in p.buildings or not _in_scope(war, p.owner_id, to, full):
@@ -1780,19 +2689,31 @@ func _name(tag: String) -> String:
 
 
 ## Whether they sign: our score and what we give cover what we ask; a white
-## peace unless they are clearly winning.
+## peace unless they are clearly winning. (A civil war: see civil_accepted.)
 func treaty_accepted(war: Dictionary, from: String, treaty: Dictionary, stats := {}) -> bool:
 	if treaty_blocked(war, from, treaty) != "":
 		return false
+	if war.get("civil", false) and is_full_peace(war, from, treaty_with(war, from, treaty)):
+		return civil_accepted(war, from, treaty.get("granted", []))
 	var score := peace_score(war, from, treaty_with(war, from, treaty), stats)
 	if _empty_treaty(treaty):
 		return score >= -10.0
-	return score + treaty_value(war, from, treaty, stats) >= treaty_cost(war, from, treaty, stats)
+	var cost := treaty_cost(war, from, treaty, stats)
+	# Asking nothing (only giving), as a white peace.
+	return score + treaty_value(war, from, treaty, stats) >= (cost if cost > 0.0 else -10.0)
 
 
 ## The treaty in words.
 func describe_treaty(war: Dictionary, from: String, treaty: Dictionary) -> String:
 	var to := treaty_with(war, from, treaty)
+	if war.get("civil", false) and is_full_peace(war, from, to):
+		var granted: Array = treaty.get("granted", [])
+		var parts: Array[String] = []
+		for id: String in granted:
+			parts.append(REBEL_DEMANDS[id].name)
+		var rebels: String = war.get("rebels", "")
+		return ("%s lays down arms" % _name(rebels)) + (": " + "; ".join(parts) if not parts.is_empty()
+			else ", its demands refused")
 	var parts: Array[String] = []
 	var land: Array[String] = []
 	for id: int in treaty.get("provinces", []):
@@ -1809,6 +2730,8 @@ func describe_treaty(war: Dictionary, from: String, treaty: Dictionary) -> Strin
 		parts.append("%s cedes %s" % [_name(from), ", ".join(given)])
 	if int(treaty.get("money", 0)) > 0:
 		parts.append("%s pays %d ducats" % [_name(to), int(treaty.money)])
+	elif int(treaty.get("money", 0)) < 0:
+		parts.append("%s pays %d ducats" % [_name(from), -int(treaty.money)])
 	var forts: Array[String] = []
 	for id: int in treaty.get("forts", []):
 		forts.append(world.get_province(id).name)
@@ -1850,6 +2773,9 @@ func treaty_for(war: Dictionary, from: String, terms: String, stats := {}) -> Di
 ## that their side holds.
 func surrender_treaty(war: Dictionary, from: String, to: String) -> Dictionary:
 	var full := is_full_peace(war, from, to)
+	if war.get("civil", false) and full:
+		# The crown gives the rebels all they ask; rebels submit, asking nothing.
+		return {"with": to, "granted": rebel_demands(war) if from == civil_parties(war)[0] else []}
 	var ids: Array[int] = []
 	for p: Province in held_by(war, 1 - Military.side_of(war, from)):
 		if _in_scope(war, p.owner_id, from, full):
@@ -1887,6 +2813,8 @@ func make_peace(war: Dictionary, from: String, terms: String, _player := "") -> 
 func conclude(war: Dictionary, from: String, treaty: Dictionary) -> String:
 	var to := treaty_with(war, from, treaty)
 	var full := is_full_peace(war, from, to)
+	if war.get("civil", false) and full:
+		return _settle_civil_war(war, treaty.get("granted", []))
 	var summary := describe_treaty(war, from, treaty)
 	war["signed"] = [from, to]  # who made this peace (a separate one leaves them out of the war)
 	var d := world.diplomacy
@@ -1899,12 +2827,14 @@ func conclude(war: Dictionary, from: String, treaty: Dictionary) -> String:
 		var receiver := holder if holder != p.owner_id and Military.side_of(war, holder) == Military.side_of(war, to) else to
 		world.transfer_province(p.id, receiver, true)
 	var amount := int(treaty.get("money", 0))
-	if amount > 0:
-		var payer := world.get_country(to)
-		var payee := world.get_country(from)
-		amount = mini(amount, int(maxf(payer.treasury, 0.0)))
-		economy.post(payer, "War reparations to %s" % payee.name, -amount)
-		economy.post(payee, "War reparations from %s" % payer.name, amount)
+	if amount != 0:
+		# Positive: they pay us reparations; negative: we pay for the peace.
+		var payer := world.get_country(to if amount > 0 else from)
+		var payee := world.get_country(from if amount > 0 else to)
+		var what := "War reparations" if amount > 0 else "Paid for peace"
+		amount = mini(absi(amount), int(maxf(payer.treasury, 0.0)))
+		economy.post(payer, "%s to %s" % [what, payee.name], -amount)
+		economy.post(payee, "%s from %s" % [what, payer.name], amount)
 	var razed := false
 	for id: int in treaty.get("forts", []):
 		var p := world.get_province(id)
@@ -1956,6 +2886,7 @@ func _end_war(war: Dictionary) -> void:
 			if m.levies_raised.has(tag):
 				disband_levies(tag)
 			_send_home(tag)
+	_check_volunteers()
 
 
 ## A separate peace: `leaver` (and the subjects that followed it in) leaves
@@ -1988,6 +2919,7 @@ func _leave(war: Dictionary, leaver: String) -> void:
 			if m.levies_raised.has(tag):
 				disband_levies(tag)
 		_send_home(tag)
+	_check_volunteers()
 
 
 ## Armies standing where they may no longer be go home to the capital.
@@ -2037,19 +2969,19 @@ func ai_daily(player: String) -> void:
 			break
 		if a.id % 7 != today % 7 or a.navy or a.owner == player or a.is_moving() or a.aboard != 0 or a.men() < MIN_SIEGE_MEN:
 			continue
-		if _plan_after.get(a.id, -1) > today or not m.in_any_war(a.owner) or not _enemies_at(a).is_empty():
+		if _plan_after.get(a.id, -1) > today or not m.in_any_war(a.side()) or not _enemies_at(a).is_empty():
 			continue
-		if m.sieges.has(a.location) and m.at_war(a.owner, world.get_province(a.location).controller_id):
+		if m.sieges.has(a.location) and m.at_war(a.side(), world.get_province(a.location).controller_id):
 			continue  # keep at the siege
 		var options: Array = []
-		for w: Dictionary in m.wars_of(a.owner):
-			options.append_array(_side_targets(w, Military.side_of(w, a.owner), today))
+		for w: Dictionary in m.wars_of(a.side()):  # volunteers campaign for their host
+			options.append_array(_side_targets(w, Military.side_of(w, a.side()), today))
 		var marched := false
 		var searched := false
-		var start := "%s:%d" % [a.owner, a.location]
+		var start := "%s:%d" % [a.side(), a.location]
 		var blocked: Dictionary = _unreachable.get(start, {})
 		for p: Province in _nearest(world.get_province(a.location), options, AI_TARGETS, blocked, today):
-			var defenders: Array = m.armies_at(p.id).filter(func(x: Army) -> bool: return m.at_war(a.owner, x.owner))
+			var defenders: Array = m.armies_at(p.id).filter(func(x: Army) -> bool: return m.at_war(a.side(), x.side()))
 			if not defenders.is_empty() and estimate([a], defenders, p.id).chance < 0.45:
 				continue
 			searches += 1
@@ -2148,6 +3080,9 @@ func ai_monthly_peace(player: String) -> void:
 	var today := clock.day_number()
 	var stats := war_stats()
 	for w: Dictionary in m.wars.duplicate():
+		if w.get("civil", false):
+			_ai_civil_peace(w, player, today)
+			continue
 		var score := war_score(w, stats)
 		var years := (today - int(w.start)) / 365.0
 		var ended := false
@@ -2245,7 +3180,8 @@ func ai_yearly_wars(player: String) -> void:
 				ours += power(t, people.get(t, 0)) * (1.0 if t == c.id else 0.5)
 			for t: String in sides.defenders:
 				theirs += power(t, people.get(t, 0)) * (1.0 if t == rival else 0.5)
-			if ours >= theirs * AI_WAR_ODDS and rng.chance(AI_WAR_CHANCE):
+			var bold: Array = AI_AGGRESSION.get(c.id, [1.0, AI_WAR_ODDS])
+			if ours >= theirs * bold[1] and rng.chance(minf(AI_WAR_CHANCE * bold[0], 1.0)):
 				declare_war(c.id, rival, player)
 				break
 

@@ -16,9 +16,19 @@ signal disband_requested(id: int)
 signal board_requested(id: int)
 ## Select troops aboard a fleet (their own panel, to land them).
 signal troops_requested(ids: Array)
+## Storm the fort the army besieges.
+signal assault_requested(province_id: int)
+## Press gangs: seize men where the army (or fleet) stands.
+signal press_requested(id: int)
+## Send the army to fight for another country's war (or bring it home).
+signal volunteer_requested(id: int, host: String)
+signal recall_requested(id: int)
+## A formed nation takes its people's uncolonised land where the army stands.
+signal integrate_requested(id: int)
 
 var world: WorldState
 var military: MilitarySystem
+var nations: NationSystem
 var player_tag := ""
 var ids: Array[int] = []
 
@@ -145,6 +155,65 @@ func _single(a: Army, owner: Country) -> void:
 		_extra.add_child(row)
 	if a.has_levies():
 		_note("Levies: their men are missing from their provinces' fields until sent home.")
+	if a.owner != player_tag:
+		return
+	if not a.navy and MilitarySystem.walled(world, here) and world.military.sieges.has(here.id) \
+			and not military.our_besiegers(player_tag, here.id).is_empty():
+		_section_title("Siege")
+		var odds := military.siege_odds(here)
+		_note("%d %% to take %s at the next try, in %d days." % [int(odds.chance), here.name, military.days_to_try(here.id)])
+		var why := military.assault_blocked(player_tag, here.id)
+		var storm := UITheme.button("Storm it — %d %% (heavy losses)" % int(MilitarySystem.assault_chance(odds.chance)))
+		storm.disabled = why != ""
+		storm.pressed.connect(func(): assault_requested.emit(here.id))
+		_extra.add_child(storm)
+		if why != "":
+			_note(why)
+	if not a.navy:
+		_volunteers(a)
+	if nations != null and not a.navy and nations.integrating_culture(a.owner) != "" and here.owner_id == "" \
+			and here.culture == nations.integrating_culture(a.owner):
+		_section_title("Integrate")
+		var why_not := nations.integrate_blocked(a.owner, here, a)
+		var take := UITheme.button("Make %s ours — %d ducats" % [here.name, int(ceil(nations.integrate_cost(a.owner, here)))])
+		take.disabled = why_not != ""
+		var army_id := a.id
+		take.pressed.connect(func(): integrate_requested.emit(army_id))
+		_extra.add_child(take)
+		_note(why_not if why_not != "" else "Our people's land: it joins us at once, no settling needed.")
+	if Ideas.has(owner, "press_gangs"):
+		_section_title("Press gangs")
+		var press_why := military.press_blocked(a)
+		var n := MilitarySystem.press_count(here) if not here.is_sea else 0
+		var press := UITheme.button("Seize about %s %s here" % [DrawerPanel.thousands(n), "sailors" if a.navy else "men"])
+		press.disabled = press_why != ""
+		var id := a.id
+		press.pressed.connect(func(): press_requested.emit(id))
+		_extra.add_child(press)
+		_note(press_why if press_why != "" else "Into the %s's pool; the province's unrest rises." % ("navy" if a.navy else "army"))
+
+
+## Volunteers: fighting for a host (and the way home), or the wars we could join so.
+func _volunteers(a: Army) -> void:
+	var id := a.id
+	if a.volunteer_for != "":
+		_section_title("Volunteers")
+		_note("Fighting for %s in its war; our country stays at peace with its enemies." % world.get_country(a.volunteer_for).name)
+		var home := UITheme.button("Bring them home")
+		home.pressed.connect(func(): recall_requested.emit(id))
+		_extra.add_child(home)
+		return
+	var hosts := military.volunteer_hosts(a.owner)
+	if hosts.is_empty():
+		return
+	_section_title("Send as volunteers")
+	for host: String in hosts.slice(0, 6):
+		var why := military.volunteer_blocked(a, host)
+		var b := UITheme.button("Fight for %s" % world.get_country(host).name)
+		b.disabled = why != ""
+		b.pressed.connect(func(): volunteer_requested.emit(id, host))
+		_extra.add_child(b)
+	_note("Volunteers fight in another's war without our going to war; we pay their upkeep.")
 
 
 func _status(a: Army) -> String:
@@ -160,9 +229,22 @@ func _status(a: Army) -> String:
 	if a.is_moving():
 		var goal := world.get_province(a.path[a.path.size() - 1])
 		return "Marching to %s, %d days" % [goal.name, ceili(military.path_days(a, a.path) - (a.leg_total - a.leg_days))]
-	if m.sieges.has(a.location) and m.sieges[a.location].by == a.owner:
+	if m.sieges.has(a.location) and not military.our_besiegers(a.owner, a.location).is_empty():
 		var p := world.get_province(a.location)
-		return "Besieging %s: %d of %d days" % [p.name, int(m.sieges[a.location].progress), int(military.siege_days(p))]
+		var s: Dictionary = m.sieges[a.location]
+		if MilitarySystem.walled(world, p):
+			return "Besieging %s: %d %% in %d days" % [p.name,
+				int(s.get("chance", military.siege_odds(p).chance)), military.days_to_try(p.id)]
+		return "Occupying %s: %d of %d days" % [p.name, int(s.progress), int(MilitarySystem.OCCUPY_DAYS)]
+	if not a.navy and a.aboard == 0:
+		var at := world.get_province(a.location)
+		if at.controller_id != "" and m.at_war(a.owner, at.controller_id):
+			var men := 0
+			for b: Army in military.besiegers_at(at.id):
+				men += b.men()
+			var needed := maxi(MilitarySystem.MIN_SIEGE_MEN, military.garrison(at))
+			if men < needed:
+				return "Too few to besiege %s (needs %s men)" % [at.name, DrawerPanel.thousands(needed)]
 	if a.navy:
 		return "In port: repairs, half upkeep" if Military.is_berthed(world, a) else "At sea (repairs only in port)"
 	return "Standing"

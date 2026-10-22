@@ -7,7 +7,8 @@
 		"height_texture": "res://data/map/heightmap.res",
 		"compatible_id_textures": [
 			"fe80651bae898d463cb4dc84bbe24cb9",
-			"174ad3620f36be5fdc225836569edb6f"
+			"174ad3620f36be5fdc225836569edb6f",
+			"172aa4cc458687e2dfb21a9e6368ecba"
 		],
 		"projection": {
 			"type": "mercator",
@@ -118,7 +119,7 @@
 				27
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 252,
 			"resource": "fish",
@@ -155,10 +156,10 @@
 				28
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 132,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				4,
@@ -193,10 +194,10 @@
 				27
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 146,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				3,
@@ -676,10 +677,10 @@
 				16
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 52,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1293,
@@ -1125,10 +1126,10 @@
 				21
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 40,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				801,
@@ -1162,10 +1163,10 @@
 				40
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 40,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1291,
@@ -1804,10 +1805,10 @@
 				17
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 307,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				3510,
@@ -1953,7 +1954,7 @@
 				41
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 25,
 			"resource": "fish",
@@ -2025,7 +2026,7 @@
 				34
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "continental",
 			"elevation": 445,
 			"resource": "salt",
@@ -2331,10 +2332,10 @@
 				26
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 408,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [
 				[
 					"petroleum",
@@ -2374,10 +2375,10 @@
 				19
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 164,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1339,
@@ -2484,10 +2485,10 @@
 				34
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 946,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				67,
@@ -3671,10 +3672,10 @@
 				23
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 401,
-			"resource": "cotton",
+			"resource": "tropical_wood",
 			"deposits": [],
 			"neighbours": [
 				3759,
@@ -3709,10 +3710,10 @@
 				16
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 587,
-			"resource": "cotton",
+			"resource": "tropical_wood",
 			"deposits": [],
 			"neighbours": [
 				3116,
@@ -3897,7 +3898,7 @@
 				21
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "jungle",
 			"climate": "tropical",
 			"elevation": 71,
 			"resource": "cotton",
@@ -3978,7 +3979,7 @@
 				16
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 468,
 			"resource": "grain",
@@ -4324,10 +4325,10 @@
 				25
 			],
 			"topography": "mountains",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 4680,
-			"resource": "grain",
+			"resource": "furs",
 			"deposits": [],
 			"neighbours": [
 				336,
@@ -4359,10 +4360,10 @@
 				41
 			],
 			"topography": "mountains",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 4482,
-			"resource": "grain",
+			"resource": "furs",
 			"deposits": [],
 			"neighbours": [
 				336,
@@ -4478,7 +4479,7 @@
 				24
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "jungle",
 			"climate": "equatorial",
 			"elevation": 215,
 			"resource": "spices",
@@ -5234,10 +5235,10 @@
 				24
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 205,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				3051,
@@ -5270,10 +5271,10 @@
 				29
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 111,
-			"resource": "grain",
+			"resource": "naval_supplies",
 			"deposits": [],
 			"neighbours": [
 				140,
@@ -6300,7 +6301,7 @@
 				19
 			],
 			"topography": "flatland",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "equatorial",
 			"elevation": 142,
 			"resource": "spices",
@@ -6384,10 +6385,10 @@
 				15
 			],
 			"topography": "hills",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "equatorial",
 			"elevation": 278,
-			"resource": "tropical_wood",
+			"resource": "grain",
 			"deposits": [
 				[
 					"sugar",
@@ -6428,7 +6429,7 @@
 				36
 			],
 			"topography": "flatland",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 130,
 			"resource": "grain",
@@ -6537,7 +6538,7 @@
 				20
 			],
 			"topography": "hills",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 312,
 			"resource": "grain",
@@ -6572,7 +6573,7 @@
 				22
 			],
 			"topography": "hills",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "equatorial",
 			"elevation": 227,
 			"resource": "grain",
@@ -7075,10 +7076,10 @@
 				24
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 30,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				186,
@@ -7223,10 +7224,10 @@
 				41
 			],
 			"topography": "flatland",
-			"vegetation": "desert",
+			"vegetation": "farmland",
 			"climate": "hot_arid",
 			"elevation": 46,
-			"resource": "salt",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				186,
@@ -7591,10 +7592,10 @@
 				32
 			],
 			"topography": "flatland",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 126,
-			"resource": "ivory",
+			"resource": "cotton",
 			"deposits": [],
 			"neighbours": [
 				202,
@@ -7627,7 +7628,7 @@
 				26
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 212,
 			"resource": "grain",
@@ -7664,10 +7665,10 @@
 				37
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 155,
-			"resource": "grain",
+			"resource": "ivory",
 			"deposits": [],
 			"neighbours": [
 				1029,
@@ -7737,7 +7738,7 @@
 				20
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 613,
 			"resource": "grain",
@@ -8205,10 +8206,10 @@
 				40
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 540,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				216,
@@ -8431,10 +8432,10 @@
 				53
 			],
 			"topography": "flatland",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 21,
-			"resource": "tropical_wood",
+			"resource": "grain",
 			"deposits": [
 				[
 					"spices",
@@ -8801,10 +8802,10 @@
 				33
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "jungle",
 			"climate": "equatorial",
 			"elevation": 1116,
-			"resource": "grain",
+			"resource": "tropical_wood",
 			"deposits": [],
 			"neighbours": [
 				233,
@@ -8979,10 +8980,10 @@
 				15
 			],
 			"topography": "hills",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 129,
-			"resource": "tropical_wood",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				3278,
@@ -9259,7 +9260,7 @@
 				12
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 46,
 			"resource": "grain",
@@ -9739,7 +9740,7 @@
 				1
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 38,
 			"resource": "wine",
@@ -9994,7 +9995,7 @@
 				6
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 117,
 			"resource": "wine",
@@ -10462,10 +10463,10 @@
 				14
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 159,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				140,
@@ -10645,10 +10646,10 @@
 				17
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 563,
-			"resource": "wine",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				3488,
@@ -12526,10 +12527,10 @@
 				19
 			],
 			"topography": "mountains",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 4970,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				339,
@@ -12597,10 +12598,10 @@
 				30
 			],
 			"topography": "mountains",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 4831,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				114,
@@ -12632,10 +12633,10 @@
 				32
 			],
 			"topography": "mountains",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 5009,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				114,
@@ -12667,10 +12668,10 @@
 				20
 			],
 			"topography": "mountains",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 4952,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				335,
@@ -13440,10 +13441,10 @@
 				32
 			],
 			"topography": "mountains",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 4565,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				362,
@@ -13475,10 +13476,10 @@
 				30
 			],
 			"topography": "mountains",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 4320,
-			"resource": "grain",
+			"resource": "furs",
 			"deposits": [],
 			"neighbours": [
 				361,
@@ -13785,10 +13786,10 @@
 				20
 			],
 			"topography": "mountains",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 4512,
-			"resource": "grain",
+			"resource": "furs",
 			"deposits": [],
 			"neighbours": [
 				361,
@@ -13819,10 +13820,10 @@
 				33
 			],
 			"topography": "mountains",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 4275,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				359,
@@ -13889,10 +13890,10 @@
 				51
 			],
 			"topography": "mountains",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 4263,
-			"resource": "grain",
+			"resource": "furs",
 			"deposits": [],
 			"neighbours": [
 				361,
@@ -17994,10 +17995,10 @@
 				50
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 591,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				479,
@@ -18285,7 +18286,7 @@
 				13
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "grasslands",
 			"climate": "cold_arid",
 			"elevation": 515,
 			"resource": "cotton",
@@ -19457,10 +19458,10 @@
 				58
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "cold_arid",
 			"elevation": 1227,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				146,
@@ -19820,10 +19821,10 @@
 				59
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "cold_arid",
 			"elevation": 1335,
-			"resource": "grain",
+			"resource": "salt",
 			"deposits": [],
 			"neighbours": [
 				147,
@@ -20412,10 +20413,10 @@
 				26
 			],
 			"topography": "mountains",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 3746,
-			"resource": "grain",
+			"resource": "furs",
 			"deposits": [
 				[
 					"gold",
@@ -20454,10 +20455,10 @@
 				18
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "grasslands",
 			"climate": "cold_arid",
 			"elevation": 2053,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				525,
@@ -20671,10 +20672,10 @@
 				21
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "grasslands",
 			"climate": "cold_arid",
 			"elevation": 1793,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				550,
@@ -20744,10 +20745,10 @@
 				23
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 1597,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				547,
@@ -21146,10 +21147,10 @@
 				17
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "grasslands",
 			"climate": "cold_arid",
 			"elevation": 1885,
-			"resource": "grain",
+			"resource": "wool",
 			"deposits": [],
 			"neighbours": [
 				550,
@@ -21434,10 +21435,10 @@
 				18
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "grasslands",
 			"climate": "cold_arid",
 			"elevation": 1494,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				547,
@@ -21471,10 +21472,10 @@
 				17
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "grasslands",
 			"climate": "cold_arid",
 			"elevation": 1953,
-			"resource": "grain",
+			"resource": "wool",
 			"deposits": [],
 			"neighbours": [
 				556,
@@ -23630,10 +23631,10 @@
 				40
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "continental",
 			"elevation": 39,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				54,
@@ -24600,10 +24601,10 @@
 				18
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 2,
-			"resource": "grain",
+			"resource": "tropical_wood",
 			"deposits": [],
 			"neighbours": [
 				663,
@@ -24636,10 +24637,10 @@
 				12
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 1,
-			"resource": "cotton",
+			"resource": "tropical_wood",
 			"deposits": [],
 			"neighbours": [
 				152,
@@ -24674,7 +24675,7 @@
 				13
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "jungle",
 			"climate": "tropical",
 			"elevation": 3,
 			"resource": "grain",
@@ -25298,10 +25299,10 @@
 				25
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 223,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				678,
@@ -26612,10 +26613,10 @@
 				18
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 1856,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				717,
@@ -26687,10 +26688,10 @@
 				19
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 1728,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				715,
@@ -27144,7 +27145,7 @@
 				13
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 1135,
 			"resource": "tea",
@@ -27661,7 +27662,7 @@
 				13
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 1231,
 			"resource": "grain",
@@ -28072,7 +28073,7 @@
 				17
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 2005,
 			"resource": "grain",
@@ -28368,7 +28369,7 @@
 				14
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 1509,
 			"resource": "grain",
@@ -28632,7 +28633,7 @@
 				8
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 792,
 			"resource": "grain",
@@ -28704,7 +28705,7 @@
 				16
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 2065,
 			"resource": "grain",
@@ -30830,10 +30831,10 @@
 				37
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "mediterranean",
 			"elevation": 971,
-			"resource": "grain",
+			"resource": "wine",
 			"deposits": [],
 			"neighbours": [
 				499,
@@ -31090,10 +31091,10 @@
 				38
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 339,
-			"resource": "timber",
+			"resource": "wool",
 			"deposits": [
 				[
 					"coal",
@@ -31134,10 +31135,10 @@
 				29
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "continental",
 			"elevation": 392,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				53,
@@ -31208,10 +31209,10 @@
 				14
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "continental",
 			"elevation": 223,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				839,
@@ -31245,10 +31246,10 @@
 				29
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 190,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				836,
@@ -31392,10 +31393,10 @@
 				22
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 161,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				844,
@@ -31467,10 +31468,10 @@
 				25
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 154,
-			"resource": "timber",
+			"resource": "wool",
 			"deposits": [],
 			"neighbours": [
 				585,
@@ -31577,10 +31578,10 @@
 				25
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 187,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				834,
@@ -31614,10 +31615,10 @@
 				16
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 240,
-			"resource": "timber",
+			"resource": "wool",
 			"deposits": [
 				[
 					"coal",
@@ -33919,10 +33920,10 @@
 				18
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 565,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				13,
@@ -34297,10 +34298,10 @@
 				32
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 265,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				13,
@@ -34482,10 +34483,10 @@
 				21
 			],
 			"topography": "mountains",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 2016,
-			"resource": "grain",
+			"resource": "copper",
 			"deposits": [],
 			"neighbours": [
 				927,
@@ -35710,10 +35711,10 @@
 				18
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 326,
-			"resource": "wool",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				26,
@@ -35786,10 +35787,10 @@
 				13
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 245,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				26,
@@ -35969,10 +35970,10 @@
 				10
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 140,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				951,
@@ -38106,7 +38107,7 @@
 				60
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 179,
 			"resource": "gold",
@@ -38554,7 +38555,7 @@
 				28
 			],
 			"topography": "flatland",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 69,
 			"resource": "grain",
@@ -38633,7 +38634,7 @@
 				25
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 264,
 			"resource": "grain",
@@ -38815,10 +38816,10 @@
 				25
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 97,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				1018,
@@ -39518,7 +39519,7 @@
 				31
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 85,
 			"resource": "wine",
@@ -41020,7 +41021,7 @@
 				17
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 235,
 			"resource": "grain",
@@ -41148,7 +41149,7 @@
 				21
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 226,
 			"resource": "grain",
@@ -41306,10 +41307,10 @@
 				20
 			],
 			"topography": "flatland",
-			"vegetation": "sparse",
+			"vegetation": "farmland",
 			"climate": "hot_arid",
 			"elevation": 471,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				1107,
@@ -43322,7 +43323,7 @@
 				13
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 235,
 			"resource": "fish",
@@ -43915,10 +43916,10 @@
 				27
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 293,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				1179,
@@ -43955,10 +43956,10 @@
 				19
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 395,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				858,
@@ -44029,10 +44030,10 @@
 				12
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 93,
-			"resource": "naval_supplies",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				1178
@@ -46885,10 +46886,10 @@
 				23
 			],
 			"topography": "plateau",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 784,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				926,
@@ -47559,10 +47560,10 @@
 				20
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 170,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1277,
@@ -47707,10 +47708,10 @@
 				12
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 93,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				1042,
@@ -47782,10 +47783,10 @@
 				16
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 96,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				1020,
@@ -47892,10 +47893,10 @@
 				18
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "continental",
 			"elevation": 402,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				833,
@@ -47928,7 +47929,7 @@
 				23
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 199,
 			"resource": "wine",
@@ -48190,10 +48191,10 @@
 				19
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 45,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				17,
@@ -48228,10 +48229,10 @@
 				18
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 53,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				17,
@@ -48265,10 +48266,10 @@
 				15
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 41,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				17,
@@ -48303,10 +48304,10 @@
 				14
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 94,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				35,
@@ -48340,10 +48341,10 @@
 				16
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 65,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				30,
@@ -48376,10 +48377,10 @@
 				13
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 85,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				589,
@@ -48413,10 +48414,10 @@
 				16
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 56,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1294,
@@ -48450,10 +48451,10 @@
 				17
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 61,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1291,
@@ -48486,10 +48487,10 @@
 				13
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 106,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				16,
@@ -48523,10 +48524,10 @@
 				11
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 54,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				29,
@@ -48560,10 +48561,10 @@
 				11
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 96,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				35,
@@ -48596,10 +48597,10 @@
 				16
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 50,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				17,
@@ -48633,10 +48634,10 @@
 				13
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 44,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				17,
@@ -48819,10 +48820,10 @@
 				22
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 41,
-			"resource": "wool",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				30,
@@ -48889,10 +48890,10 @@
 				18
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 66,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1294,
@@ -48999,10 +49000,10 @@
 				18
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 50,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				29,
@@ -49329,10 +49330,10 @@
 				25
 			],
 			"topography": "flatland",
-			"vegetation": "grasslands",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 83,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				1321,
@@ -49365,10 +49366,10 @@
 				19
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 168,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				1321,
@@ -49587,10 +49588,10 @@
 				16
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 94,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				825,
@@ -49734,10 +49735,10 @@
 				31
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 221,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				1061,
@@ -53842,10 +53843,10 @@
 				31
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "continental",
 			"elevation": 496,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				1437,
@@ -54030,10 +54031,10 @@
 				24
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 459,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				524,
@@ -54260,10 +54261,10 @@
 				17
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 260,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [
 				[
 					"gold",
@@ -54304,10 +54305,10 @@
 				20
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 371,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [
 				[
 					"coal",
@@ -55197,10 +55198,10 @@
 				22
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "grasslands",
 			"climate": "cold_arid",
 			"elevation": 571,
-			"resource": "grain",
+			"resource": "wool",
 			"deposits": [],
 			"neighbours": [
 				854,
@@ -55269,10 +55270,10 @@
 				22
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "grasslands",
 			"climate": "cold_arid",
 			"elevation": 841,
-			"resource": "grain",
+			"resource": "wool",
 			"deposits": [],
 			"neighbours": [
 				1479,
@@ -56409,7 +56410,7 @@
 				31
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 401,
 			"resource": "wine",
@@ -57562,10 +57563,10 @@
 				25
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 438,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				708,
@@ -60267,10 +60268,10 @@
 				25
 			],
 			"topography": "flatland",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 205,
-			"resource": "tropical_wood",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				154,
@@ -60304,7 +60305,7 @@
 				14
 			],
 			"topography": "hills",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 223,
 			"resource": "grain",
@@ -61270,10 +61271,10 @@
 				57
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 545,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				215,
@@ -62600,7 +62601,7 @@
 				33
 			],
 			"topography": "flatland",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 119,
 			"resource": "grain",
@@ -62636,7 +62637,7 @@
 				31
 			],
 			"topography": "flatland",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 96,
 			"resource": "grain",
@@ -62744,10 +62745,10 @@
 				68
 			],
 			"topography": "flatland",
-			"vegetation": "sparse",
+			"vegetation": "farmland",
 			"climate": "hot_arid",
 			"elevation": 307,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				208,
@@ -62963,10 +62964,10 @@
 				59
 			],
 			"topography": "flatland",
-			"vegetation": "sparse",
+			"vegetation": "farmland",
 			"climate": "hot_arid",
 			"elevation": 253,
-			"resource": "salt",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				184,
@@ -63558,10 +63559,10 @@
 				48
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 302,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				195,
@@ -63631,10 +63632,10 @@
 				53
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 294,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				1144,
@@ -63926,10 +63927,10 @@
 				69
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 317,
-			"resource": "grain",
+			"resource": "salt",
 			"deposits": [],
 			"neighbours": [
 				185,
@@ -64039,10 +64040,10 @@
 				18
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 809,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				756,
@@ -64076,10 +64077,10 @@
 				16
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 502,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1718,
@@ -64113,10 +64114,10 @@
 				16
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 186,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1730,
@@ -64187,10 +64188,10 @@
 				18
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 218,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1728,
@@ -64224,10 +64225,10 @@
 				20
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 339,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1724,
@@ -64336,10 +64337,10 @@
 				15
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 276,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1744,
@@ -64372,10 +64373,10 @@
 				15
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 706,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1723,
@@ -64410,10 +64411,10 @@
 				11
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 349,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1722,
@@ -64447,10 +64448,10 @@
 				17
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 118,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				1722,
@@ -64594,10 +64595,10 @@
 				14
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 116,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [
 				[
 					"gold",
@@ -64638,10 +64639,10 @@
 				15
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 355,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1723,
@@ -64709,10 +64710,10 @@
 				21
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 224,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1723,
@@ -64748,10 +64749,10 @@
 				16
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 192,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1741,
@@ -64784,7 +64785,7 @@
 				19
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 246,
 			"resource": "grain",
@@ -64860,7 +64861,7 @@
 				17
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 248,
 			"resource": "grain",
@@ -64897,10 +64898,10 @@
 				10
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 145,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				1737,
@@ -65007,10 +65008,10 @@
 				14
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 357,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [
 				[
 					"gold",
@@ -65347,10 +65348,10 @@
 				17
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 622,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				777,
@@ -65385,10 +65386,10 @@
 				10
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 444,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1722,
@@ -65420,10 +65421,10 @@
 				15
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 111,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1729,
@@ -65457,10 +65458,10 @@
 				8
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 701,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				1718,
@@ -65494,10 +65495,10 @@
 				11
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 548,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1723,
@@ -65530,10 +65531,10 @@
 				14
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 413,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1723,
@@ -65602,10 +65603,10 @@
 				16
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 198,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1722,
@@ -65640,10 +65641,10 @@
 				14
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 263,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1720,
@@ -65676,10 +65677,10 @@
 				14
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 136,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1733,
@@ -65712,10 +65713,10 @@
 				15
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 328,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				1719,
@@ -65896,7 +65897,7 @@
 				19
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 349,
 			"resource": "grain",
@@ -65934,10 +65935,10 @@
 				17
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 178,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				1738,
@@ -65972,7 +65973,7 @@
 				16
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 131,
 			"resource": "cotton",
@@ -66153,10 +66154,10 @@
 				18
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 654,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				105,
@@ -66232,10 +66233,10 @@
 				9
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 46,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				1100,
@@ -67453,7 +67454,7 @@
 				21
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "mediterranean",
 			"elevation": 169,
 			"resource": "wine",
@@ -72431,10 +72432,10 @@
 				58
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 486,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				1929,
@@ -72505,10 +72506,10 @@
 				59
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 63,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				1931,
@@ -77010,10 +77011,10 @@
 				19
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 110,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				2065,
@@ -77892,10 +77893,10 @@
 				23
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "cold_arid",
 			"elevation": 167,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2087,
@@ -77929,10 +77930,10 @@
 				27
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "cold_arid",
 			"elevation": 161,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2086,
@@ -79869,10 +79870,10 @@
 				17
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 878,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2137,
@@ -80045,10 +80046,10 @@
 				21
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "grasslands",
 			"climate": "cold_arid",
 			"elevation": 1477,
-			"resource": "grain",
+			"resource": "wool",
 			"deposits": [],
 			"neighbours": [
 				2148,
@@ -80081,10 +80082,10 @@
 				22
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "grasslands",
 			"climate": "cold_arid",
 			"elevation": 2176,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2147,
@@ -80157,10 +80158,10 @@
 				28
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 228,
-			"resource": "grain",
+			"resource": "salt",
 			"deposits": [],
 			"neighbours": [
 				2154,
@@ -80232,10 +80233,10 @@
 				14
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 115,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2153,
@@ -80343,10 +80344,10 @@
 				15
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 334,
-			"resource": "grain",
+			"resource": "salt",
 			"deposits": [],
 			"neighbours": [
 				2152,
@@ -80416,10 +80417,10 @@
 				23
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 198,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2146,
@@ -80453,10 +80454,10 @@
 				19
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 888,
-			"resource": "grain",
+			"resource": "salt",
 			"deposits": [],
 			"neighbours": [
 				2147,
@@ -80490,10 +80491,10 @@
 				25
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "grasslands",
 			"climate": "cold_arid",
 			"elevation": 1694,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2146,
@@ -80563,10 +80564,10 @@
 				38
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 1339,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2142,
@@ -80717,10 +80718,10 @@
 				14
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "grasslands",
 			"climate": "cold_arid",
 			"elevation": 1948,
-			"resource": "grain",
+			"resource": "wool",
 			"deposits": [],
 			"neighbours": [
 				2148,
@@ -80825,10 +80826,10 @@
 				37
 			],
 			"topography": "plateau",
-			"vegetation": "grasslands",
+			"vegetation": "farmland",
 			"climate": "cold_arid",
 			"elevation": 2183,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				2141,
@@ -80865,10 +80866,10 @@
 				14
 			],
 			"topography": "plateau",
-			"vegetation": "grasslands",
+			"vegetation": "farmland",
 			"climate": "cold_arid",
 			"elevation": 2017,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				2168,
@@ -81119,10 +81120,10 @@
 				18
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "grasslands",
 			"climate": "cold_arid",
 			"elevation": 1869,
-			"resource": "grain",
+			"resource": "wool",
 			"deposits": [],
 			"neighbours": [
 				2148,
@@ -82416,10 +82417,10 @@
 				14
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 650,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				380,
@@ -82455,10 +82456,10 @@
 				17
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 194,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2213,
@@ -82492,10 +82493,10 @@
 				16
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 386,
-			"resource": "grain",
+			"resource": "salt",
 			"deposits": [],
 			"neighbours": [
 				2211,
@@ -82528,10 +82529,10 @@
 				15
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 129,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2212,
@@ -82564,10 +82565,10 @@
 				11
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 457,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2212,
@@ -82602,10 +82603,10 @@
 				22
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 237,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				379,
@@ -82824,10 +82825,10 @@
 				37
 			],
 			"topography": "flatland",
-			"vegetation": "desert",
+			"vegetation": "farmland",
 			"climate": "hot_arid",
 			"elevation": 138,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				2220,
@@ -82861,10 +82862,10 @@
 				42
 			],
 			"topography": "flatland",
-			"vegetation": "desert",
+			"vegetation": "farmland",
 			"climate": "hot_arid",
 			"elevation": 340,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				485,
@@ -84185,10 +84186,10 @@
 				16
 			],
 			"topography": "plateau",
-			"vegetation": "desert",
+			"vegetation": "farmland",
 			"climate": "hot_arid",
 			"elevation": 1698,
-			"resource": "salt",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				2258,
@@ -84297,7 +84298,7 @@
 				20
 			],
 			"topography": "plateau",
-			"vegetation": "desert",
+			"vegetation": "farmland",
 			"climate": "hot_arid",
 			"elevation": 622,
 			"resource": "coffee",
@@ -86140,10 +86141,10 @@
 				64
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 562,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				225,
@@ -87196,7 +87197,7 @@
 				44
 			],
 			"topography": "plateau",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "equatorial",
 			"elevation": 1339,
 			"resource": "ivory",
@@ -87339,10 +87340,10 @@
 				21
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 177,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				79,
@@ -87450,10 +87451,10 @@
 				24
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 138,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2345,
@@ -87486,10 +87487,10 @@
 				25
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 162,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2344,
@@ -87708,10 +87709,10 @@
 				25
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 124,
-			"resource": "grain",
+			"resource": "salt",
 			"deposits": [],
 			"neighbours": [
 				2346,
@@ -87783,10 +87784,10 @@
 				20
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 190,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				79,
@@ -87855,10 +87856,10 @@
 				22
 			],
 			"topography": "flatland",
-			"vegetation": "desert",
+			"vegetation": "farmland",
 			"climate": "hot_arid",
 			"elevation": 96,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				2155,
@@ -88221,10 +88222,10 @@
 				19
 			],
 			"topography": "flatland",
-			"vegetation": "sparse",
+			"vegetation": "farmland",
 			"climate": "hot_arid",
 			"elevation": 198,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				2345,
@@ -88477,7 +88478,7 @@
 				13
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 495,
 			"resource": "cotton",
@@ -88662,10 +88663,10 @@
 				18
 			],
 			"topography": "flatland",
-			"vegetation": "sparse",
+			"vegetation": "farmland",
 			"climate": "hot_arid",
 			"elevation": 359,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				2372,
@@ -89735,10 +89736,10 @@
 				19
 			],
 			"topography": "flatland",
-			"vegetation": "sparse",
+			"vegetation": "farmland",
 			"climate": "hot_arid",
 			"elevation": 235,
-			"resource": "salt",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				2373,
@@ -89917,10 +89918,10 @@
 				30
 			],
 			"topography": "flatland",
-			"vegetation": "desert",
+			"vegetation": "farmland",
 			"climate": "hot_arid",
 			"elevation": 39,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				2386,
@@ -89993,10 +89994,10 @@
 				32
 			],
 			"topography": "flatland",
-			"vegetation": "desert",
+			"vegetation": "farmland",
 			"climate": "hot_arid",
 			"elevation": 64,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				2152,
@@ -90216,10 +90217,10 @@
 				21
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 113,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				80,
@@ -90292,10 +90293,10 @@
 				16
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 81,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2442,
@@ -90478,10 +90479,10 @@
 				17
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 24,
-			"resource": "grain",
+			"resource": "salt",
 			"deposits": [],
 			"neighbours": [
 				2416,
@@ -90812,7 +90813,7 @@
 				17
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 221,
 			"resource": "cotton",
@@ -90925,7 +90926,7 @@
 				15
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 26,
 			"resource": "cotton",
@@ -91114,10 +91115,10 @@
 				11
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 66,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2425,
@@ -91150,10 +91151,10 @@
 				21
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 26,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2416,
@@ -91367,10 +91368,10 @@
 				15
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 5,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2402,
@@ -91913,10 +91914,10 @@
 				12
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 401,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				2482,
@@ -92876,10 +92877,10 @@
 				17
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 172,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				1730,
@@ -96037,10 +96038,10 @@
 				19
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 211,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1040,
@@ -96150,10 +96151,10 @@
 				18
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 499,
-			"resource": "timber",
+			"resource": "wool",
 			"deposits": [],
 			"neighbours": [
 				1145,
@@ -96482,7 +96483,7 @@
 				23
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 805,
 			"resource": "wool",
@@ -96520,7 +96521,7 @@
 				17
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 867,
 			"resource": "wool",
@@ -96555,10 +96556,10 @@
 				21
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 593,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				2585,
@@ -96593,10 +96594,10 @@
 				10
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 957,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				2585,
@@ -96630,7 +96631,7 @@
 				16
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 740,
 			"resource": "wool",
@@ -96701,7 +96702,7 @@
 				26
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 313,
 			"resource": "wine",
@@ -96964,7 +96965,7 @@
 				19
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 134,
 			"resource": "wool",
@@ -97074,7 +97075,7 @@
 				24
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 104,
 			"resource": "wool",
@@ -97114,7 +97115,7 @@
 				31
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 184,
 			"resource": "coal",
@@ -97446,10 +97447,10 @@
 				22
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 66,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				1523,
@@ -100257,7 +100258,7 @@
 				6
 			],
 			"topography": "flatland",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 81,
 			"resource": "grain",
@@ -100296,10 +100297,10 @@
 				27
 			],
 			"topography": "hills",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 255,
-			"resource": "tropical_wood",
+			"resource": "grain",
 			"deposits": [
 				[
 					"sugar",
@@ -100623,10 +100624,10 @@
 				26
 			],
 			"topography": "flatland",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 195,
-			"resource": "tropical_wood",
+			"resource": "grain",
 			"deposits": [
 				[
 					"sugar",
@@ -100707,10 +100708,10 @@
 				17
 			],
 			"topography": "hills",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "equatorial",
 			"elevation": 266,
-			"resource": "tropical_wood",
+			"resource": "cotton",
 			"deposits": [
 				[
 					"coffee",
@@ -101988,7 +101989,7 @@
 				33
 			],
 			"topography": "hills",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "equatorial",
 			"elevation": 173,
 			"resource": "grain",
@@ -103026,7 +103027,7 @@
 				41
 			],
 			"topography": "flatland",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "equatorial",
 			"elevation": 72,
 			"resource": "grain",
@@ -104345,7 +104346,7 @@
 				25
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 1,
 			"resource": "grain",
@@ -104492,10 +104493,10 @@
 				12
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 56,
-			"resource": "tropical_wood",
+			"resource": "cotton",
 			"deposits": [],
 			"neighbours": [
 				119,
@@ -104912,7 +104913,7 @@
 				22
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 305,
 			"resource": "gems",
@@ -104949,7 +104950,7 @@
 				16
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 306,
 			"resource": "grain",
@@ -105101,10 +105102,10 @@
 				19
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 265,
-			"resource": "tropical_wood",
+			"resource": "cotton",
 			"deposits": [],
 			"neighbours": [
 				2816,
@@ -105210,7 +105211,7 @@
 				21
 			],
 			"topography": "hills",
-			"vegetation": "sparse",
+			"vegetation": "farmland",
 			"climate": "hot_arid",
 			"elevation": 289,
 			"resource": "gems",
@@ -105291,10 +105292,10 @@
 				16
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 86,
-			"resource": "tropical_wood",
+			"resource": "cotton",
 			"deposits": [],
 			"neighbours": [
 				2817,
@@ -105473,7 +105474,7 @@
 				18
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 510,
 			"resource": "grain",
@@ -105510,10 +105511,10 @@
 				10
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 77,
-			"resource": "tropical_wood",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				2824,
@@ -105545,7 +105546,7 @@
 				20
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 108,
 			"resource": "grain",
@@ -105583,10 +105584,10 @@
 				12
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 946,
-			"resource": "tropical_wood",
+			"resource": "cotton",
 			"deposits": [],
 			"neighbours": [
 				2815,
@@ -105698,10 +105699,10 @@
 				15
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 161,
-			"resource": "tropical_wood",
+			"resource": "grain",
 			"deposits": [
 				[
 					"gold",
@@ -105817,7 +105818,7 @@
 				38
 			],
 			"topography": "flatland",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 255,
 			"resource": "grain",
@@ -105856,7 +105857,7 @@
 				38
 			],
 			"topography": "wetlands",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 26,
 			"resource": "fish",
@@ -105895,7 +105896,7 @@
 				2
 			],
 			"topography": "wetlands",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 4,
 			"resource": "fish",
@@ -106566,7 +106567,7 @@
 				22
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 239,
 			"resource": "grain",
@@ -106603,10 +106604,10 @@
 				12
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 170,
-			"resource": "cotton",
+			"resource": "tropical_wood",
 			"deposits": [],
 			"neighbours": [
 				2859,
@@ -106677,10 +106678,10 @@
 				7
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "jungle",
 			"climate": "tropical",
 			"elevation": 192,
-			"resource": "cotton",
+			"resource": "tropical_wood",
 			"deposits": [],
 			"neighbours": [
 				2860,
@@ -107080,7 +107081,7 @@
 				15
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 519,
 			"resource": "tea",
@@ -107120,7 +107121,7 @@
 				19
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 531,
 			"resource": "tea",
@@ -107929,10 +107930,10 @@
 				20
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 425,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2215,
@@ -107967,10 +107968,10 @@
 				19
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 1027,
-			"resource": "grain",
+			"resource": "salt",
 			"deposits": [],
 			"neighbours": [
 				2211,
@@ -108046,10 +108047,10 @@
 				16
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 448,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2897,
@@ -108082,10 +108083,10 @@
 				13
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 606,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2211,
@@ -108118,10 +108119,10 @@
 				19
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 661,
-			"resource": "grain",
+			"resource": "salt",
 			"deposits": [],
 			"neighbours": [
 				2211,
@@ -108634,7 +108635,7 @@
 				21
 			],
 			"topography": "hills",
-			"vegetation": "desert",
+			"vegetation": "farmland",
 			"climate": "hot_arid",
 			"elevation": 776,
 			"resource": "coffee",
@@ -112620,7 +112621,7 @@
 				18
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 26,
 			"resource": "cotton",
@@ -112657,10 +112658,10 @@
 				22
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "desert",
 			"climate": "hot_arid",
 			"elevation": 47,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2214,
@@ -112731,7 +112732,7 @@
 				18
 			],
 			"topography": "flatland",
-			"vegetation": "desert",
+			"vegetation": "farmland",
 			"climate": "hot_arid",
 			"elevation": 52,
 			"resource": "cotton",
@@ -113027,10 +113028,10 @@
 				23
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 378,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				130,
@@ -113770,10 +113771,10 @@
 				21
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 344,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				127,
@@ -113807,10 +113808,10 @@
 				16
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 371,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				138,
@@ -114801,10 +114802,10 @@
 				13
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 348,
-			"resource": "grain",
+			"resource": "naval_supplies",
 			"deposits": [],
 			"neighbours": [
 				3083,
@@ -114838,10 +114839,10 @@
 				16
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 242,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				3086,
@@ -114908,10 +114909,10 @@
 				21
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 488,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				3083,
@@ -114945,10 +114946,10 @@
 				16
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 263,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				3079,
@@ -114983,10 +114984,10 @@
 				18
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 307,
-			"resource": "grain",
+			"resource": "naval_supplies",
 			"deposits": [],
 			"neighbours": [
 				3086,
@@ -115019,10 +115020,10 @@
 				16
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 61,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				3089,
@@ -115054,10 +115055,10 @@
 				24
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 453,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				3080,
@@ -115130,10 +115131,10 @@
 				18
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 285,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				3080,
@@ -115166,10 +115167,10 @@
 				19
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 430,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				3082,
@@ -115206,10 +115207,10 @@
 				20
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 202,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [
 				[
 					"gold",
@@ -115249,10 +115250,10 @@
 				18
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 156,
-			"resource": "grain",
+			"resource": "naval_supplies",
 			"deposits": [],
 			"neighbours": [
 				3079,
@@ -115287,10 +115288,10 @@
 				17
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 81,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				3080
@@ -115394,10 +115395,10 @@
 				13
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subarctic",
 			"elevation": 241,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				3081,
@@ -115499,10 +115500,10 @@
 				14
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 403,
-			"resource": "tropical_wood",
+			"resource": "cotton",
 			"deposits": [],
 			"neighbours": [
 				3100,
@@ -115651,10 +115652,10 @@
 				19
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 276,
-			"resource": "tropical_wood",
+			"resource": "cotton",
 			"deposits": [],
 			"neighbours": [
 				3104,
@@ -115876,7 +115877,7 @@
 				20
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 289,
 			"resource": "grain",
@@ -116061,7 +116062,7 @@
 				36
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 625,
 			"resource": "grain",
@@ -116171,10 +116172,10 @@
 				41
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 492,
-			"resource": "tropical_wood",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				98,
@@ -117064,7 +117065,7 @@
 				21
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 89,
 			"resource": "grain",
@@ -117175,10 +117176,10 @@
 				21
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 287,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				656,
@@ -119064,10 +119065,10 @@
 				18
 			],
 			"topography": "plateau",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "continental",
 			"elevation": 1318,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				522,
@@ -119247,10 +119248,10 @@
 				21
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "continental",
 			"elevation": 290,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				3181,
@@ -119544,10 +119545,10 @@
 				15
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "continental",
 			"elevation": 702,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				3196,
@@ -121274,10 +121275,10 @@
 				12
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 295,
-			"resource": "grain",
+			"resource": "salt",
 			"deposits": [],
 			"neighbours": [
 				2437,
@@ -121348,7 +121349,7 @@
 				17
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 511,
 			"resource": "grain",
@@ -121422,10 +121423,10 @@
 				15
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 574,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2446,
@@ -121495,10 +121496,10 @@
 				19
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 292,
-			"resource": "grain",
+			"resource": "salt",
 			"deposits": [],
 			"neighbours": [
 				82,
@@ -121571,7 +121572,7 @@
 				17
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 442,
 			"resource": "grain",
@@ -121943,10 +121944,10 @@
 				16
 			],
 			"topography": "hills",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 301,
-			"resource": "tropical_wood",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				242,
@@ -122018,7 +122019,7 @@
 				19
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 667,
 			"resource": "grain",
@@ -122166,7 +122167,7 @@
 				21
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 97,
 			"resource": "grain",
@@ -122282,7 +122283,7 @@
 				20
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 412,
 			"resource": "grain",
@@ -122356,10 +122357,10 @@
 				14
 			],
 			"topography": "hills",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 122,
-			"resource": "tropical_wood",
+			"resource": "cotton",
 			"deposits": [],
 			"neighbours": [
 				3240,
@@ -122428,10 +122429,10 @@
 				7
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 473,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				84,
@@ -122499,10 +122500,10 @@
 				15
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 538,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				83,
@@ -122608,10 +122609,10 @@
 				19
 			],
 			"topography": "hills",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 127,
-			"resource": "tropical_wood",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				3240,
@@ -122645,7 +122646,7 @@
 				15
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 611,
 			"resource": "grain",
@@ -122682,7 +122683,7 @@
 				12
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 587,
 			"resource": "grain",
@@ -122718,7 +122719,7 @@
 				15
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 695,
 			"resource": "grain",
@@ -122794,10 +122795,10 @@
 				13
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 394,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2829,
@@ -122941,10 +122942,10 @@
 				16
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 516,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				3301,
@@ -123050,7 +123051,7 @@
 				13
 			],
 			"topography": "plateau",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 741,
 			"resource": "spices",
@@ -123085,10 +123086,10 @@
 				12
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 591,
-			"resource": "grain",
+			"resource": "salt",
 			"deposits": [],
 			"neighbours": [
 				2818,
@@ -123122,10 +123123,10 @@
 				21
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 126,
-			"resource": "tropical_wood",
+			"resource": "cotton",
 			"deposits": [],
 			"neighbours": [
 				92,
@@ -123234,10 +123235,10 @@
 				14
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 391,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2818,
@@ -123343,10 +123344,10 @@
 				19
 			],
 			"topography": "hills",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 399,
-			"resource": "tropical_wood",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				239,
@@ -123490,10 +123491,10 @@
 				20
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 476,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				84,
@@ -123562,7 +123563,7 @@
 				16
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 371,
 			"resource": "grain",
@@ -123600,7 +123601,7 @@
 				15
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 592,
 			"resource": "grain",
@@ -123636,10 +123637,10 @@
 				13
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 648,
-			"resource": "grain",
+			"resource": "salt",
 			"deposits": [],
 			"neighbours": [
 				87,
@@ -123675,10 +123676,10 @@
 				12
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 549,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				84,
@@ -123787,7 +123788,7 @@
 				15
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 724,
 			"resource": "grain",
@@ -123823,7 +123824,7 @@
 				17
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 229,
 			"resource": "spices",
@@ -124262,10 +124263,10 @@
 				24
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 547,
-			"resource": "tropical_wood",
+			"resource": "cotton",
 			"deposits": [],
 			"neighbours": [
 				90,
@@ -125301,7 +125302,7 @@
 				27
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 178,
 			"resource": "wool",
@@ -125383,7 +125384,7 @@
 				29
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 29,
 			"resource": "wool",
@@ -125530,7 +125531,7 @@
 				15
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 69,
 			"resource": "wool",
@@ -125678,10 +125679,10 @@
 				11
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 167,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				3374,
@@ -125751,7 +125752,7 @@
 				24
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 117,
 			"resource": "tin",
@@ -125824,7 +125825,7 @@
 				12
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 183,
 			"resource": "wool",
@@ -126206,7 +126207,7 @@
 				19
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 137,
 			"resource": "fish",
@@ -126384,10 +126385,10 @@
 				16
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 250,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				3391,
@@ -126459,10 +126460,10 @@
 				15
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 108,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [
 				[
 					"coal",
@@ -128478,7 +128479,7 @@
 				15
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 105,
 			"resource": "cotton",
@@ -129480,10 +129481,10 @@
 				4
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 195,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [],
 			"coastal": true,
@@ -129774,10 +129775,10 @@
 				14
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 394,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				45,
@@ -129848,7 +129849,7 @@
 				14
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 495,
 			"resource": "fish",
@@ -129994,10 +129995,10 @@
 				16
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 452,
-			"resource": "naval_supplies",
+			"resource": "grain",
 			"deposits": [
 				[
 					"gold",
@@ -131517,7 +131518,7 @@
 				24
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "mediterranean",
 			"elevation": 326,
 			"resource": "wine",
@@ -131555,7 +131556,7 @@
 				24
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "mediterranean",
 			"elevation": 579,
 			"resource": "wine",
@@ -131666,10 +131667,10 @@
 				22
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "mediterranean",
 			"elevation": 431,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				3531,
@@ -131703,10 +131704,10 @@
 				30
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "grasslands",
 			"climate": "cold_arid",
 			"elevation": 403,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				3533,
@@ -131814,7 +131815,7 @@
 				21
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 1021,
 			"resource": "silk",
@@ -131889,10 +131890,10 @@
 				21
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "mediterranean",
 			"elevation": 541,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				1810,
@@ -132040,7 +132041,7 @@
 				31
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 145,
 			"resource": "wine",
@@ -132150,7 +132151,7 @@
 				19
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 654,
 			"resource": "wine",
@@ -132187,10 +132188,10 @@
 				18
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 459,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				3545,
@@ -134067,10 +134068,10 @@
 				118
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "jungle",
 			"climate": "tropical",
 			"elevation": 81,
-			"resource": "grain",
+			"resource": "tropical_wood",
 			"deposits": [],
 			"neighbours": [],
 			"coastal": true,
@@ -134935,10 +134936,10 @@
 				55
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 170,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [],
 			"coastal": true,
@@ -135399,7 +135400,7 @@
 				12
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "mediterranean",
 			"elevation": 230,
 			"resource": "wine",
@@ -135434,10 +135435,10 @@
 				16
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "mediterranean",
 			"elevation": 143,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				3637,
@@ -135470,10 +135471,10 @@
 				14
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "mediterranean",
 			"elevation": 400,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				3636,
@@ -135543,10 +135544,10 @@
 				16
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "mediterranean",
 			"elevation": 312,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				3637,
@@ -135580,7 +135581,7 @@
 				18
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "mediterranean",
 			"elevation": 248,
 			"resource": "wine",
@@ -135618,7 +135619,7 @@
 				9
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "mediterranean",
 			"elevation": 183,
 			"resource": "wine",
@@ -135655,7 +135656,7 @@
 				11
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "mediterranean",
 			"elevation": 217,
 			"resource": "wine",
@@ -135691,10 +135692,10 @@
 				17
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "mediterranean",
 			"elevation": 327,
-			"resource": "grain",
+			"resource": "wine",
 			"deposits": [],
 			"neighbours": [
 				3638,
@@ -135878,10 +135879,10 @@
 				50
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 82,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [],
 			"coastal": true,
@@ -136629,7 +136630,7 @@
 				1
 			],
 			"topography": "flatland",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "equatorial",
 			"elevation": 0,
 			"resource": "grain",
@@ -136966,10 +136967,10 @@
 				73
 			],
 			"topography": "hills",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "equatorial",
 			"elevation": 237,
-			"resource": "tropical_wood",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [],
 			"coastal": true,
@@ -137684,7 +137685,7 @@
 				21
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 281,
 			"resource": "grain",
@@ -137758,10 +137759,10 @@
 				16
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 266,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				154,
@@ -137793,10 +137794,10 @@
 				17
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 485,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				1717,
@@ -137829,10 +137830,10 @@
 				9
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 128,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				155,
@@ -137865,10 +137866,10 @@
 				13
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 177,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				155,
@@ -138012,10 +138013,10 @@
 				15
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 2,
-			"resource": "cotton",
+			"resource": "tropical_wood",
 			"deposits": [],
 			"neighbours": [
 				662,
@@ -138683,10 +138684,10 @@
 				49
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 275,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				2290,
@@ -139349,7 +139350,7 @@
 				10
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 159,
 			"resource": "grain",
@@ -139789,7 +139790,7 @@
 				12
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 338,
 			"resource": "cotton",
@@ -139937,10 +139938,10 @@
 				19
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 277,
-			"resource": "tropical_wood",
+			"resource": "cotton",
 			"deposits": [],
 			"neighbours": [
 				82,
@@ -140347,7 +140348,7 @@
 				10
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 545,
 			"resource": "grain",
@@ -140456,10 +140457,10 @@
 				14
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "mediterranean",
 			"elevation": 640,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				3759,
@@ -140493,10 +140494,10 @@
 				15
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 348,
-			"resource": "cotton",
+			"resource": "tropical_wood",
 			"deposits": [],
 			"neighbours": [
 				2439,
@@ -140569,10 +140570,10 @@
 				20
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 406,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				3758,
@@ -140643,7 +140644,7 @@
 				21
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 594,
 			"resource": "grain",
@@ -140867,7 +140868,7 @@
 				11
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 478,
 			"resource": "wine",
@@ -140939,7 +140940,7 @@
 				14
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 457,
 			"resource": "grain",
@@ -141051,10 +141052,10 @@
 				18
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 484,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				2548,
@@ -141310,7 +141311,7 @@
 				14
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 278,
 			"resource": "grain",
@@ -141347,10 +141348,10 @@
 				13
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 409,
-			"resource": "wine",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				3756,
@@ -141382,7 +141383,7 @@
 				15
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 477,
 			"resource": "wine",
@@ -141420,7 +141421,7 @@
 				15
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "mediterranean",
 			"elevation": 441,
 			"resource": "wine",
@@ -141492,10 +141493,10 @@
 				17
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 475,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2371,
@@ -143672,10 +143673,10 @@
 				29
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 989,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				3432,
@@ -144738,10 +144739,10 @@
 				16
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 773,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				1164,
@@ -144776,7 +144777,7 @@
 				22
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 444,
 			"resource": "iron",
@@ -145147,7 +145148,7 @@
 				20
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 601,
 			"resource": "wool",
@@ -145256,10 +145257,10 @@
 				19
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 844,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				2595,
@@ -145292,7 +145293,7 @@
 				22
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 1116,
 			"resource": "wine",
@@ -145335,7 +145336,7 @@
 				21
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 1237,
 			"resource": "wine",
@@ -145372,7 +145373,7 @@
 				22
 			],
 			"topography": "plateau",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 1061,
 			"resource": "wool",
@@ -145410,7 +145411,7 @@
 				25
 			],
 			"topography": "plateau",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 1130,
 			"resource": "wool",
@@ -145446,10 +145447,10 @@
 				19
 			],
 			"topography": "plateau",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 796,
-			"resource": "timber",
+			"resource": "wool",
 			"deposits": [],
 			"neighbours": [
 				3550,
@@ -145482,7 +145483,7 @@
 				22
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 1008,
 			"resource": "wool",
@@ -145518,7 +145519,7 @@
 				11
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 879,
 			"resource": "wool",
@@ -145554,7 +145555,7 @@
 				24
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 1123,
 			"resource": "wool",
@@ -146732,10 +146733,10 @@
 				16
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 354,
-			"resource": "timber",
+			"resource": "wool",
 			"deposits": [],
 			"neighbours": [
 				921,
@@ -147218,10 +147219,10 @@
 				52
 			],
 			"topography": "mountains",
-			"vegetation": "sparse",
+			"vegetation": "farmland",
 			"climate": "subarctic",
 			"elevation": 3433,
-			"resource": "iron",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				809,
@@ -149864,10 +149865,10 @@
 				15
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 187,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1039,
@@ -149902,10 +149903,10 @@
 				14
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 199,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1042,
@@ -150275,10 +150276,10 @@
 				12
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 541,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				121,
@@ -150346,10 +150347,10 @@
 				15
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 512,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				121,
@@ -150835,10 +150836,10 @@
 				19
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 635,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [
 				[
 					"gold",
@@ -152479,10 +152480,10 @@
 				70
 			],
 			"topography": "mountains",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 4352,
-			"resource": "grain",
+			"resource": "furs",
 			"deposits": [],
 			"neighbours": [
 				362,
@@ -153242,10 +153243,10 @@
 				15
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 1376,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				4121,
@@ -153315,10 +153316,10 @@
 				17
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 1062,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				4119,
@@ -153462,10 +153463,10 @@
 				16
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 1234,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				4121,
@@ -153498,10 +153499,10 @@
 				23
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 795,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1727,
@@ -153535,10 +153536,10 @@
 				15
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 1487,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				4119,
@@ -153572,10 +153573,10 @@
 				12
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 1115,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				4129,
@@ -153645,10 +153646,10 @@
 				20
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 894,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				4121,
@@ -153683,10 +153684,10 @@
 				33
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 807,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [
 				[
 					"gold",
@@ -153729,10 +153730,10 @@
 				15
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 902,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				4125,
@@ -153764,10 +153765,10 @@
 				13
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 719,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				4107,
@@ -153801,10 +153802,10 @@
 				19
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 980,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1727,
@@ -153839,10 +153840,10 @@
 				8
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 532,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				4120,
@@ -153914,10 +153915,10 @@
 				10
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 625,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				1724,
@@ -154061,10 +154062,10 @@
 				16
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 659,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				4131,
@@ -154133,7 +154134,7 @@
 				16
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 1280,
 			"resource": "grain",
@@ -154320,10 +154321,10 @@
 				10
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "subtropical",
 			"elevation": 839,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				4120,
@@ -155987,10 +155988,10 @@
 				20
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 1843,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				558,
@@ -156025,10 +156026,10 @@
 				16
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "continental",
 			"elevation": 1985,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				561,
@@ -156061,10 +156062,10 @@
 				15
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "grasslands",
 			"climate": "cold_arid",
 			"elevation": 1587,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				525,
@@ -156135,10 +156136,10 @@
 				18
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "grasslands",
 			"climate": "cold_arid",
 			"elevation": 1715,
-			"resource": "grain",
+			"resource": "wool",
 			"deposits": [],
 			"neighbours": [
 				556,
@@ -156208,10 +156209,10 @@
 				18
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "grasslands",
 			"climate": "cold_arid",
 			"elevation": 1692,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				558,
@@ -156990,10 +156991,10 @@
 				21
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "grasslands",
 			"climate": "cold_arid",
 			"elevation": 1517,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				533,
@@ -157136,10 +157137,10 @@
 				35
 			],
 			"topography": "plateau",
-			"vegetation": "sparse",
+			"vegetation": "farmland",
 			"climate": "cold_arid",
 			"elevation": 1093,
-			"resource": "salt",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				147,
@@ -157425,10 +157426,10 @@
 				32
 			],
 			"topography": "mountains",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 4587,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				4234,
@@ -157493,10 +157494,10 @@
 				48
 			],
 			"topography": "mountains",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 4424,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				362,
@@ -157528,10 +157529,10 @@
 				27
 			],
 			"topography": "mountains",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 3899,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				549,
@@ -157600,10 +157601,10 @@
 				27
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 4401,
-			"resource": "grain",
+			"resource": "furs",
 			"deposits": [],
 			"neighbours": [
 				4239,
@@ -157668,10 +157669,10 @@
 				32
 			],
 			"topography": "mountains",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 4362,
-			"resource": "grain",
+			"resource": "copper",
 			"deposits": [],
 			"neighbours": [
 				4235,
@@ -157702,10 +157703,10 @@
 				28
 			],
 			"topography": "mountains",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 4730,
-			"resource": "grain",
+			"resource": "iron",
 			"deposits": [],
 			"neighbours": [
 				4234
@@ -157734,10 +157735,10 @@
 				18
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 4850,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				4243
@@ -157799,10 +157800,10 @@
 				28
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 4613,
-			"resource": "grain",
+			"resource": "furs",
 			"deposits": [],
 			"neighbours": [
 				4232,
@@ -157900,10 +157901,10 @@
 				22
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "subarctic",
 			"elevation": 4495,
-			"resource": "grain",
+			"resource": "furs",
 			"deposits": [],
 			"neighbours": [
 				4237
@@ -158153,10 +158154,10 @@
 				15
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "continental",
 			"elevation": 925,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				4251,
@@ -158190,10 +158191,10 @@
 				23
 			],
 			"topography": "plateau",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "continental",
 			"elevation": 1112,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				4252,
@@ -158229,7 +158230,7 @@
 				25
 			],
 			"topography": "plateau",
-			"vegetation": "grasslands",
+			"vegetation": "farmland",
 			"climate": "cold_arid",
 			"elevation": 1119,
 			"resource": "iron",
@@ -158350,10 +158351,10 @@
 				20
 			],
 			"topography": "plateau",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "continental",
 			"elevation": 1233,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				522,
@@ -158432,7 +158433,7 @@
 				20
 			],
 			"topography": "plateau",
-			"vegetation": "grasslands",
+			"vegetation": "farmland",
 			"climate": "cold_arid",
 			"elevation": 1186,
 			"resource": "iron",
@@ -158474,7 +158475,7 @@
 				31
 			],
 			"topography": "plateau",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "continental",
 			"elevation": 1533,
 			"resource": "iron",
@@ -158518,7 +158519,7 @@
 				16
 			],
 			"topography": "plateau",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "continental",
 			"elevation": 1295,
 			"resource": "iron",
@@ -158559,7 +158560,7 @@
 				12
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 913,
 			"resource": "grain",
@@ -158594,10 +158595,10 @@
 				17
 			],
 			"topography": "plateau",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "continental",
 			"elevation": 1076,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				3207,
@@ -158631,10 +158632,10 @@
 				24
 			],
 			"topography": "plateau",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "continental",
 			"elevation": 1472,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				527,
@@ -158668,7 +158669,7 @@
 				22
 			],
 			"topography": "plateau",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "continental",
 			"elevation": 1193,
 			"resource": "iron",
@@ -158860,7 +158861,7 @@
 				18
 			],
 			"topography": "plateau",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "continental",
 			"elevation": 1022,
 			"resource": "iron",
@@ -158902,10 +158903,10 @@
 				19
 			],
 			"topography": "plateau",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "continental",
 			"elevation": 728,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				4251,
@@ -159050,7 +159051,7 @@
 				19
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 259,
 			"resource": "tea",
@@ -159349,7 +159350,7 @@
 				14
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 361,
 			"resource": "tea",
@@ -160345,7 +160346,7 @@
 				15
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 631,
 			"resource": "grain",
@@ -160456,10 +160457,10 @@
 				21
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 347,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				4253,
@@ -160531,10 +160532,10 @@
 				20
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 162,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				4309,
@@ -160759,7 +160760,7 @@
 				12
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 152,
 			"resource": "grain",
@@ -160831,10 +160832,10 @@
 				13
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 200,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				4309,
@@ -161094,10 +161095,10 @@
 				13
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 234,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				4313,
@@ -161167,10 +161168,10 @@
 				18
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 562,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				4251,
@@ -161795,10 +161796,10 @@
 				24
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 141,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				4316,
@@ -162460,10 +162461,10 @@
 				11
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 183,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				4316,
@@ -162754,10 +162755,10 @@
 				17
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "subtropical",
 			"elevation": 245,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				4362,
@@ -165807,10 +165808,10 @@
 				32
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 187,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [
 				[
 					"coal",
@@ -165851,7 +165852,7 @@
 				23
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 234,
 			"resource": "fish",
@@ -165896,7 +165897,7 @@
 				29
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 90,
 			"resource": "fish",
@@ -165931,7 +165932,7 @@
 				19
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 89,
 			"resource": "wool",
@@ -165967,7 +165968,7 @@
 				20
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 21,
 			"resource": "wool",
@@ -166005,7 +166006,7 @@
 				19
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 95,
 			"resource": "wool",
@@ -166041,7 +166042,7 @@
 				21
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 54,
 			"resource": "wool",
@@ -166082,7 +166083,7 @@
 				18
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 103,
 			"resource": "wool",
@@ -166119,7 +166120,7 @@
 				16
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 111,
 			"resource": "wool",
@@ -166157,7 +166158,7 @@
 				18
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 138,
 			"resource": "salt",
@@ -166278,7 +166279,7 @@
 				19
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 95,
 			"resource": "wool",
@@ -166314,7 +166315,7 @@
 				23
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 106,
 			"resource": "wool",
@@ -166351,7 +166352,7 @@
 				20
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 120,
 			"resource": "wool",
@@ -168212,7 +168213,7 @@
 				34
 			],
 			"topography": "flatland",
-			"vegetation": "jungle",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 146,
 			"resource": "grain",
@@ -168286,7 +168287,7 @@
 				19
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 284,
 			"resource": "grain",
@@ -173283,10 +173284,10 @@
 				20
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 99,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				4658,
@@ -173359,10 +173360,10 @@
 				18
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 178,
-			"resource": "timber",
+			"resource": "wool",
 			"deposits": [],
 			"neighbours": [
 				1354,
@@ -173397,10 +173398,10 @@
 				22
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 125,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				4658,
@@ -173433,10 +173434,10 @@
 				14
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 122,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				946,
@@ -173873,10 +173874,10 @@
 				27
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 235,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				53,
@@ -173910,10 +173911,10 @@
 				30
 			],
 			"topography": "flatland",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 255,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				53,
@@ -177078,10 +177079,10 @@
 				16
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 507,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				3105,
@@ -177115,7 +177116,7 @@
 				11
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 554,
 			"resource": "grain",
@@ -177151,7 +177152,7 @@
 				12
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 304,
 			"resource": "grain",
@@ -177188,7 +177189,7 @@
 				15
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 449,
 			"resource": "grain",
@@ -177261,7 +177262,7 @@
 				16
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 379,
 			"resource": "grain",
@@ -177298,10 +177299,10 @@
 				13
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 274,
-			"resource": "cotton",
+			"resource": "tropical_wood",
 			"deposits": [],
 			"neighbours": [
 				97,
@@ -177335,10 +177336,10 @@
 				16
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 332,
-			"resource": "grain",
+			"resource": "tropical_wood",
 			"deposits": [],
 			"neighbours": [
 				3104,
@@ -177410,10 +177411,10 @@
 				19
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 221,
-			"resource": "cotton",
+			"resource": "tropical_wood",
 			"deposits": [],
 			"neighbours": [
 				4766,
@@ -177447,7 +177448,7 @@
 				20
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 401,
 			"resource": "grain",
@@ -177484,10 +177485,10 @@
 				16
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 264,
-			"resource": "cotton",
+			"resource": "tropical_wood",
 			"deposits": [],
 			"neighbours": [
 				97,
@@ -177521,10 +177522,10 @@
 				22
 			],
 			"topography": "plateau",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 720,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				99,
@@ -177560,10 +177561,10 @@
 				16
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 403,
-			"resource": "cotton",
+			"resource": "tropical_wood",
 			"deposits": [],
 			"neighbours": [
 				4765,
@@ -177596,7 +177597,7 @@
 				14
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 337,
 			"resource": "grain",
@@ -177632,7 +177633,7 @@
 				16
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 579,
 			"resource": "grain",
@@ -177670,7 +177671,7 @@
 				13
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 250,
 			"resource": "grain",
@@ -177707,10 +177708,10 @@
 				18
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 538,
-			"resource": "grain",
+			"resource": "livestock",
 			"deposits": [],
 			"neighbours": [
 				2558,
@@ -177745,7 +177746,7 @@
 				15
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 370,
 			"resource": "grain",
@@ -177782,10 +177783,10 @@
 				13
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 271,
-			"resource": "cotton",
+			"resource": "tropical_wood",
 			"deposits": [],
 			"neighbours": [
 				3104,
@@ -177818,7 +177819,7 @@
 				11
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 321,
 			"resource": "grain",
@@ -177853,10 +177854,10 @@
 				14
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "subtropical",
 			"elevation": 435,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				97,
@@ -177888,7 +177889,7 @@
 				15
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "woods",
 			"climate": "tropical",
 			"elevation": 448,
 			"resource": "grain",
@@ -178034,10 +178035,10 @@
 				24
 			],
 			"topography": "flatland",
-			"vegetation": "sparse",
+			"vegetation": "farmland",
 			"climate": "hot_arid",
 			"elevation": 209,
-			"resource": "livestock",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				2362,
@@ -178444,7 +178445,7 @@
 				19
 			],
 			"topography": "hills",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 166,
 			"resource": "grain",
@@ -178701,7 +178702,7 @@
 				12
 			],
 			"topography": "flatland",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 396,
 			"resource": "gems",
@@ -178812,7 +178813,7 @@
 				14
 			],
 			"topography": "flatland",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "tropical",
 			"elevation": 133,
 			"resource": "gems",
@@ -178849,7 +178850,7 @@
 				13
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "sparse",
 			"climate": "hot_arid",
 			"elevation": 322,
 			"resource": "gems",
@@ -181428,10 +181429,10 @@
 				14
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 423,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				41,
@@ -181644,10 +181645,10 @@
 				13
 			],
 			"topography": "hills",
-			"vegetation": "forest",
+			"vegetation": "farmland",
 			"climate": "oceanic",
 			"elevation": 453,
-			"resource": "timber",
+			"resource": "grain",
 			"deposits": [],
 			"neighbours": [
 				48,
@@ -183267,10 +183268,10 @@
 				18
 			],
 			"topography": "hills",
-			"vegetation": "farmland",
+			"vegetation": "forest",
 			"climate": "oceanic",
 			"elevation": 495,
-			"resource": "grain",
+			"resource": "timber",
 			"deposits": [],
 			"neighbours": [
 				10,
@@ -185332,7 +185333,7 @@
 				30
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 950,
 			"resource": "wool",
@@ -185701,7 +185702,7 @@
 				22
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 1031,
 			"resource": "wool",
@@ -185738,7 +185739,7 @@
 				27
 			],
 			"topography": "plateau",
-			"vegetation": "woods",
+			"vegetation": "farmland",
 			"climate": "mediterranean",
 			"elevation": 780,
 			"resource": "wool",

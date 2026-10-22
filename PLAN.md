@@ -361,7 +361,44 @@ selling land, and exchanging territory with money either way, judged as a sum of
 (10 years of yield), land hard to govern, land that matters, finances, opinion,
 rivalry; map picking like the peace table. Tests in `test_land_deals.gd`.
 
-**Next for war:** AI use of transports and navies at sea, air power (aircraft are
+**Added (21 Oct 2026): war rules.** Before 1800 a fort bars the roads about it
+(`fort_zones`: an army in its zone may enter the fort or leave the zone, not march
+on past it); sieges are monthly tries whose odds grow with time, numbers and
+artillery and fall without siege equipment (to −42 %), or a costly storm; occupied
+land handed to an ally; war without calling allies; manpower and sailors pools with
+barracks and docks training them (top bar); ideas (one per age) with press gangs;
+money paid for peace; land purchases priced with a capped, diminishing premium and
+exclaves cheaper to their owner. Tests in `test_war_rules.gd`.
+
+**Added (21 Oct 2026): faith and the 1590 scenario.** Every province's faith and
+every realm's state religion as in 1590 (generator: `religions_1590.gd`); unrest in
+land of another faith; missionaries (a slot per age, cost and upkeep, years to
+convert); the AI sends its own, takes up ideas and builds barracks; ~240 historical
+fortresses; Religion and Buildings map modes; a loading screen; loading ~40 % faster
+(glyph cache, one recolour per restore, trusted new-campaign start). Tests in
+`test_religion.gd`.
+
+**Added (22 Oct 2026): capitals besieged.** A capital without a fort must be
+besieged (its city walls), never simply occupied; only kingdoms and empires
+start with a fortified capital (lesser seats where history fortified them).
+
+**Added (22 Oct 2026): ranks.** County, duchy, minor kingdom, major kingdom,
+empire: the court each is expected to keep (base + share of taxes; tribal half,
+colonial a quarter), the development each governs in full (taxes fall beyond;
+more with the ages), the ties (alliances, marriages, subjects, subsidies) and
+envoys each keeps; rising a rank by coronation (player and AI). Tests in
+`test_ranks.gd`.
+
+**Added (21 Oct 2026): a real 1590.** The French Wars of Religion (Henry IV against
+the Catholic League, a civil war: land taken is annexed, war score from annexation,
+battles and a monthly tick, peace by granting the rebels' demands), Spanish
+volunteers and subsidies for the League, the Dutch revolt with its cores and
+claims, the Jurchens' rivalry and the forming of Manchuria (integrating Wild
+Jurchen land by army and fee); cultures and a Culture map mode; volunteers and
+subsidies for anyone; flags and a title card. Tests in `test_1590.gd`.
+
+**Next for war:** AI use of transports and navies at sea, AI volunteers and
+subsidies, rebellions arising during play (unrest, pretenders), air power (aircraft are
 catalogued), war aims beyond land (and for the AI: vassalage, freeing subjects), fronts
 for 20th-century war, cores decaying over the centuries.
 
@@ -374,7 +411,7 @@ Historical situations to consider:
 2. Japan near its end of unification and the begining of the Imjin war
 3. Russian Rapid colonisation of Siberia
 4. Ottoman Habsburg war
-5. Unification of the Jurchens, a mechanism to allow Manchu to quickly rise and give the ming internal problems and crisis which have to be dealt with by them. Create a unique mechanism that they can instantly annex the uncolonised manchu province by paying a fee and sending troops there. Symbolising them reaching out to the wild jurchens and integrating them.
+5. Unification of the Jurchens, a mechanism to allow Manchu to quickly rise and give the ming internal problems and crisis which have to be dealt with by them. Create a unique mechanism that they can instantly annex the uncolonised manchu province by paying a fee and sending troops there. Symbolising them reaching out to the wild jurchens and integrating them. So they do become cores.
 6. Iberian Union and how Spain can handle it
 ### M9 — Era transitions
 Technology/institution progression, era-specific armies and economies,

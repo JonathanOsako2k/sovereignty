@@ -314,6 +314,30 @@ const FORCED_POINTS := [
 ## the Urals (Yermak took Sibir in 1582).
 const COLONIAL_POLICY := {"SPA": 3, "POR": 3, "ENG": 2, "FRA": 2, "NED": 2, "RUS": 1}
 
+## The Catholic League (the Holy Union) on 1 January 1590: Paris, Rouen, Lyon,
+## Marseille, Toulouse, Dijon, Mercœur's Brittany and most great towns held for
+## "Charles X" against Henry IV, whose government sat at Tours. Added after the
+## map is drawn (it changes no province's shape): French provinces within one
+## of LEAGUE_HELD (centre, km) and not within ROYALIST_HELD are the League's.
+const LEAGUE := ["Catholic League", "league", "#7b5ea7"]
+const LEAGUE_CAPITAL := [48.86, 2.35]  # Paris
+const ROYAL_CAPITAL := [47.39, 0.69]  # Tours
+const LEAGUE_HELD := [
+	[[48.86, 2.35], 110.0], [[49.44, 1.10], 70.0], [[49.49, 0.11], 30.0], [[49.89, 2.30], 70.0],
+	[[50.10, 1.83], 30.0], [[49.26, 4.03], 60.0], [[48.30, 4.08], 60.0], [[47.32, 5.04], 90.0],
+	[[45.76, 4.84], 70.0], [[45.43, 4.39], 40.0], [[47.90, 1.91], 50.0], [[47.08, 2.40], 60.0],
+	[[46.58, 0.34], 40.0], [[47.22, -1.55], 60.0], [[48.10, -3.00], 120.0], [[43.30, 5.37], 50.0],
+	[[43.53, 5.45], 40.0], [[43.60, 1.44], 70.0], [[45.19, 5.72], 40.0],
+]
+const ROYALIST_HELD := [
+	[[47.39, 0.69], 50.0], [[47.59, 1.33], 25.0], [[49.18, -0.37], 60.0], [[49.92, 1.08], 25.0],
+	[[48.96, 4.36], 25.0], [[47.86, 5.33], 25.0], [[48.11, -1.68], 40.0], [[49.21, 2.59], 20.0],
+	[[49.85, 3.29], 20.0],  # Saint-Quentin
+]
+## Money sent every month on 1 January 1590: [from, to, ducats] — Philip II
+## paying the League.
+const SUBSIDIES := [["SPA", "LEA", 12]]
+
 const SUBJECTS := [
 	["SPA", "POR", "personal_union"],  # the Iberian Union since 1580
 	["TUR", "CRI", "vassal"], ["TUR", "WAL", "vassal"], ["TUR", "MOL", "vassal"], ["TUR", "TRA", "vassal"],

@@ -21,6 +21,7 @@ var _rows: GridContainer
 var _extra: VBoxContainer
 var _footer: VBoxContainer
 var _gutter: MarginContainer
+var _header: HBoxContainer
 
 
 func _init() -> void:
@@ -32,6 +33,7 @@ func _init() -> void:
 	var header := HBoxContainer.new()
 	header.add_theme_constant_override("separation", 10)
 	box.add_child(header)
+	_header = header
 	_swatch = ColorRect.new()
 	_swatch.custom_minimum_size = Vector2(14, 40)
 	header.add_child(_swatch)
@@ -76,7 +78,11 @@ func _init() -> void:
 	_footer = VBoxContainer.new()
 	_footer.add_theme_constant_override("separation", 8)
 	box.add_child(_footer)
+	set_scroll_gutter(DEFAULT_GUTTER)
 
+
+## Every list keeps this much room beside its (wide) scroll bar.
+const DEFAULT_GUTTER := 14
 
 ## Empty room right of the scrolling list (px): a thumb can scroll a long list
 ## of toggles there without pressing one.

@@ -19,7 +19,6 @@ signal reset
 
 const SUBJECT_TYPES := ["vassal", "personal_union", "tributary", "colony"]
 const MAX_RIVALS := 3
-const ENVOYS := 2
 
 ## Opinion from standing relations (worked out on demand, never stored).
 const OPINION_ALLIED := 40
@@ -29,6 +28,8 @@ const OPINION_OUR_RIVAL := -30  # we declared them our rival
 const OPINION_COMMON_RIVAL := 20
 const OPINION_OF_OVERLORD := {"vassal": 10, "personal_union": 25, "tributary": 5, "colony": 20}
 const OPINION_OF_SUBJECT := 30
+## A country paying another a subsidy is regarded this much better by it.
+const OPINION_SUBSIDISED := 25
 
 ## Lasting effects of actions, by kind: label shown to the player, and how
 ## much they fade each month.
@@ -56,6 +57,7 @@ var _rivals := {}  # country -> Array[String] it has declared rivals
 var _modifiers := {}
 var _envoys := {}  # country -> Array[String] whose relations it is improving
 var _cooldowns := {}  # "kind:from>to" -> day number of the last use
+var _subsidies := {}  # "from>to" -> ducats a month
 
 
 static func _pair(a: String, b: String) -> String:
@@ -167,6 +169,8 @@ func opinion_reasons(a: String, b: String) -> Array:
 			"tributary": "Our suzerain", "colony": "Our mother country"}[kind], OPINION_OF_OVERLORD[kind]])
 	if overlord_of(b) == a:
 		reasons.append(["Our subject", OPINION_OF_SUBJECT])
+	if subsidy(b, a) > 0:
+		reasons.append(["Pays us subsidies", OPINION_SUBSIDISED])
 	var mods: Dictionary = _modifiers.get(a + ">" + b, {})
 	for kind: String in mods:
 		reasons.append([MODIFIERS[kind].label, int(round(mods[kind]))])
@@ -196,6 +200,8 @@ func opinion(a: String, b: String) -> int:
 		total += OPINION_OF_OVERLORD[subject_type(a)]
 	if overlord_of(b) == a:
 		total += OPINION_OF_SUBJECT
+	if _subsidies.has(b + ">" + a):
+		total += OPINION_SUBSIDISED
 	var mods: Dictionary = _modifiers.get(a + ">" + b, {})
 	for kind: String in mods:
 		total += int(round(mods[kind]))
@@ -207,6 +213,28 @@ func modifier(a: String, b: String, kind: String) -> float:
 
 
 # --- Changes (rules are checked by DiplomacyActions) ------------------------------------
+
+## Ducats a month `from` pays `to` (0: none).
+func subsidy(from: String, to: String) -> int:
+	return _subsidies.get(from + ">" + to, 0)
+
+
+## Every subsidy: [from, to, ducats a month].
+func subsidies() -> Array:
+	var out := []
+	for key: String in _sorted(_subsidies):
+		var parts := key.split(">")
+		out.append([parts[0], parts[1], _subsidies[key]])
+	return out
+
+
+func set_subsidy(from: String, to: String, amount: int) -> void:
+	if amount <= 0:
+		_subsidies.erase(from + ">" + to)
+	else:
+		_subsidies[from + ">" + to] = amount
+	changed.emit(from, to)
+
 
 func set_subject(overlord: String, subject: String, type: String) -> void:
 	assert(type in SUBJECT_TYPES)
@@ -325,6 +353,7 @@ func clear() -> void:
 	_modifiers.clear()
 	_envoys.clear()
 	_cooldowns.clear()
+	_subsidies.clear()
 
 
 func to_dict() -> Dictionary:
@@ -353,6 +382,7 @@ func to_dict() -> Dictionary:
 		"subjects": subjects,
 		"alliances": _pairs_list(_alliances), "marriages": _pairs_list(_marriages),
 		"rivals": rivals, "modifiers": modifiers, "envoys": envoys, "cooldowns": cooldowns,
+		"subsidies": subsidies(),
 	}
 
 
@@ -398,6 +428,10 @@ static func check_dict(data: Variant, countries: Dictionary) -> PackedStringArra
 		if not (row is Array and row.size() == 4 and row[0] is String and known.call(row[1])
 				and known.call(row[2]) and (row[3] is float or row[3] is int)):
 			errors.append("bad cooldown %s" % var_to_str(row))
+	for row: Variant in data.get("subsidies", []):
+		if not (row is Array and row.size() == 3 and known.call(row[0]) and known.call(row[1]) and row[0] != row[1]
+				and (row[2] is float or row[2] is int) and row[2] > 0):
+			errors.append("bad subsidy %s" % var_to_str(row))
 	# A subject's overlord may not itself be that subject's subject (no loops).
 	for s: String in subjects_seen:
 		var seen := {s: true}
@@ -439,4 +473,6 @@ func load_dict(data: Dictionary) -> void:
 		_envoys[row[0]] = list
 	for row: Array in data.get("cooldowns", []):
 		_cooldowns["%s:%s>%s" % [row[0], row[1], row[2]]] = int(row[3])
+	for row: Array in data.get("subsidies", []):
+		_subsidies[row[0] + ">" + row[1]] = int(row[2])
 	reset.emit()

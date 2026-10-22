@@ -27,6 +27,14 @@ var aboard := 0
 ## Falling back after a lost battle: it cannot be caught or ordered until it
 ## reaches the end of its retreat.
 var retreating := false
+## Volunteers: the country this army fights for in a war its own country is
+## not in ("" if none) — it marches, fights and besieges as that country's.
+var volunteer_for := ""
+
+
+## The country whose wars this army fights: its own, or (volunteers) its host's.
+func side() -> String:
+	return volunteer_for if volunteer_for != "" else owner
 
 
 func men() -> int:
@@ -108,7 +116,7 @@ func by_type() -> Dictionary:
 
 func to_array() -> Array:
 	return [id, owner, name, navy, location, regiments.duplicate(true), morale, Array(path), leg_days, leg_total,
-		aboard, retreating]
+		aboard, retreating, volunteer_for]
 
 
 static func from_array(a: Array) -> Army:
@@ -128,4 +136,6 @@ static func from_array(a: Array) -> Army:
 	if a.size() >= 12:
 		army.aboard = int(a[10])
 		army.retreating = bool(a[11])
+	if a.size() >= 13:
+		army.volunteer_for = str(a[12])
 	return army

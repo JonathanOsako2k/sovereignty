@@ -26,11 +26,25 @@ const STANDING_MAX := 60000
 const NAVY_MIN_COASTS := 4
 const NAVY_COASTS_PER_SHIP := 2
 const NAVY_MAX := 30
-## Forts standing in 1590: every capital of a country of FORT_CAPITAL_PROVINCES
-## or more, and great cities (development FORT_CITY_DEVELOPMENT+) of larger realms.
-const FORT_CAPITAL_PROVINCES := 3
+## A colonial nation keeps a coast-guard squadron: a third of that, at most this many.
+const COLONIAL_NAVY_MAX := 6
+## Forts standing in 1590 besides the scenario's historical fortresses: the
+## capitals of kingdoms and empires (FORT_CAPITAL_RANK and up; a duke's or a
+## count's seat only where history fortified it), and great cities
+## (development FORT_CITY_DEVELOPMENT+) of larger realms.
+const FORT_CAPITAL_RANK := Ranks.MINOR_KINGDOM
 const FORT_CITY_DEVELOPMENT := 9
 const FORT_CITY_REALM := 10
+## The wars under way on 1 January 1590: [name, attackers, defenders]. (A
+## war between two countries of one culture where one holds a core on the
+## other's capital is a civil war: see civil_war().)
+const WARS_1590 := [
+	["French Wars of Religion", ["FRA"], ["LEA"]],
+	["Eighty Years' War", ["NED"], ["SPA"]],
+]
+## Volunteers in the field on 1 January 1590: [country, host, [lat, lon] where
+## they stand, regiments] — the Spanish troops sent to the League.
+const VOLUNTEERS_1590 := [["SPA", "LEA", [49.89, 2.30], 4]]
 ## Seafaring realms keep docks at their home port and at coastal cities of at
 ## least this development; their navies start berthed at home.
 const DOCK_CITY_DEVELOPMENT := 9
@@ -45,7 +59,10 @@ var next_id := 1
 var wars: Array = []  # change only through add_war / remove_war (or populate / load_dict)
 var next_war := 1
 var truces := {}  # "A|B" (sorted) -> day number until which they may not fight
-## Sieges and occupations under way: province id -> {by: tag, progress: days}.
+## Sieges and occupations under way: province id -> {by: tag, progress: days,
+## phases: tries at a fort that failed, assault: day number of the last
+## storming (-1: none)}; while it lasts, `chance`: the odds of the next try
+## (percent; worked out daily, not saved).
 var sieges := {}
 ## Regiments being raised: [tag, province id, unit type, days left].
 var recruiting: Array = []
@@ -53,6 +70,12 @@ var recruiting: Array = []
 var levies_raised := {}
 ## Manpower for regular regiments: tag -> men available.
 var manpower := {}
+## Sailors to crew ships: tag -> men available.
+var sailors := {}
+## Provinces whose people were pressed into service: id -> day number.
+var pressed := {}
+## Counts every change to who fights whom (for caches of the wars).
+var wars_version := 0
 
 # Who fights whom, rebuilt after wars change: war id -> {tag: side}, tag ->
 # [war ids] (in the order of `wars`), war id -> war.
@@ -120,11 +143,13 @@ static func side_of(war: Dictionary, tag: String) -> int:
 func add_war(war: Dictionary) -> void:
 	wars.append(war)
 	_index_dirty = true
+	wars_version += 1
 
 
 func remove_war(war: Dictionary) -> void:
 	wars.erase(war)
 	_index_dirty = true
+	wars_version += 1
 
 
 func _ensure_index() -> void:
@@ -172,6 +197,7 @@ func join_war(war: Dictionary, tag: String, side: int) -> void:
 	if not tag in war.attackers and not tag in war.defenders:
 		(war.attackers if side == 0 else war.defenders).append(tag)
 	_index_dirty = true
+	wars_version += 1
 
 
 ## `tag` leaves a war (a separate peace).
@@ -179,6 +205,7 @@ func leave_war(war: Dictionary, tag: String) -> void:
 	war.attackers.erase(tag)
 	war.defenders.erase(tag)
 	_index_dirty = true
+	wars_version += 1
 
 
 ## The armies a fleet carries.
@@ -267,10 +294,11 @@ func recount_levies(world: WorldState) -> Array[int]:
 # --- The world of 1590 ----------------------------------------------------------------
 
 ## Forts, docks, standing armies and navies at the start: realms of some size
-## keep a small standing army at their capital (levies are raised in war);
-## coastal powers keep permanent navies, berthed at a dock in their home port
-## (great coastal cities have docks too); capitals and great cities are
-## fortified.
+## keep a small standing army at their capital, with barracks to train it
+## (levies are raised in war); coastal powers keep permanent navies, berthed at
+## a dock in their home port (great coastal cities have docks too); the
+## capitals of kingdoms and empires and great cities are fortified. Manpower and sailors start full (filled by
+## MilitarySystem, which knows the ceilings).
 func populate(world: WorldState, year: int) -> void:
 	armies.clear()
 	wars.clear()
@@ -280,6 +308,9 @@ func populate(world: WorldState, year: int) -> void:
 	recruiting.clear()
 	levies_raised.clear()
 	manpower.clear()
+	sailors.clear()
+	pressed.clear()
+	wars_version += 1
 	next_id = 1
 	next_war = 1
 	var counts := {}
@@ -298,7 +329,7 @@ func populate(world: WorldState, year: int) -> void:
 		var c := world.get_country(p.owner_id)
 		if c == null:
 			continue
-		var fortified := (c.capital_province_id == p.id and size >= FORT_CAPITAL_PROVINCES) \
+		var fortified := (c.capital_province_id == p.id and c.rank >= FORT_CAPITAL_RANK) \
 			or (p.development >= FORT_CITY_DEVELOPMENT and size >= FORT_CITY_REALM)
 		if fortified and not "fort" in p.buildings:
 			p.buildings.append("fort")
@@ -306,11 +337,12 @@ func populate(world: WorldState, year: int) -> void:
 	tags.sort()
 	var seafaring := {}
 	for tag: String in tags:
-		manpower[tag] = float(int(people[tag] * MilitarySystem.MANPOWER_SHARE))  # full at the start
 		var c := world.get_country(tag)
 		var cap := world.get_province(c.capital_province_id)
 		if cap == null or counts[tag] < STANDING_MIN_PROVINCES:
 			continue
+		if not "barracks" in cap.buildings and c.colonial_region == "":  # colonies raise no standing regiments of their own
+			cap.buildings.append("barracks")
 		var men := clampi(int(people[tag] * STANDING_SHARE / 1000.0) * 1000, 1000, STANDING_MAX)
 		var regiments := standing_regiments(world, tag, year, men / 1000)
 		if not regiments.is_empty():
@@ -322,6 +354,8 @@ func populate(world: WorldState, year: int) -> void:
 				seafaring[tag] = true
 				var ships: Array = []
 				var count := clampi(coasts[tag] / NAVY_COASTS_PER_SHIP, 2, NAVY_MAX)
+				if c.colonial_region != "":
+					count = clampi(count / 3, 1, COLONIAL_NAVY_MAX)
 				for i in count:
 					ships.append([ship, UnitTypes.get_type(ship).men, 0])
 				var transport := preferred_unit(world, tag, year, "transport")
@@ -330,7 +364,53 @@ func populate(world: WorldState, year: int) -> void:
 						ships.append([transport, UnitTypes.get_type(transport).men, 0])
 				add_army(tag, port, ships, true, "Navy of %s" % MilitarySystem.short_name(world, tag))
 	_place_docks(world, seafaring)
+	_wars_of_1590(world, year)
 	reset.emit()
+
+
+## The wars of 1590 and the volunteers in them.
+func _wars_of_1590(world: WorldState, year: int) -> void:
+	var start := GameClock.days_since_epoch(year, 1, 1) - 1
+	for w: Array in WARS_1590:
+		if not (w[1] + w[2]).all(func(t: String) -> bool: return world.get_country(t) != null):
+			continue
+		var civil := civil_war(world, w[1][0], w[2][0])
+		add_war({"id": next_war, "name": w[0], "attackers": w[1].duplicate(), "defenders": w[2].duplicate(),
+			"start": start, "battle_score": 0.0, "refused": [], "civil": civil,
+			"rebels": rebels_of(world, w[1][0], w[2][0]) if civil else "", "annexed": [0.0, 0.0], "tick": 0.0})
+		next_war += 1
+	for v: Array in VOLUNTEERS_1590:
+		var p := world.province_near(v[2][0], v[2][1])
+		var unit := preferred_unit(world, v[0], year, "infantry")
+		if world.get_country(v[0]) == null or p == null or p.owner_id != v[1] or unit == "":
+			continue
+		var regiments := []
+		for i in v[3]:
+			regiments.append([unit, UnitTypes.get_type(unit).men, 0])
+		var a := add_army(v[0], p.id, regiments, false, "Spanish volunteers" if v[0] == "SPA" else "Volunteers")
+		a.volunteer_for = v[1]
+
+
+## In a civil war, the rebels: the side whose capital the other holds a core
+## on (the crown's land in revolt); if both, the defender.
+static func rebels_of(world: WorldState, a: String, b: String) -> String:
+	var ca := world.get_country(a)
+	var cb := world.get_country(b)
+	if world.claims.is_core(a, cb.capital_province_id) and not world.claims.is_core(b, ca.capital_province_id):
+		return b
+	if world.claims.is_core(b, ca.capital_province_id) and not world.claims.is_core(a, cb.capital_province_id):
+		return a
+	return b
+
+
+## A civil war: two countries of one culture, one holding a core on the
+## other's capital — rival claimants to one realm. Land taken in it is annexed.
+static func civil_war(world: WorldState, a: String, b: String) -> bool:
+	var ca := world.get_country(a)
+	var cb := world.get_country(b)
+	if ca == null or cb == null or ca.culture == "" or ca.culture != cb.culture:
+		return false
+	return world.claims.is_core(a, cb.capital_province_id) or world.claims.is_core(b, ca.capital_province_id)
 
 
 ## Docks at the home port and great coastal cities of these realms.
@@ -343,6 +423,21 @@ func _place_docks(world: WorldState, seafaring: Dictionary) -> void:
 		if seafaring.has(p.owner_id) and p.is_coastal and not p.sea_ids.is_empty() \
 				and p.development >= DOCK_CITY_DEVELOPMENT and not "dock" in p.buildings:
 			p.buildings.append("dock")
+
+
+## A save from before barracks: realms large enough for a standing army get
+## barracks at their capital, as at the start.
+func add_missing_barracks(world: WorldState) -> void:
+	var counts := {}
+	for p: Province in world.ownable_provinces():
+		if "barracks" in p.buildings:
+			return
+		if p.owner_id != "":
+			counts[p.owner_id] = counts.get(p.owner_id, 0) + 1
+	for tag: String in counts:
+		var cap := world.get_province(world.get_country(tag).capital_province_id)
+		if counts[tag] >= STANDING_MIN_PROVINCES and cap != null and cap.owner_id == tag:
+			cap.buildings.append("barracks")
 
 
 ## A save from before docks: the docks of the start, for every realm with a
@@ -466,7 +561,8 @@ func to_dict() -> Dictionary:
 	var sieged: Array = sieges.keys()
 	sieged.sort()
 	for id: int in sieged:
-		siege_rows.append([id, sieges[id].by, sieges[id].progress])
+		var s: Dictionary = sieges[id]
+		siege_rows.append([id, s.by, s.progress, int(s.get("phases", 0)), int(s.get("assault", -1))])
 	var raised: Array = levies_raised.keys()
 	raised.sort()
 	var pools := []
@@ -474,9 +570,19 @@ func to_dict() -> Dictionary:
 	pool_tags.sort()
 	for t: String in pool_tags:
 		pools.append([t, manpower[t]])
+	var crews := []
+	var crew_tags: Array = sailors.keys()
+	crew_tags.sort()
+	for t: String in crew_tags:
+		crews.append([t, sailors[t]])
+	var pressed_rows := []
+	var pressed_ids: Array = pressed.keys()
+	pressed_ids.sort()
+	for id: int in pressed_ids:
+		pressed_rows.append([id, pressed[id]])
 	return {"armies": rows, "next_id": next_id, "wars": wars.duplicate(true), "next_war": next_war,
 		"truces": truce_rows, "sieges": siege_rows, "recruiting": recruiting.duplicate(true), "levies": raised,
-		"manpower": pools}
+		"manpower": pools, "sailors": crews, "pressed": pressed_rows}
 
 
 static func check_dict(data: Variant, world: WorldState, known: Dictionary = {}) -> PackedStringArray:
@@ -493,7 +599,7 @@ static func check_dict(data: Variant, world: WorldState, known: Dictionary = {})
 	if not errors.is_empty():
 		return errors
 	for row: Variant in data.armies:
-		if not (row is Array and row.size() in [10, 12] and row[1] is String and countries.has(row[1])
+		if not (row is Array and row.size() in [10, 12, 13] and row[1] is String and countries.has(row[1])
 				and (row[4] is float or row[4] is int) and world.get_province(int(row[4])) != null and row[5] is Array):
 			errors.append("military: malformed army %s" % var_to_str(row).left(80))
 			continue
@@ -523,15 +629,22 @@ func load_dict(data: Dictionary) -> void:
 	wars = []
 	for w: Dictionary in data.wars:
 		wars.append({"id": int(w.id), "name": w.name, "attackers": Array(w.attackers), "defenders": Array(w.defenders),
-			"start": int(w.start), "battle_score": float(w.battle_score), "refused": Array(w.get("refused", []))})
+			"start": int(w.start), "battle_score": float(w.battle_score), "refused": Array(w.get("refused", [])),
+			"civil": bool(w.get("civil", false)), "rebels": str(w.get("rebels", "")),
+			"annexed": [float(w.get("annexed", [0, 0])[0]), float(w.get("annexed", [0, 0])[1])],
+			"tick": float(w.get("tick", 0.0))})
 	next_war = int(data.get("next_war", wars.size() + 1))
 	_index_dirty = true  # (saves from 20 Oct 2026 may hold a "retreat_steps" rule: no longer used)
+	wars_version += 1
 	truces = {}
 	for row: Array in data.truces:
 		truces[row[0]] = int(row[1])
 	sieges = {}
 	for row: Array in data.sieges:
-		sieges[int(row[0])] = {"by": row[1], "progress": float(row[2])}
+		# Older saves: [id, by, days] (fort sieges then took a set number of days).
+		var phases := int(row[3]) if row.size() > 3 else int(float(row[2]) / MilitarySystem.SIEGE_PHASE_DAYS)
+		sieges[int(row[0])] = {"by": row[1], "progress": float(row[2]), "phases": phases,
+			"assault": int(row[4]) if row.size() > 4 else -1}
 	recruiting = []
 	for row: Array in data.recruiting:
 		recruiting.append([row[0], int(row[1]), row[2], int(row[3])])
@@ -541,4 +654,10 @@ func load_dict(data: Dictionary) -> void:
 	manpower = {}
 	for row: Array in data.get("manpower", []):
 		manpower[row[0]] = float(row[1])
+	sailors = {}  # an older save without them: filled to the ceiling (see MilitarySystem)
+	for row: Array in data.get("sailors", []):
+		sailors[row[0]] = float(row[1])
+	pressed = {}
+	for row: Array in data.get("pressed", []):
+		pressed[int(row[0])] = int(row[1])
 	reset.emit()

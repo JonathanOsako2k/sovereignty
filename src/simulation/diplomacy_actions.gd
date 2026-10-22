@@ -80,7 +80,59 @@ func loyalty_reasons(subject: String) -> Array:
 	var ratio := strength(subject) / strength(overlord)
 	if ratio > 0.5:
 		reasons.append(["Nearly as strong (%d %% of its might)" % int(ratio * 100.0), -int((ratio - 0.5) * 100.0)])
+	var over := ties_over(overlord)
+	if over > 0:
+		reasons.append(["%s keeps %d ties beyond its rank" % [world.get_country(overlord).name, over],
+			Ranks.LOYALTY_PER_TIE_OVER * over])
 	return reasons
+
+
+# --- Ties and envoys (Ranks) -------------------------------------------------------
+
+## Envoys a country can send: its rank's.
+func envoys_max(tag: String) -> int:
+	var c := world.get_country(tag)
+	return Ranks.envoys(c.rank) if c else 0
+
+
+## Ties it may keep: its rank's.
+func ties_max(tag: String) -> int:
+	var c := world.get_country(tag)
+	return Ranks.ties_max(c.rank) if c else 0
+
+
+func ties(tag: String) -> int:
+	return Ranks.ties_of(diplomacy, tag).size()
+
+
+## Ties beyond its rank's limit.
+func ties_over(tag: String) -> int:
+	return maxi(ties(tag) - ties_max(tag), 0)
+
+
+## Why `tag` can take on no new tie ("" if it can). `us`: whether it is the
+## one asking (else it is named).
+func _ties_full(tag: String, us := true) -> String:
+	var n := ties(tag)
+	var most := ties_max(tag)
+	if n < most:
+		return ""
+	var c := world.get_country(tag)
+	if us:
+		return "Our envoys are stretched: %d ties, as many as a %s keeps" % [n, Ranks.name_of(c.rank).to_lower()]
+	return "%s keeps all the ties a %s can (%d)" % [c.name, Ranks.name_of(c.rank).to_lower(), most]
+
+
+## Why `from` cannot pay `to` this subsidy ("" if it can). A new subsidy is a
+## new tie; changing or stopping one is not.
+func subsidy_blocked(from: String, to: String, amount: int) -> String:
+	if world.get_country(from) == null or world.get_country(to) == null or from == to:
+		return "Not possible"
+	if amount <= 0 or diplomacy.subsidy(from, to) > 0:
+		return ""
+	if world.military.at_war(from, to):
+		return "We are at war"
+	return _ties_full(from)
 
 
 func loyalty(subject: String) -> int:
@@ -207,8 +259,9 @@ func blocked(action: Action, from: String, to: String, amount := -1) -> String:
 		Action.IMPROVE_RELATIONS:
 			if d.is_improving(from, to):
 				return "Our envoy is already at work"
-			if d.envoys_of(from).size() >= Diplomacy.ENVOYS:
-				return "All %d envoys are busy" % Diplomacy.ENVOYS
+			if d.envoys_of(from).size() >= envoys_max(from):
+				var n := envoys_max(from)
+				return "Our %s envoy%s busy" % ["one" if n == 1 else "%d" % n, " is" if n == 1 else "s are"]
 		Action.STOP_IMPROVING:
 			if not d.is_improving(from, to):
 				return "No envoy is there"
@@ -254,6 +307,10 @@ func blocked(action: Action, from: String, to: String, amount := -1) -> String:
 				return "Already allies"
 			if d.are_rivals(from, to):
 				return "We are rivals"
+			if _ties_full(from) != "":
+				return _ties_full(from)
+			if _ties_full(to, false) != "":
+				return _ties_full(to, false)
 		Action.BREAK_ALLIANCE:
 			if not d.is_allied(from, to):
 				return "Not allies"
@@ -270,6 +327,10 @@ func blocked(action: Action, from: String, to: String, amount := -1) -> String:
 				return "Already joined by marriage"
 			if d.are_rivals(from, to):
 				return "We are rivals"
+			if _ties_full(from) != "":
+				return _ties_full(from)
+			if _ties_full(to, false) != "":
+				return _ties_full(to, false)
 		Action.BREAK_MARRIAGE:
 			if not d.are_married(from, to):
 				return "No royal marriage"
@@ -286,6 +347,8 @@ func blocked(action: Action, from: String, to: String, amount := -1) -> String:
 				return "%s is not weaker than us" % name
 			if d.are_rivals(from, to):
 				return "We are rivals"
+			if _ties_full(from) != "":
+				return _ties_full(from)
 		Action.RELEASE_SUBJECT:
 			if d.overlord_of(to) != from:
 				return "Not our subject"
